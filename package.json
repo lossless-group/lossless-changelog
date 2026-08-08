@@ -1,0 +1,23 @@
+{
+  "name": "lossless-changelog",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lfm:local": "node scripts/lfm-mode.mjs local",
+    "lfm:jsr": "node scripts/lfm-mode.mjs jsr",
+    "lfm:auto": "node scripts/lfm-mode.mjs auto"
+  },
+  "dependencies": {
+    "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@latest",
+    "astro": "^7.1.6",
+    "mdast-util-to-string": "^4.0.0",
+    "yaml": "^2.9.0"
+  }
+}
