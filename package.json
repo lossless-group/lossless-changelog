@@ -12,7 +12,8 @@
     "astro": "astro",
     "lfm:local": "node scripts/lfm-mode.mjs local",
     "lfm:jsr": "node scripts/lfm-mode.mjs jsr",
-    "lfm:auto": "node scripts/lfm-mode.mjs auto"
+    "lfm:auto": "node scripts/lfm-mode.mjs auto",
+    "sync": "node scripts/sync-streams.mjs"
   },
   "dependencies": {
     "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@latest",

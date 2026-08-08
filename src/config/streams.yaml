@@ -1,0 +1,334 @@
+# Changelog streams aggregated by this site.
+#
+# Every stream is declared EXPLICITLY. Nothing is discovered automatically —
+# that is what keeps rolled-up content out (see the spec in
+# context-v/specs/Aggregate-Changelog-Streams-Across-the-Lossless-Tree-via-the-GitHub-API.md).
+#
+# Fields:
+#   slug    stable URL segment + dedupe key. Never reuse, never rename casually.
+#   repo    owner/name on GitHub.
+#   ref     REQUIRED. Never inferred from default_branch — for several repos the
+#           default branch has no changelog/ at all.
+#   path    directory holding the entries. "" means repo root.
+#   parent  slug of the parent stream, or null for a tree root.
+#           altitude is DERIVED from depth: 1=fleet, 2=product, 3=component.
+#   shape   root-dir | nested-path | submodule-ref | standalone-repo
+#           Asserted at sync time: a mismatch is a loud error, not an empty stream.
+#   title   display name.
+#
+# `n` comments are a 2026-08-08 snapshot proving the stream resolves. They are
+# not authoritative and are not rendered anywhere.
+
+streams:
+  # ── fleet ──────────────────────────────────────────────────────────────────
+  - slug: astro-knots
+    repo: lossless-group/astro-knots
+    ref: master
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Astro Knots                          # n=12
+
+  - slug: ai-labs
+    repo: lossless-group/lossless-ai-labs
+    ref: main
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: AI Labs                              # n=12
+
+  - slug: content-farm
+    repo: lossless-group/content-farm
+    ref: main
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Content Farm                         # n=7
+
+  # ── standalone roots (no parent in the tree) ───────────────────────────────
+  - slug: self-host-stack
+    repo: lossless-group/vc-self-host-stack
+    ref: main
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Self-Host Stack                      # n=13
+
+  - slug: lfm
+    repo: lossless-group/lossless-flavored-markdown-package
+    ref: main
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Lossless Flavored Markdown           # n=6
+
+  - slug: lossless-site
+    repo: lossless-group/lossless-site
+    ref: master
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Lossless Site                        # n=1
+
+  - slug: neo
+    repo: lossless-group/changelog-neo
+    ref: main
+    path: ""
+    parent: null
+    shape: standalone-repo
+    title: Neo                                  # n=1
+
+  - slug: parslee
+    repo: lossless-group/changelog-parslee
+    ref: main
+    path: ""
+    parent: null
+    shape: standalone-repo
+    title: Parslee                              # n=0 — declared, empty upstream
+    enabled: false
+
+  # ── astro-knots sites ──────────────────────────────────────────────────────
+  - slug: fullstack-vc
+    repo: lossless-group/fullstack-vc
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Fullstack VC                         # n=25
+
+  - slug: banner-site
+    repo: lossless-group/emblem-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Banner Site                          # n=12
+
+  - slug: hypernova-site
+    repo: lossless-group/hypernova-site
+    ref: master
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Hypernova                            # n=6
+
+  - slug: twf-site
+    repo: lossless-group/the-water-foundation-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: The Water Foundation                 # n=5
+
+  - slug: arthouse-site
+    repo: lossless-group/arthouse-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Arthouse                             # n=4
+
+  - slug: learnstart-site
+    repo: lossless-group/learnstart-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: LearnStart                           # n=3
+
+  - slug: cilantro-site
+    repo: lossless-group/cilantro-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Cilantro                             # n=2 — see spec open question 3
+
+  - slug: cogs-site
+    repo: lossless-group/cogs-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Cogs                                 # n=2
+
+  - slug: mpstaton-site
+    repo: lossless-group/mpstaton-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: MP Staton                            # n=2
+
+  - slug: coglet-shuffle
+    repo: lossless-group/steampunk-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Coglet Shuffle                       # n=1
+
+  - slug: dark-matter
+    repo: lossless-group/changelog_matter-site
+    ref: main
+    path: ""
+    parent: astro-knots
+    shape: submodule-ref                        # matter-site/changelog IS a submodule
+    title: Dark Matter                          # n=25
+
+  # ── ai-labs children ───────────────────────────────────────────────────────
+  - slug: augment-it
+    repo: lossless-group/augment-it
+    ref: rebuild/turbo-rsbuild                  # sole branch carrying changelog — spec Q2
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: Augment It                           # n=94
+
+  - slug: dididecks-ai
+    repo: lossless-group/dididecks-ai
+    ref: development
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: DidiDecks AI                         # n=16
+
+  - slug: id-didi-sh
+    repo: lossless-group/id-didi-sh
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: id.didi.sh                           # n=7
+
+  - slug: context-vigilance-kit
+    repo: lossless-group/context-vigilance-kit
+    ref: master
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: Context Vigilance Kit                # n=6
+
+  - slug: memopop-ai
+    repo: lossless-group/memopop-ai
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: MemoPop AI                           # n=5
+
+  - slug: corpora-builder
+    repo: lossless-group/corpora-builder
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: Corpora Builder                      # n=1
+
+  # ── memopop-ai components (depth 3) ────────────────────────────────────────
+  # memopop-native and memopop-site share the memopop-ai repo at different
+  # paths. Sync cursors key on stream, not repo, or one would starve the others.
+  - slug: memopop-orchestrator
+    repo: lossless-group/investment-memo-orchestrator
+    ref: main
+    path: changelog/
+    parent: memopop-ai
+    shape: submodule-ref
+    title: Investment Memo Orchestrator         # n=71
+
+  - slug: memopop-native
+    repo: lossless-group/memopop-ai
+    ref: main
+    path: apps/memopop-native/changelog/
+    parent: memopop-ai
+    shape: nested-path
+    title: MemoPop Native                       # n=6
+
+  - slug: memopop-site
+    repo: lossless-group/memopop-ai
+    ref: main
+    path: apps/memopop-site/changelog/
+    parent: memopop-ai
+    shape: nested-path
+    title: MemoPop Site                         # n=3
+
+  # ── content-farm plugin modules ────────────────────────────────────────────
+  - slug: perplexed
+    repo: lossless-group/perplexed-plugin
+    ref: main
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Perplexed                            # n=13
+
+  - slug: cite-wide
+    repo: lossless-group/cite-wide
+    ref: master
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Cite Wide                            # n=9
+
+  - slug: image-gin
+    repo: lossless-group/image-gin
+    ref: master
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Image Gin                            # n=7
+
+  - slug: lmstud-yo
+    repo: lossless-group/lmstud-yo
+    ref: development
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: LMStud-yo                            # n=3
+
+  - slug: plunk-it
+    repo: lossless-group/plunk-it
+    ref: development
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Plunk It                             # n=2
+
+  - slug: filestarter
+    repo: lossless-group/obsidian-plugin-starter
+    ref: development
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Filestarter                          # n=2
+
+  - slug: file-transporter
+    repo: lossless-group/google-docs-api-plugin
+    ref: development
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: File Transporter                     # n=2
+
+  - slug: grab-reference
+    repo: lossless-group/grab-reference
+    ref: development
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Grab Reference                       # n=1
+
+  - slug: image-wrangler
+    repo: lossless-group/ai-image-wrangler-obsidian-plugin
+    ref: development
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Image Wrangler                       # n=1
+
+  - slug: metafetch
+    repo: lossless-group/metafetch
+    ref: master
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Metafetch                            # n=1
