@@ -42,6 +42,21 @@ const { stream, entries, commits, span, count, kid = false } = Astro.props;
       </svg>
     </a>
 
+    {stream.website && (
+      /* The live product on its own domain. A globe, because that is what a
+         globe has always meant — which is exactly why the splash below cannot
+         also be one. */
+      <a class="ico ico--site" href={stream.website} rel="noreferrer"
+         aria-label={`${stream.title} website`} title={stream.website.replace(/^https?:\/\//, "")}>
+        <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.4">
+          <circle cx="8" cy="8" r="6.3" />
+          <ellipse cx="8" cy="8" rx="2.6" ry="6.3" />
+          <path d="M1.9 5.9h12.2M1.9 10.1h12.2" />
+        </svg>
+      </a>
+    )}
+
     {stream.splash && (
       /* A splash is the project's own public page. The glyph is a browser
          window rather than a globe — a globe would read as "the product's
@@ -110,6 +125,10 @@ const { stream, entries, commits, span, count, kid = false } = Astro.props;
   .ico:focus-visible { opacity: 1; color: var(--color-primary); }
   .ico--splash:hover,
   .ico--splash:focus-visible { color: var(--color-accent); }
+  /* A live site is the loudest of the three, so it gets the warm end of the
+     brand rather than another cool accent. */
+  .ico--site:hover,
+  .ico--site:focus-visible { color: var(--color-warn); }
   @media (prefers-reduced-motion: reduce) {
     .ico { transition: none; }
   }

@@ -28,8 +28,10 @@ export interface StreamDef {
   parent: string | null;
   shape: string;
   title: string;
-  /** Public splash page, when the project has one. Optional by nature. */
+  /** Repo-level splash page — a page ABOUT the work. Optional by nature. */
   splash?: string;
+  /** The live product on its real domain. Distinct from a splash; some have both. */
+  website?: string;
   enabled?: boolean;
 }
 

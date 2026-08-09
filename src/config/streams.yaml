@@ -15,6 +15,10 @@
 #   shape   root-dir | nested-path | submodule-ref | standalone-repo
 #           Asserted at sync time: a mismatch is a loud error, not an empty stream.
 #   title   display name.
+#   splash  optional. The project's own splash page (GitHub Pages) — a page
+#           ABOUT the work, generated from changelog/ and context-v/.
+#   website optional. The live product on its real domain. A different thing
+#           from a splash, and several projects have both.
 #
 # `n` comments are a 2026-08-08 snapshot proving the stream resolves. They are
 # not authoritative and are not rendered anywhere.
@@ -99,6 +103,7 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    website: https://fullstack-vc.com
     title: Fullstack VC                         # n=25
 
   - slug: banner-site
@@ -115,6 +120,7 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    website: https://hypernova.capital
     title: Hypernova                            # n=6
 
   - slug: twf-site
@@ -123,6 +129,7 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    website: https://the-water-foundation.com
     title: The Water Foundation                 # n=5
 
   - slug: arthouse-site
@@ -139,6 +146,7 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    website: https://learnstart.vc
     title: LearnStart                           # n=3
 
   - slug: cilantro-site
@@ -163,6 +171,7 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    website: https://mpstaton.com
     title: MP Staton                            # n=2
 
   - slug: coglet-shuffle
