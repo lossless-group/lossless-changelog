@@ -13,7 +13,8 @@
     "lfm:local": "node scripts/lfm-mode.mjs local",
     "lfm:jsr": "node scripts/lfm-mode.mjs jsr",
     "lfm:auto": "node scripts/lfm-mode.mjs auto",
-    "sync": "node scripts/sync-streams.mjs"
+    "sync": "node scripts/sync-streams.mjs",
+    "sync:commits": "node scripts/sync-commits.mjs"
   },
   "dependencies": {
     "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@latest",

@@ -4,6 +4,7 @@ import EntryRow from "../../../components/EntryRow.astro";
 import LedgerStrip from "../../../components/LedgerStrip.astro";
 import { getStreams, getStream, getEntries, getSubtreeEntries, getAllEntries } from "../../../lib/streams";
 import { spanOf, colorFor } from "../../../lib/era";
+import { globalWeeks, statsForSubtree } from "../../../lib/commits";
 
 export function getStaticPaths() {
   return getStreams().map((s) => ({ params: { slug: s.slug } }));
@@ -24,7 +25,12 @@ const shown = subtree;
 // every other stream's and with the one on the home page. Scaling each strip
 // to its own extent would make a project with three entries look as busy as
 // one with ninety.
-const span = spanOf(getAllEntries().map((e) => e.date));
+const span = spanOf([
+  ...getAllEntries().map((e) => e.date),
+  ...globalWeeks.map((w) => new Date(w.w * 1000)),
+]);
+
+const code = statsForSubtree(stream);
 ---
 <BaseLayout
   title={stream.title}
@@ -51,7 +57,13 @@ const span = spanOf(getAllEntries().map((e) => e.date));
 
   {subtree.length > 0 && (
     <div class="strip">
-      <LedgerStrip entries={subtree} span={span} />
+      <LedgerStrip entries={subtree} span={span} commits={code.weeks} />
+      {code.commits > 0 && (
+        <p class="code-stats">
+          {code.commits.toLocaleString()} commits · +{code.additions.toLocaleString()} lines
+          {stream.children.length > 0 && " across this project and its sub-projects"}
+        </p>
+      )}
     </div>
   )}
 
@@ -118,9 +130,15 @@ const span = spanOf(getAllEntries().map((e) => e.date));
 
   .strip {
     margin: 0 calc(50% - 50vw) 1.75rem;
-    padding: 1.1rem max(1.25rem, calc(50vw - var(--shell) / 2)) 0.5rem;
+    padding: 1.1rem max(1.25rem, calc(50vw - var(--shell) / 2)) 0.7rem;
     border-block: 1px solid var(--color-border);
     background: var(--color-surface-alt);
+  }
+  .code-stats {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
   }
   .src { margin: 0; font-size: 0.82rem; color: var(--color-text-faint); display: flex; gap: 0.5rem; align-items: center; }
   .ref { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.05rem 0.35rem; border-radius: var(--radius); background: var(--color-surface-alt); }

@@ -15,16 +15,19 @@
  * crisp at any width, and the whole thing scales with preserveAspectRatio.
  */
 import type { Entry } from "../lib/streams";
+import type { Week } from "../lib/commits";
 import { spanOf, positionIn, colorFor, type TimeSpan } from "../lib/era";
 
 interface Props {
   entries: Entry[];
   /** Shared span, so a stream page's strip aligns with the global one. */
   span?: TimeSpan;
+  /** Weekly commit volume, drawn as an area beneath the entry marks. */
+  commits?: Week[];
   height?: number;
   compact?: boolean;
 }
-const { entries, span: spanProp, height = 116, compact = false } = Astro.props;
+const { entries, span: spanProp, commits = [], height = 116, compact = false } = Astro.props;
 
 const dated = entries.filter((e) => e.date);
 const span = spanProp ?? spanOf(dated.map((e) => e.date));
@@ -58,6 +61,35 @@ const marks = [...buckets.values()].map((b) => {
   };
 });
 
+/**
+ * Commit volume as a filled area under the marks. Two series on one axis:
+ * the area is what we BUILT, the hairlines are what we WROTE DOWN. Where the
+ * area rises with no hairline above it, code shipped and nobody logged it —
+ * which is the point of drawing them together rather than side by side.
+ *
+ * Deliberately quiet: a low-opacity fill in a single neutral, so it reads as
+ * ground the entries stand on rather than a second competing chart.
+ */
+const activeCommits = commits.filter((w) => w.commits > 0);
+const maxC = Math.max(1, ...activeCommits.map((w) => w.commits));
+const areaH = H - PAD * 2;
+
+let areaPath = "";
+if (activeCommits.length > 1) {
+  const pts = activeCommits.map((w) => {
+    const t = positionIn(span, new Date(w.w * 1000));
+    const x = PAD + Math.min(Math.max(t, 0), 1) * (W - PAD * 2);
+    // sqrt for the same reason the marks use it — one 200-commit week would
+    // otherwise flatten every ordinary week into the baseline.
+    const y = H - PAD - Math.sqrt(w.commits / maxC) * areaH;
+    return [x, y] as const;
+  });
+  areaPath =
+    `M ${pts[0][0].toFixed(1)} ${H - PAD} ` +
+    pts.map(([x, y]) => `L ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") +
+    ` L ${pts[pts.length - 1][0].toFixed(1)} ${H - PAD} Z`;
+}
+
 // Axis furniture: interior year boundaries only. A January 1st before the
 // corpus starts is not a tick — it would sit off the left edge and imply the
 // record goes back further than it does.
@@ -82,6 +114,7 @@ const endLabel = monthYear(span.max);
 <figure class="ledger" data-compact={compact ? "" : undefined}>
   <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img"
        aria-label={`Shipping cadence: ${dated.length} entries between ${new Date(span.min).toISOString().slice(0, 10)} and ${new Date(span.max).toISOString().slice(0, 10)}`}>
+    {areaPath && <path d={areaPath} class="commits" />}
     {!compact && years.map((y) => (
       <line x1={y.x} x2={y.x} y1={0} y2={H} class="tick" />
     ))}
@@ -113,6 +146,11 @@ const endLabel = monthYear(span.max);
   .ledger[data-compact] svg { height: 26px; }
 
   .tick { stroke: var(--color-border); stroke-width: 1; }
+
+  /* Ground, not figure. One neutral fill at low opacity so the coloured
+     entry marks stay the thing you read. */
+  .commits { fill: var(--color-text); opacity: 0.09; }
+  .ledger:hover .commits { opacity: 0.14; }
 
   rect { transition: opacity 0.15s ease; }
   .ledger:hover rect { opacity: 0.45; }

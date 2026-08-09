@@ -4,11 +4,20 @@ import EntryRow from "../components/EntryRow.astro";
 import LedgerStrip from "../components/LedgerStrip.astro";
 import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/streams";
 import { spanOf, colorFor } from "../lib/era";
+import { globalWeeks, globalTotals, statsForSubtree, silentWeeks } from "../lib/commits";
 
 const roots = getRoots();
 const all = getAllEntries();
 const recent = all.slice(0, 30);
-const span = spanOf(all.map((e) => e.date));
+
+// The span covers BOTH series, so the commit area is never clipped by the
+// changelog's extent — the record starts whenever the first of either began.
+const span = spanOf([
+  ...all.map((e) => e.date),
+  ...globalWeeks.map((w) => new Date(w.w * 1000)),
+]);
+
+const silent = silentWeeks(all.map((e) => e.date));
 
 const dated = all.filter((e) => e.date);
 const first = dated.length ? dated[dated.length - 1].date! : null;
@@ -39,7 +48,16 @@ const fmt = (d: Date | null) =>
   </section>
 
   <section class="strip">
-    <LedgerStrip entries={all} span={span} />
+    <LedgerStrip entries={all} span={span} commits={globalWeeks} />
+    <dl class="legend">
+      <div><dt>Commits</dt><dd>{globalTotals.commits.toLocaleString()}</dd></div>
+      <div><dt>Lines added</dt><dd>{(globalTotals.additions / 1_000_000).toFixed(1)}M</dd></div>
+      <div><dt>Entries</dt><dd>{totals.entries}</dd></div>
+      <div class="silent">
+        <dt>Weeks shipped, unwritten</dt>
+        <dd>{silent.weeks} <span>· {silent.commits.toLocaleString()} commits</span></dd>
+      </div>
+    </dl>
   </section>
 
   <section class="fleet">
@@ -49,7 +67,7 @@ const fmt = (d: Date | null) =>
         <li class="root">
           <a class="row" href={`/stream/${root.slug}/`}>
             <span class="name">{root.title}</span>
-            <span class="spark"><LedgerStrip entries={getSubtreeEntries(root.slug)} span={span} compact /></span>
+            <span class="spark"><LedgerStrip entries={getSubtreeEntries(root.slug)} span={span} commits={statsForSubtree(root).weeks} compact /></span>
             <span class="n">{root.totalCount}</span>
           </a>
           {root.children.length > 0 && (
@@ -58,7 +76,7 @@ const fmt = (d: Date | null) =>
                 <li>
                   <a class="row row--kid" href={`/stream/${child.slug}/`}>
                     <span class="name">{child.title}</span>
-                    <span class="spark"><LedgerStrip entries={getSubtreeEntries(child.slug)} span={span} compact /></span>
+                    <span class="spark"><LedgerStrip entries={getSubtreeEntries(child.slug)} span={span} commits={statsForSubtree(child).weeks} compact /></span>
                     <span class="n">{child.ownCount}</span>
                   </a>
                   {child.children.length > 0 && (
@@ -67,7 +85,7 @@ const fmt = (d: Date | null) =>
                         <li>
                           <a class="row row--kid" href={`/stream/${g.slug}/`}>
                             <span class="name">{g.title}</span>
-                            <span class="spark"><LedgerStrip entries={getSubtreeEntries(g.slug)} span={span} compact /></span>
+                            <span class="spark"><LedgerStrip entries={getSubtreeEntries(g.slug)} span={span} commits={statsForSubtree(g).weeks} compact /></span>
                             <span class="n">{g.ownCount}</span>
                           </a>
                         </li>
@@ -137,6 +155,19 @@ const fmt = (d: Date | null) =>
     padding-block: 1.1rem 0.5rem;
     background: var(--color-surface-alt);
   }
+
+  /* Legend states what the two series ARE. The strip is unlabelled otherwise,
+     so this is the only place the reader learns area = commits. */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0 2.25rem;
+    margin: 0.9rem 0 0; padding: 0;
+    font-family: var(--font-mono);
+  }
+  .legend div { display: flex; align-items: baseline; gap: 0.5rem; }
+  .legend dt { font-size: var(--text-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); }
+  .legend dd { margin: 0; font-size: var(--text-sm); color: var(--color-text); font-variant-numeric: tabular-nums; }
+  .legend .silent dd { color: var(--color-warn); }
+  .legend .silent dd span { color: var(--color-text-faint); }
 
   /* ── project ledger ── */
   h2.eyebrow { margin: 0 0 0.6rem; }
