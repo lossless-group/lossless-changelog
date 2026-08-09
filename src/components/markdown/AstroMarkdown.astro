@@ -54,71 +54,45 @@ function childrenOf(n: any): any[] {
 
 {type === "heading" && (() => {
   const heading = node as Heading;
-  const text = toString(heading);
-  const id = text
+  const level = Math.min(Math.max(heading.depth ?? 1, 1), 6);
+  const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
+  // The anchor id comes from LFM's remark-heading-ids (>= 0.4.0), which is the
+  // ONLY place it should be computed. Every site used to inline its own
+  // slugifier and they disagreed — astro-knots stripped underscores and never
+  // trimmed dashes, lossless/site kept them — so the same heading produced
+  // different fragment URLs depending on which site rendered it, and nothing
+  // deduped collisions. See lfm/context-v/Maintain-Heading-Anchors-and-Share-Links.md
+  //
+  // The fallback keeps this component renderable against an older LFM rather
+  // than emitting headings with no id at all. It is deliberately the LFM
+  // algorithm, not the old astro-knots one, so the two agree where they can.
+  const fallback = toString(heading)
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
+    .replace(/\.[a-z0-9]+$/, "")
+    .replace(/[^a-z0-9\s\-_]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-{3,}/g, "--")
+    .replace(/^-+|-+$/g, "");
 
-  const level = heading.depth ?? 1;
-
-  if (level === 1) {
-    return (
-      <h1 id={id}>
-        {childrenOf(node).map((child) => (
-          <Astro.self node={child} data={data} />
-        ))}
-      </h1>
-    );
-  }
-
-  if (level === 2) {
-    return (
-      <h2 id={id}>
-        {childrenOf(node).map((child) => (
-          <Astro.self node={child} data={data} />
-        ))}
-      </h2>
-    );
-  }
-
-  if (level === 3) {
-    return (
-      <h3 id={id}>
-        {childrenOf(node).map((child) => (
-          <Astro.self node={child} data={data} />
-        ))}
-      </h3>
-    );
-  }
-
-  if (level === 4) {
-    return (
-      <h4 id={id}>
-        {childrenOf(node).map((child) => (
-          <Astro.self node={child} data={data} />
-        ))}
-      </h4>
-    );
-  }
-
-  if (level === 5) {
-    return (
-      <h5 id={id}>
-        {childrenOf(node).map((child) => (
-          <Astro.self node={child} data={data} />
-        ))}
-      </h5>
-    );
-  }
+  const id = (heading.data as any)?.id ?? fallback;
+  const label = (heading.data as any)?.headingText ?? toString(heading);
 
   return (
-    <h6 id={id}>
+    <Tag id={id} class="lfm-heading">
       {childrenOf(node).map((child) => (
         <Astro.self node={child} data={data} />
       ))}
-    </h6>
+      {/* Anchor works with JS off; the copy affordance upgrades it. */}
+      <a class="lfm-heading__anchor" href={`#${id}`} aria-label={`Link to “${label}”`}
+         data-share-heading={id}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
+          <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
+        </svg>
+      </a>
+    </Tag>
   );
 })()}
 

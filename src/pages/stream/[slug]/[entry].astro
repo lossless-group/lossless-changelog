@@ -72,6 +72,34 @@ const citations = (tree as any).data?.citations?.ordered ?? [];
   .prose :global(li) { margin-block: 0.25rem; }
   .prose :global(h2) { margin-top: 2rem; font-size: 1.3rem; letter-spacing: -0.01em; }
   .prose :global(h3) { margin-top: 1.5rem; font-size: 1.08rem; }
+
+  /* Heading anchors — ids come from LFM's remark-heading-ids, the link is
+     rendered by AstroMarkdown, the reveal-and-copy behaviour lives here. */
+  .prose :global(.lfm-heading) { position: relative; scroll-margin-top: 5rem; }
+  .prose :global(.lfm-heading__anchor) {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    color: var(--color-text-faint);
+    opacity: 0;
+    transition: opacity 0.12s ease, color 0.12s ease;
+  }
+  .prose :global(.lfm-heading:hover .lfm-heading__anchor),
+  .prose :global(.lfm-heading__anchor:focus-visible) { opacity: 1; }
+  .prose :global(.lfm-heading__anchor:hover) { color: var(--color-primary); text-decoration: none; }
+  /* Touch has no hover — always show, dimmed. */
+  @media (hover: none) {
+    .prose :global(.lfm-heading__anchor) { opacity: 0.5; }
+  }
+  .prose :global(.lfm-heading__anchor[data-copied])::after {
+    content: "Copied";
+    margin-left: 0.35rem;
+    font-size: 0.68rem;
+    color: var(--color-primary);
+  }
+  /* Briefly mark the heading you landed on. */
+  .prose :global(.lfm-heading:target) { color: var(--color-heading); }
   /* Fenced blocks are owned entirely by CodeBlock.astro — styling `pre` here
      too would fight its scoped rules and re-introduce a second frame. Only
      bare `pre` outside a code block (rare, from raw HTML) needs anything. */
@@ -99,3 +127,23 @@ const citations = (tree as any).data?.citations?.ordered ?? [];
   .tags { list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0; margin: 0 0 0.75rem; }
   .tags li { font-size: 0.72rem; padding: 0.1rem 0.4rem; border-radius: var(--radius); background: var(--color-surface-alt); }
 </style>
+
+<script>
+  // Progressive upgrade: the anchor already navigates without JS. Here we also
+  // copy the absolute URL, which is what makes it a share affordance.
+  document.querySelectorAll<HTMLAnchorElement>("[data-share-heading]").forEach((a) => {
+    a.addEventListener("click", async (ev) => {
+      const url = new URL(a.getAttribute("href")!, location.href).toString();
+      try {
+        await navigator.clipboard.writeText(url);
+        ev.preventDefault();
+        history.replaceState(null, "", a.getAttribute("href")!);
+        a.setAttribute("data-copied", "");
+        setTimeout(() => a.removeAttribute("data-copied"), 1400);
+      } catch {
+        // Clipboard blocked (insecure context, denied permission) — fall
+        // through to the default anchor navigation rather than doing nothing.
+      }
+    });
+  });
+</script>
