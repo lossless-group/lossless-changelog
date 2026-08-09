@@ -1,0 +1,106 @@
+---
+/**
+ * Which model was doing the work, week by week.
+ *
+ * Sits directly beneath the ledger strip and shares its x-axis, so the three
+ * series stack into one reading: what we built (the area), what we wrote down
+ * (the marks), and what we were building WITH (this band).
+ *
+ * Colour encodes family, not recency — the temporal ramp already owns time,
+ * and reusing it here would say two different things with one vocabulary. The
+ * families draw from the brand spectrum, which was otherwise unused.
+ *
+ * Gaps are honest: a week with no augmented entry draws nothing rather than
+ * being interpolated from its neighbours. Absence of record is not evidence.
+ */
+import type { Entry } from "../lib/streams";
+import { positionIn, type TimeSpan } from "../lib/era";
+import { weeklyDominant, erasFrom } from "../lib/models";
+
+interface Props {
+  entries: Entry[];
+  span: TimeSpan;
+}
+const { entries, span } = Astro.props;
+
+const weeks = weeklyDominant(entries);
+const eras = erasFrom(entries);
+
+const W = 1000;
+const PAD = 14;
+const WEEK_MS = 604_800_000;
+
+// A week occupies a real slice of the axis, so segments butt against each
+// other and the band reads as continuous where the work was continuous.
+const segs = weeks.map((wk) => {
+  const t0 = positionIn(span, new Date(wk.week * 1000));
+  const t1 = positionIn(span, new Date(wk.week * 1000 + WEEK_MS));
+  const x = PAD + Math.min(Math.max(t0, 0), 1) * (W - PAD * 2);
+  const x1 = PAD + Math.min(Math.max(t1, 0), 1) * (W - PAD * 2);
+  return { x, w: Math.max(1.5, x1 - x), family: wk.family, label: wk.label, n: wk.n };
+});
+
+// Only label eras substantial enough to read; the rest live in the tooltip.
+const notable = eras.filter((e) => e.count >= 8);
+---
+
+<figure class="band">
+  <svg viewBox={`0 0 ${W} 10`} preserveAspectRatio="none" role="img"
+       aria-label={`Model in use over time: ${eras.map((e) => e.label).join(", ")}`}>
+    {segs.map((s) => (
+      <rect x={s.x} y="0" width={s.w} height="10" data-family={s.family}>
+        <title>{s.label} · {s.n} {s.n === 1 ? "entry" : "entries"} that week</title>
+      </rect>
+    ))}
+  </svg>
+
+  <figcaption>
+    <span class="lede">Built with</span>
+    <ul>
+      {notable.map((e) => (
+        <li data-family={e.family}>
+          <span class="dot"></span>{e.label}
+          <span class="n">{e.count}</span>
+        </li>
+      ))}
+    </ul>
+  </figcaption>
+</figure>
+
+<style>
+  .band { margin: 0.55rem 0 0; }
+  .band svg { display: block; width: 100%; height: 10px; border-radius: 2px; overflow: hidden; }
+
+  rect { transition: opacity 0.15s ease; }
+  .band:hover rect { opacity: 0.5; }
+  .band rect:hover { opacity: 1; }
+
+  /* Family colours from the brand spectrum. */
+  rect[data-family="opus"]   { fill: var(--color__purple-heart); }
+  rect[data-family="sonnet"] { fill: var(--color__mystic-turquoise); }
+  rect[data-family="fable"]  { fill: var(--color__porsche-orange); }
+  rect[data-family="haiku"]  { fill: var(--color__algae-green); }
+
+  figcaption {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.85rem;
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+  .lede { letter-spacing: 0.14em; text-transform: uppercase; }
+
+  figcaption ul { display: flex; flex-wrap: wrap; gap: 0.4rem 0.85rem; list-style: none; margin: 0; padding: 0; }
+  figcaption li { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--color-text-muted); }
+  .dot { width: 7px; height: 7px; border-radius: 2px; display: inline-block; }
+  li[data-family="opus"]   .dot { background: var(--color__purple-heart); }
+  li[data-family="sonnet"] .dot { background: var(--color__mystic-turquoise); }
+  li[data-family="fable"]  .dot { background: var(--color__porsche-orange); }
+  li[data-family="haiku"]  .dot { background: var(--color__algae-green); }
+  .n { color: var(--color-text-faint); font-variant-numeric: tabular-nums; }
+
+  @media (prefers-reduced-motion: reduce) { rect { transition: none; } }
+</style>

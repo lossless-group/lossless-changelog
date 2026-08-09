@@ -4,7 +4,9 @@ import EntryRow from "../components/EntryRow.astro";
 import LedgerStrip from "../components/LedgerStrip.astro";
 import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/streams";
 import { spanOf, colorFor } from "../lib/era";
-import { globalWeeks, globalTotals, statsForSubtree, silentWeeks } from "../lib/commits";
+import ModelBand from "../components/ModelBand.astro";
+import { globalWeeks, globalTotals, statsForSubtree } from "../lib/commits";
+import { augmentationRate } from "../lib/models";
 
 const roots = getRoots();
 const all = getAllEntries();
@@ -17,7 +19,7 @@ const span = spanOf([
   ...globalWeeks.map((w) => new Date(w.w * 1000)),
 ]);
 
-const silent = silentWeeks(all.map((e) => e.date));
+const aug = augmentationRate(all);
 
 const dated = all.filter((e) => e.date);
 const first = dated.length ? dated[dated.length - 1].date! : null;
@@ -41,22 +43,23 @@ const fmt = (d: Date | null) =>
       we <em>shipped</em>.
     </h1>
     <p class="thesis">
-      {totals.entries} entries from {totals.streams} projects, {fmt(first)} to {fmt(latest)}.
-      Each mark below is a day we shipped — pulled from every repository's own
-      <code>changelog/</code> and merged into one record.
+      {globalTotals.commits.toLocaleString()} commits and
+      {" "}{(globalTotals.additions / 1_000_000).toFixed(1)}M lines across
+      {" "}{globalTotals.repos} repositories, {fmt(first)} to {fmt(latest)} —
+      mostly one person and a rotating cast of frontier models. The marks are
+      the days we wrote it down.
     </p>
   </section>
 
   <section class="strip">
     <LedgerStrip entries={all} span={span} commits={globalWeeks} />
+    <ModelBand entries={all} span={span} />
     <dl class="legend">
       <div><dt>Commits</dt><dd>{globalTotals.commits.toLocaleString()}</dd></div>
       <div><dt>Lines added</dt><dd>{(globalTotals.additions / 1_000_000).toFixed(1)}M</dd></div>
+      <div><dt>Repos</dt><dd>{globalTotals.repos}</dd></div>
       <div><dt>Entries</dt><dd>{totals.entries}</dd></div>
-      <div class="silent">
-        <dt>Weeks shipped, unwritten</dt>
-        <dd>{silent.weeks} <span>· {silent.commits.toLocaleString()} commits</span></dd>
-      </div>
+      <div><dt>Agent-augmented</dt><dd>{aug.pct}%</dd></div>
     </dl>
   </section>
 
@@ -166,8 +169,6 @@ const fmt = (d: Date | null) =>
   .legend div { display: flex; align-items: baseline; gap: 0.5rem; }
   .legend dt { font-size: var(--text-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); }
   .legend dd { margin: 0; font-size: var(--text-sm); color: var(--color-text); font-variant-numeric: tabular-nums; }
-  .legend .silent dd { color: var(--color-warn); }
-  .legend .silent dd span { color: var(--color-text-faint); }
 
   /* ── project ledger ── */
   h2.eyebrow { margin: 0 0 0.6rem; }
