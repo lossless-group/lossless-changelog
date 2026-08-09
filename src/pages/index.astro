@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import EntryRow from "../components/EntryRow.astro";
 import LedgerStrip from "../components/LedgerStrip.astro";
+import ProjectRow from "../components/ProjectRow.astro";
 import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/streams";
 import { spanOf, colorFor } from "../lib/era";
 import ModelBand from "../components/ModelBand.astro";
@@ -68,29 +69,20 @@ const fmt = (d: Date | null) =>
     <ol class="ledger-rows">
       {roots.map((root) => (
         <li class="root">
-          <a class="row" href={`/stream/${root.slug}/`}>
-            <span class="name">{root.title}</span>
-            <span class="spark"><LedgerStrip entries={getSubtreeEntries(root.slug)} span={span} commits={statsForSubtree(root).weeks} compact /></span>
-            <span class="n">{root.totalCount}</span>
-          </a>
+          <ProjectRow stream={root} entries={getSubtreeEntries(root.slug)}
+                      commits={statsForSubtree(root).weeks} span={span} count={root.totalCount} />
           {root.children.length > 0 && (
             <ul class="kids">
               {root.children.map((child) => (
                 <li>
-                  <a class="row row--kid" href={`/stream/${child.slug}/`}>
-                    <span class="name">{child.title}</span>
-                    <span class="spark"><LedgerStrip entries={getSubtreeEntries(child.slug)} span={span} commits={statsForSubtree(child).weeks} compact /></span>
-                    <span class="n">{child.ownCount}</span>
-                  </a>
+                  <ProjectRow stream={child} entries={getSubtreeEntries(child.slug)}
+                              commits={statsForSubtree(child).weeks} span={span} count={child.ownCount} kid />
                   {child.children.length > 0 && (
                     <ul class="kids kids--deep">
                       {child.children.map((g) => (
                         <li>
-                          <a class="row row--kid" href={`/stream/${g.slug}/`}>
-                            <span class="name">{g.title}</span>
-                            <span class="spark"><LedgerStrip entries={getSubtreeEntries(g.slug)} span={span} commits={statsForSubtree(g).weeks} compact /></span>
-                            <span class="n">{g.ownCount}</span>
-                          </a>
+                          <ProjectRow stream={g} entries={getSubtreeEntries(g.slug)}
+                                      commits={statsForSubtree(g).weeks} span={span} count={g.ownCount} kid />
                         </li>
                       ))}
                     </ul>
@@ -175,33 +167,10 @@ const fmt = (d: Date | null) =>
   .fleet { margin-bottom: 3.25rem; }
   .ledger-rows, .kids { list-style: none; margin: 0; padding: 0; }
 
-  .row {
-    display: grid;
-    grid-template-columns: minmax(9rem, 15rem) 1fr 3.5rem;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
-  }
-  .row:hover { text-decoration: none; background: var(--color-surface-alt); }
-  .row--kid { color: var(--color-text-muted); }
-  .row--kid .name { font-size: var(--text-sm); }
-
-  .name { font-weight: 500; }
-  .n {
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    color: var(--color-text-faint);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .spark { min-width: 0; }
 
   /* Indentation encodes tree depth — the only thing carrying hierarchy here,
      so it needs to be unmistakable rather than decorative. */
   .kids { margin-left: 1.1rem; border-left: 1px solid var(--color-border); }
-  .kids > li > .row { padding-left: 0.9rem; }
   .kids--deep { margin-left: 0.9rem; }
 
   /* ── feed ── */
@@ -212,8 +181,4 @@ const fmt = (d: Date | null) =>
     color: var(--color-text-faint);
   }
 
-  @media (max-width: 640px) {
-    .row { grid-template-columns: 1fr 3rem; }
-    .spark { display: none; }
-  }
 </style>

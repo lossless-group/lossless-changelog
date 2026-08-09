@@ -27,6 +27,7 @@ streams:
     path: changelog/
     parent: null
     shape: root-dir
+    splash: https://lossless-group.github.io/astro-knots/
     title: Astro Knots                          # n=12
 
   - slug: ai-labs
@@ -35,6 +36,7 @@ streams:
     path: changelog/
     parent: null
     shape: root-dir
+    splash: https://lossless-group.github.io/lossless-ai-labs/
     title: AI Labs                              # n=12
 
   - slug: content-farm
@@ -43,6 +45,7 @@ streams:
     path: changelog/
     parent: null
     shape: root-dir
+    splash: https://lossless-group.github.io/content-farm/
     title: Content Farm                         # n=7
 
   # ── standalone roots (no parent in the tree) ───────────────────────────────
@@ -60,6 +63,7 @@ streams:
     path: changelog/
     parent: null
     shape: root-dir
+    splash: https://lossless-group.github.io/lossless-flavored-markdown-package/
     title: Lossless Flavored Markdown           # n=6
 
   - slug: lossless-site
@@ -68,6 +72,7 @@ streams:
     path: changelog/
     parent: null
     shape: root-dir
+    splash: https://lossless-group.github.io/lossless-site/
     title: Lossless Site                        # n=1
 
   - slug: neo
@@ -194,6 +199,7 @@ streams:
     path: changelog/
     parent: ai-labs
     shape: root-dir
+    splash: https://lossless-group.github.io/augment-it/
     title: Augment It                           # n=94
 
   - slug: dididecks-ai
@@ -202,6 +208,7 @@ streams:
     path: changelog/
     parent: ai-labs
     shape: root-dir
+    splash: https://lossless-group.github.io/dididecks-ai/
     title: DidiDecks AI                         # n=16
 
   - slug: id-didi-sh
@@ -210,6 +217,7 @@ streams:
     path: changelog/
     parent: ai-labs
     shape: root-dir
+    splash: https://lossless-group.github.io/id-didi-sh/
     title: id.didi.sh                           # n=7
 
   - slug: context-vigilance-kit
@@ -218,6 +226,7 @@ streams:
     path: changelog/
     parent: ai-labs
     shape: root-dir
+    splash: https://lossless-group.github.io/context-vigilance-kit/
     title: Context Vigilance Kit                # n=6
 
   - slug: memopop-ai
@@ -226,6 +235,7 @@ streams:
     path: changelog/
     parent: ai-labs
     shape: root-dir
+    splash: https://lossless-group.github.io/memopop-ai/
     title: MemoPop AI                           # n=5
 
   - slug: corpora-builder
@@ -245,6 +255,7 @@ streams:
     path: changelog/
     parent: memopop-ai
     shape: submodule-ref
+    splash: https://lossless-group.github.io/investment-memo-orchestrator/
     title: Investment Memo Orchestrator         # n=71
 
   - slug: memopop-native

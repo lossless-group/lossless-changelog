@@ -28,6 +28,8 @@ export interface StreamDef {
   parent: string | null;
   shape: string;
   title: string;
+  /** Public splash page, when the project has one. Optional by nature. */
+  splash?: string;
   enabled?: boolean;
 }
 

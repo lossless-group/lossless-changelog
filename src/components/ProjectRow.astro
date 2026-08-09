@@ -1,0 +1,120 @@
+---
+/**
+ * One row of the project ledger: name, outbound links, cadence, count.
+ *
+ * The row used to BE the anchor, with everything nested inside it. That cannot
+ * carry the GitHub and splash links — an <a> inside an <a> is invalid HTML and
+ * browsers recover from it unpredictably. So the row is a plain element and the
+ * title is the link; hover styling still treats the whole row as one target.
+ */
+import type { Stream } from "../lib/streams";
+import type { Week } from "../lib/commits";
+import type { TimeSpan } from "../lib/era";
+import LedgerStrip from "./LedgerStrip.astro";
+import type { Entry } from "../lib/streams";
+
+interface Props {
+  stream: Stream;
+  entries: Entry[];
+  commits: Week[];
+  span: TimeSpan;
+  count: number;
+  kid?: boolean;
+}
+const { stream, entries, commits, span, count, kid = false } = Astro.props;
+---
+
+<div class:list={["row", kid && "row--kid"]}>
+  <span class="name">
+    <a class="title" href={`/stream/${stream.slug}/`}>{stream.title}</a>
+
+    <a class="ico" href={`https://github.com/${stream.repo}`} rel="noreferrer"
+       aria-label={`${stream.title} on GitHub — ${stream.repo}`} title={stream.repo}>
+      <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+                 -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+                 .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+                 -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09
+                 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82
+                 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01
+                 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+      </svg>
+    </a>
+
+    {stream.splash && (
+      /* A splash is the project's own public page. The glyph is a browser
+         window rather than a globe — a globe would read as "the product's
+         website", and several of these projects have one of those too. */
+      <a class="ico ico--splash" href={stream.splash} rel="noreferrer"
+         aria-label={`${stream.title} splash page`} title="Splash page">
+        <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="1.4" y="2.6" width="13.2" height="10.8" rx="1.6" />
+          <path d="M1.4 6.1h13.2" />
+          <circle cx="3.9" cy="4.35" r=".55" fill="currentColor" stroke="none" />
+        </svg>
+      </a>
+    )}
+  </span>
+
+  <span class="spark">
+    <LedgerStrip entries={entries} span={span} commits={commits} compact />
+  </span>
+  <span class="n">{count}</span>
+</div>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: minmax(11rem, 17rem) 1fr 3.5rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+  }
+  .row:hover { background: var(--color-surface-alt); }
+  /* Nested rows indent inside the parent's rule. This lives here rather than
+     in the page: Astro scopes styles per component, so the page's `.kids > li
+     > .row` never matched this element. */
+  .row--kid { color: var(--color-text-muted); padding-left: 0.9rem; }
+
+  .name { display: inline-flex; align-items: center; gap: 0.4rem; min-width: 0; }
+  .title {
+    color: inherit;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row--kid .title { font-size: var(--text-sm); }
+  .title:hover { color: var(--color-primary); text-decoration: none; }
+
+  /* Three states, always present. The page's job is to SHOW THE WORK, so an
+     affordance that exists is never hidden — a project having a splash page is
+     itself information, and hiding it until hover means you only learn which
+     projects have one by sweeping the mouse down the list.
+       rest       dim but legible
+       row hover  brighter — the row you're reading declares its links
+       direct     full, coloured */
+  .ico {
+    display: inline-flex;
+    flex: none;
+    color: var(--color-text-faint);
+    opacity: 0.42;
+    transition: opacity 0.12s ease, color 0.12s ease;
+  }
+  .row:hover .ico { opacity: 0.72; }
+  .ico:hover,
+  .ico:focus-visible { opacity: 1; color: var(--color-primary); }
+  .ico--splash:hover,
+  .ico--splash:focus-visible { color: var(--color-accent); }
+  @media (prefers-reduced-motion: reduce) {
+    .ico { transition: none; }
+  }
+  @media (max-width: 640px) {
+    .row { grid-template-columns: 1fr 3rem; }
+    .spark { display: none; }
+  }
+</style>
