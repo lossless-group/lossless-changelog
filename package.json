@@ -17,8 +17,14 @@
   },
   "dependencies": {
     "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@latest",
+    "@types/mdast": "^4.0.4",
     "astro": "^7.1.6",
+    "gray-matter": "^4.0.3",
     "mdast-util-to-string": "^4.0.0",
     "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }

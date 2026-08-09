@@ -1,0 +1,81 @@
+---
+import type { Entry } from "../lib/streams";
+import { getStream } from "../lib/streams";
+
+interface Props { entry: Entry; showOrigin?: boolean }
+const { entry, showOrigin = false } = Astro.props;
+const stream = getStream(entry.streamSlug);
+---
+<article class="row">
+  <div class="meta">
+    <time datetime={entry.date?.toISOString().slice(0, 10)}>{entry.dateLabel || "undated"}</time>
+    {showOrigin && stream && (
+      <a class="origin" href={`/stream/${stream.slug}/`}>
+        <span class="altitude" data-a={stream.altitude}>{stream.altitude}</span>
+        {stream.title}
+      </a>
+    )}
+  </div>
+
+  <h3><a href={`/stream/${entry.streamSlug}/${entry.slug}/`}>{entry.title}</a></h3>
+  {entry.lede && <p class="lede">{entry.lede}</p>}
+
+  {entry.tags.length > 0 && (
+    <ul class="tags">
+      {entry.tags.slice(0, 6).map((t) => <li>{t}</li>)}
+      {entry.tags.length > 6 && <li class="more">+{entry.tags.length - 6}</li>}
+    </ul>
+  )}
+</article>
+
+<style>
+  .row {
+    padding-block: 1.15rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--color-text-faint);
+    margin-bottom: 0.3rem;
+  }
+  time { font-variant-numeric: tabular-nums; }
+  .origin { color: var(--color-text-muted); display: inline-flex; align-items: center; gap: 0.4rem; }
+
+  h3 { margin: 0 0 0.35rem; font-size: 1.05rem; line-height: 1.35; font-weight: 650; }
+  h3 a { color: var(--color-text); }
+  h3 a:hover { color: var(--color-primary); text-decoration: none; }
+
+  .lede {
+    margin: 0;
+    max-width: var(--measure);
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+    /* Ledes range from one line to full paragraphs across three years of
+       convention drift — clamp rather than let a stray one dominate the feed. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+  }
+  .tags li {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius);
+    background: var(--color-surface-alt);
+    color: var(--color-text-faint);
+  }
+  .tags .more { background: transparent; }
+</style>

@@ -1,0 +1,115 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import EntryRow from "../../../components/EntryRow.astro";
+import { getStreams, getStream, getEntries, getSubtreeEntries } from "../../../lib/streams";
+
+export function getStaticPaths() {
+  return getStreams().map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const stream = getStream(slug!)!;
+const own = getEntries(slug!);
+const subtree = getSubtreeEntries(slug!);
+const hasDescendants = subtree.length > own.length;
+
+// Server-render the full subtree, which matches the toggle's default-on state,
+// so the page reads correctly with JS off or before hydration. The toggle only
+// hides rows that are already in the DOM — no refetch, no reflow of the feed.
+const shown = subtree;
+---
+<BaseLayout
+  title={stream.title}
+  description={`${stream.ownCount} changelog entries from ${stream.title}${
+    hasDescendants ? `, plus ${subtree.length - own.length} from its ${stream.children.length} sub-projects` : ""
+  }.`}
+>
+  <nav class="crumbs">
+    <a href="/">All projects</a>
+    {stream.ancestors.map((a) => (<><span>/</span><a href={`/stream/${a.slug}/`}>{a.title}</a></>))}
+    <span>/</span><span class="here">{stream.title}</span>
+  </nav>
+
+  <header class="head">
+    <span class="altitude" data-a={stream.altitude}>{stream.altitude}</span>
+    <h1>{stream.title}</h1>
+    <p class="src">
+      <a href={`https://github.com/${stream.repo}/tree/${stream.ref}/${stream.path}`} rel="noreferrer">
+        {stream.repo}
+      </a>
+      <span class="ref">{stream.ref}</span>
+    </p>
+  </header>
+
+  {hasDescendants && (
+    <div class="toggle-bar">
+      <label>
+        <input type="checkbox" id="descendants" checked />
+        Include sub-projects
+      </label>
+      <span class="counts">
+        <span data-count="all">{subtree.length}</span> entries ·
+        <span data-count="own">{own.length}</span> from {stream.title} itself
+      </span>
+    </div>
+  )}
+
+  {stream.children.length > 0 && (
+    <ul class="kids">
+      {stream.children.map((c) => (
+        <li><a href={`/stream/${c.slug}/`}>{c.title}</a> <span class="n">{c.ownCount}</span></li>
+      ))}
+    </ul>
+  )}
+
+  <section class="feed" id="feed">
+    {shown.length === 0 && <p class="empty">No entries synced yet. Run <code>pnpm sync</code>.</p>}
+    {shown.map((entry) => (
+      <div data-own={entry.streamSlug === slug ? "true" : "false"}>
+        <EntryRow entry={entry} showOrigin={entry.streamSlug !== slug} />
+      </div>
+    ))}
+  </section>
+</BaseLayout>
+
+<script>
+  const box = document.getElementById("descendants") as HTMLInputElement | null;
+  const feed = document.getElementById("feed");
+  if (box && feed) {
+    const KEY = `changelog-descendants:${location.pathname}`;
+    const apply = (on: boolean) => {
+      feed.querySelectorAll<HTMLElement>('[data-own="false"]').forEach((el) => {
+        el.hidden = !on;
+      });
+      localStorage.setItem(KEY, on ? "1" : "0");
+    };
+    const saved = localStorage.getItem(KEY);
+    if (saved === "0") { box.checked = false; apply(false); }
+    box.addEventListener("change", () => apply(box.checked));
+  }
+</script>
+
+<style>
+  .crumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1rem; }
+  .crumbs .here { color: var(--color-text-muted); }
+
+  .head { margin-bottom: 1.25rem; }
+  .head h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin: 0.4rem 0 0.3rem; letter-spacing: -0.02em; }
+  .src { margin: 0; font-size: 0.82rem; color: var(--color-text-faint); display: flex; gap: 0.5rem; align-items: center; }
+  .ref { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.05rem 0.35rem; border-radius: var(--radius); background: var(--color-surface-alt); }
+
+  .toggle-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    padding: 0.6rem 0.8rem; margin-bottom: 0.5rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface);
+    font-size: 0.85rem;
+  }
+  .toggle-bar label { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; }
+  .counts { color: var(--color-text-faint); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+
+  .kids { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0; margin: 0 0 1.25rem; }
+  .kids li { font-size: 0.82rem; border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.2rem 0.55rem; display: flex; gap: 0.4rem; }
+  .n { color: var(--color-text-faint); font-variant-numeric: tabular-nums; }
+
+  .empty { color: var(--color-text-faint); }
+</style>

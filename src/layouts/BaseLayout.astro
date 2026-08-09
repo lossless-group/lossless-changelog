@@ -1,0 +1,81 @@
+---
+import "../styles/theme.css";
+import { totals } from "../lib/streams";
+
+interface Props { title: string; description?: string }
+const { title, description } = Astro.props;
+const full = title === "Lossless Changelog" ? title : `${title} · Lossless Changelog`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{full}</title>
+    {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={full} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  </head>
+  <body>
+    <header class="site-head">
+      <div class="shell head-inner">
+        <a href="/" class="wordmark">Lossless <span>Changelog</span></a>
+        <span class="tally">{totals.entries} entries · {totals.streams} streams</span>
+      </div>
+    </header>
+
+    <main class="shell"><slot /></main>
+
+    <footer class="site-foot">
+      <div class="shell">
+        <p>
+          Aggregated from <strong>{totals.streams}</strong> changelog streams across the
+          Lossless tree via the GitHub API. Entries are mirrored from their source
+          repositories — edit at the source, not here.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-head {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .head-inner {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.9rem;
+  }
+  .wordmark {
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--color-text);
+    font-size: 1.05rem;
+  }
+  .wordmark span { color: var(--color-primary); }
+  .wordmark:hover { text-decoration: none; }
+  .tally { font-size: 0.8rem; color: var(--color-text-faint); font-variant-numeric: tabular-nums; }
+
+  main { padding-block: 2.25rem 4rem; }
+
+  .site-foot {
+    border-top: 1px solid var(--color-border);
+    padding-block: 1.5rem;
+    color: var(--color-text-faint);
+    font-size: 0.85rem;
+  }
+  .site-foot p { max-width: var(--measure); margin: 0; }
+
+  @media (max-width: 640px) {
+    .head-inner { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  }
+</style>

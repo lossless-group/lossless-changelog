@@ -1,0 +1,95 @@
+/*
+ * Two-tier token system per the Astro Knots convention.
+ *
+ *   Tier 1 — named tokens, BEM-ish `__` separator, raw values, private.
+ *   Tier 2 — semantic tokens, kebab-case, reference Tier 1 via var().
+ *
+ * Components read ONLY Tier 2. To reskin, add a named token up top and
+ * re-point one semantic token; components never change.
+ */
+
+:root {
+  /* ── Tier 1: named ── */
+  --color__ink-900: #0d1117;
+  --color__ink-800: #151b23;
+  --color__ink-700: #1c2430;
+  --color__slate-600: #3d4756;
+  --color__slate-400: #8b97a8;
+  --color__slate-200: #c9d1d9;
+  --color__paper-50: #fbfcfd;
+  --color__paper-100: #f2f5f8;
+  --color__paper-200: #e4e9ef;
+
+  --color__violet-500: #7c5cff;
+  --color__violet-400: #9b82ff;
+  --color__cyan-500: #22b8cf;
+  --color__amber-500: #f0a020;
+
+  --font__system: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font__mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ── Tier 2: semantic (light) ── */
+  --color-bg: var(--color__paper-50);
+  --color-surface: #ffffff;
+  --color-surface-alt: var(--color__paper-100);
+  --color-border: var(--color__paper-200);
+  --color-text: var(--color__ink-900);
+  --color-text-muted: var(--color__slate-600);
+  --color-text-faint: var(--color__slate-400);
+  --color-primary: var(--color__violet-500);
+  --color-accent: var(--color__cyan-500);
+  --color-warn: var(--color__amber-500);
+
+  --font-body: var(--font__system);
+  --font-mono: var(--font__mono);
+
+  --radius: 10px;
+  --measure: 68ch;
+  --shell: 1120px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: var(--color__ink-900);
+    --color-surface: var(--color__ink-800);
+    --color-surface-alt: var(--color__ink-700);
+    --color-border: #263041;
+    --color-text: var(--color__paper-100);
+    --color-text-muted: var(--color__slate-200);
+    --color-text-faint: var(--color__slate-400);
+    --color-primary: var(--color__violet-400);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre { font-family: var(--font-mono); font-size: 0.9em; }
+
+.shell { max-width: var(--shell); margin: 0 auto; padding: 0 1.25rem; }
+.measure { max-width: var(--measure); }
+
+.altitude {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-faint);
+}
+.altitude[data-a="fleet"]     { border-color: var(--color-primary); color: var(--color-primary); }
+.altitude[data-a="product"]   { border-color: var(--color-accent);  color: var(--color-accent); }
+.altitude[data-a="component"] { border-color: var(--color-border);  color: var(--color-text-faint); }

@@ -1,0 +1,97 @@
+---
+import { parseMarkdown } from "@lossless-group/lfm";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AstroMarkdown from "../../../components/markdown/AstroMarkdown.astro";
+import Sources from "../../../components/markdown/Sources.astro";
+import { getAllEntries, getStream, getEntry } from "../../../lib/streams";
+
+export function getStaticPaths() {
+  return getAllEntries().map((e) => ({
+    params: { slug: e.streamSlug, entry: e.slug },
+  }));
+}
+
+const { slug, entry: entrySlug } = Astro.params;
+const entry = getEntry(slug!, entrySlug!)!;
+const stream = getStream(slug!)!;
+
+// Citations are attached to the tree by remark-citations during the parse.
+const tree = await parseMarkdown(entry.body);
+const citations = (tree as any).data?.citations?.ordered ?? [];
+---
+<BaseLayout title={entry.title} description={entry.lede}>
+  <nav class="crumbs">
+    <a href="/">All projects</a>
+    {stream.ancestors.map((a) => (<><span>/</span><a href={`/stream/${a.slug}/`}>{a.title}</a></>))}
+    <span>/</span><a href={`/stream/${stream.slug}/`}>{stream.title}</a>
+  </nav>
+
+  <article>
+    <header class="head">
+      <div class="meta">
+        <time datetime={entry.date?.toISOString().slice(0, 10)}>{entry.dateLabel || "undated"}</time>
+        <span class="altitude" data-a={stream.altitude}>{stream.altitude}</span>
+        {entry.authors.length > 0 && <span>{entry.authors.join(", ")}</span>}
+      </div>
+      <h1>{entry.title}</h1>
+      {entry.lede && <p class="lede">{entry.lede}</p>}
+    </header>
+
+    <div class="prose">
+      <AstroMarkdown node={tree} />
+    </div>
+
+    {citations.length > 0 && <Sources citations={citations} />}
+
+    <footer class="foot">
+      {entry.tags.length > 0 && (
+        <ul class="tags">{entry.tags.map((t) => <li>{t}</li>)}</ul>
+      )}
+      <p>
+        Mirrored from <a href={entry.sourceUrl} rel="noreferrer">{stream.repo}</a>.
+        Edit at the source, not here.
+      </p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .crumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1.25rem; }
+
+  article { max-width: var(--measure); }
+  .head { margin-bottom: 1.75rem; }
+  .meta { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); }
+  .head h1 { font-size: clamp(1.6rem, 4.5vw, 2.2rem); line-height: 1.2; margin: 0.5rem 0 0.5rem; letter-spacing: -0.02em; }
+  .lede { color: var(--color-text-muted); margin: 0; font-size: 1.02rem; }
+
+  /* Counter Tailwind-style preflight resets that strip list markers — a
+     recurring issue across every site that renders LFM output. */
+  .prose :global(ul) { list-style: disc; padding-left: 1.35rem; }
+  .prose :global(ol) { list-style: decimal; padding-left: 1.35rem; }
+  .prose :global(li) { margin-block: 0.25rem; }
+  .prose :global(h2) { margin-top: 2rem; font-size: 1.3rem; letter-spacing: -0.01em; }
+  .prose :global(h3) { margin-top: 1.5rem; font-size: 1.08rem; }
+  .prose :global(pre) {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    overflow-x: auto;
+  }
+  .prose :global(:not(pre) > code) {
+    background: var(--color-surface-alt);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+  }
+  .prose :global(blockquote) {
+    margin: 1rem 0; padding-left: 0.9rem;
+    border-left: 3px solid var(--color-border); color: var(--color-text-muted);
+  }
+  .prose :global(img) { max-width: 100%; height: auto; border-radius: var(--radius); }
+  .prose :global(table) { width: 100%; border-collapse: collapse; font-size: 0.9rem; display: block; overflow-x: auto; }
+  .prose :global(th), .prose :global(td) { border: 1px solid var(--color-border); padding: 0.4rem 0.6rem; text-align: left; }
+
+  .foot { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border); font-size: 0.82rem; color: var(--color-text-faint); }
+  .tags { list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0; margin: 0 0 0.75rem; }
+  .tags li { font-size: 0.72rem; padding: 0.1rem 0.4rem; border-radius: var(--radius); background: var(--color-surface-alt); }
+</style>
