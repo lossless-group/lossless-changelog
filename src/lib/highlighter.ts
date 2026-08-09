@@ -16,10 +16,13 @@ import { createHighlighter, type Highlighter } from "shiki";
 /** Languages present in the corpus, plus common aliases. Loading the full
  *  Shiki bundle would pull in hundreds of grammars nothing here uses. */
 export const LANGS = [
-  "astro", "bash", "css", "diff", "html", "javascript", "json", "jsx",
-  "markdown", "python", "ruby", "rust", "shell", "sql", "svelte", "toml",
-  "tsx", "typescript", "vue", "yaml",
+  "astro", "bash", "css", "diff", "glsl", "html", "ini", "javascript", "json",
+  "jsonc", "jsx", "markdown", "mermaid", "python", "ruby", "rust", "shell",
+  "sql", "surql", "svelte", "toml", "tsx", "typescript", "vue", "yaml",
 ];
+
+// One fence tag in the corpus has no grammar anywhere — `cft` (1 block). It
+// renders plain, which is the intended outcome rather than a silent gap.
 
 /** github-dark-default's background is #0d1117 — the same value as
  *  --color__github-dark, so highlighted blocks sit flush against the page
