@@ -10,7 +10,8 @@
  *
  * Chrome reads Tier 2 theme tokens only.
  */
-import { partitionAuthors } from "../lib/people";
+import { Image } from "astro:assets";
+import { partitionAuthors, headshotFor } from "../lib/people";
 
 interface Props {
   authors: string[];
@@ -22,25 +23,35 @@ const { authors, size = "md", showRole = false, augmentedWith = [] } = Astro.pro
 
 const { people, unmatched } = partitionAuthors(authors ?? []);
 
+// 96px covers 3x of the largest rendered size (2rem = 32px). webp because
+// every browser we care about supports it and it beats both source formats.
+const AVATAR_PX = 96;
+
 const initials = (name: string) =>
   name.split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 ---
 
 {(people.length > 0 || unmatched.length > 0) && (
   <div class="authors" data-size={size}>
-    {people.map((p) => (
+    {people.map((p) => {
+      const shot = headshotFor(p);
+      return (
       <span class="author">
         <span class="avatar">
-          {p.headshotOf
-            ? <img src={p.headshotOf} alt="" loading="lazy" decoding="async" width="40" height="40" />
-            : <span class="initials">{initials(p.name)}</span>}
+          {shot
+            ? <Image src={shot} alt="" width={AVATAR_PX} height={AVATAR_PX}
+                     format="webp" quality={72} loading="lazy" decoding="async" />
+            : p.headshotOf
+              ? <img src={p.headshotOf} alt="" loading="lazy" decoding="async" width={AVATAR_PX} height={AVATAR_PX} />
+              : <span class="initials">{initials(p.name)}</span>}
         </span>
         <span class="who">
           <span class="name">{p.name}</span>
           {showRole && p.role && <span class="role">{p.role}</span>}
         </span>
       </span>
-    ))}
+      );
+    })}
 
     {/* Humans with no record yet — name only, no empty avatar chrome. */}
     {unmatched.map((n) => (
@@ -79,7 +90,7 @@ const initials = (name: string) =>
     background: var(--gradient-primary);
     box-shadow: 0 0 0 1px var(--color-border);
   }
-  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatar :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
   .initials {
     font-size: 0.7rem;
     font-weight: 700;

@@ -19,6 +19,28 @@
 import authorsJson from "../content/people/authors.json";
 import participantsJson from "../content/people/participants.json";
 
+/**
+ * Headshots are imported through Astro's asset pipeline rather than served
+ * from public/. The originals are wildly oversized for a 32px avatar — two
+ * were 800x800 PNGs at 522KB and 703KB — and public/ files are copied to the
+ * output byte-for-byte with no processing. Importing them lets sharp resize
+ * and re-encode at build time.
+ */
+const headshotModules = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/people/*.{jpeg,jpg,png,webp}",
+  { eager: true },
+);
+
+/** Keyed on the filename STEM (no extension) so a `headshotOf` value written
+ *  as ".../staton_headshot.jpeg" still resolves after the source asset was
+ *  re-encoded to .webp. Also makes the lookup independent of the directory the
+ *  path was authored against. */
+const stem = (p: string) => p.split("/").pop()!.replace(/\.[^.]+$/, "").toLowerCase();
+
+const headshots = new Map<string, ImageMetadata>(
+  Object.entries(headshotModules).map(([path, mod]) => [stem(path), mod.default]),
+);
+
 export interface Person {
   id: string;
   name: string;
@@ -89,6 +111,17 @@ export function partitionAuthors(authors: string[]): {
     }
   }
   return { people: matched, unmatched };
+}
+
+/**
+ * Resolve a person's `headshotOf` to a local ImageMetadata for <Image>.
+ * Returns undefined for remote URLs (participants.json has an ImageKit-hosted
+ * one) — the caller falls back to a plain <img> for those.
+ */
+export function headshotFor(person: Person): ImageMetadata | undefined {
+  const ref = person.headshotOf;
+  if (!ref || /^https?:\/\//.test(ref)) return undefined;
+  return headshots.get(stem(ref));
 }
 
 export const allPeople = people;
