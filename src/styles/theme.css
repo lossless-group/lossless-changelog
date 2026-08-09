@@ -86,12 +86,15 @@
   --color__white-45p: hsla(0, 0%, 100%, 0.45);
   --color__white-70p: hsla(0, 0%, 100%, 0.7);
 
-  /* Type. Poppins/Krub are NOT wired yet — the source declared them as
-     --ff-base/--ff-legible but never fetched them, so the old site has been
-     rendering fallback sans-serif. Resolving that is Phase 2 of the spec;
-     until then this is an honest system stack rather than a broken promise. */
-  --font__system: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font__mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Type. Three roles, deliberately in tension: a high-contrast didone for
+     display, a humanist grotesque for prose, a terminal mono for data. The
+     changelog convention is "marketing up top, engineering as the narrative
+     unfolds" — the type does that literally: a journal of record at the top of
+     a page, a terminal by the bottom.
+     Self-hosted; the old site declared Poppins/Krub and fetched neither. */
+  --font__bodoni: "Bodoni Moda Variable", "Bodoni Moda", Didot, Georgia, serif;
+  --font__figtree: "Figtree Variable", Figtree, ui-sans-serif, system-ui, sans-serif;
+  --font__jetbrains: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, Menlo, monospace;
   --font__poor-story: "Poor Story Regular", "Indie Flower", "Gaegu", cursive;
 }
 
@@ -117,10 +120,21 @@
   --gradient-primary: var(--gradient__eastern-crimson);
   --gradient-cta: var(--gradient__shamrock-fountain);
 
-  --font-body: var(--font__system);
-  --font-heading: var(--font__system);
-  --font-mono: var(--font__mono);
+  --font-display: var(--font__bodoni);
+  --font-body: var(--font__figtree);
+  --font-heading: var(--font__figtree);
+  --font-mono: var(--font__jetbrains);
   --font-hand: var(--font__poor-story);
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-base: 1rem;
+  --text-lg: 1.16rem;
+  --text-xl: clamp(1.3rem, 2.2vw, 1.6rem);
+  --text-2xl: clamp(1.7rem, 3.4vw, 2.4rem);
+  --text-display: clamp(2.6rem, 8vw, 5.4rem);
+
+  --ledger-height: 116px;
 
   --radius: 10px;
   --measure: 68ch;
@@ -149,6 +163,17 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   color: var(--color-text);
   letter-spacing: -0.015em;
+}
+
+/* Eyebrow: a mono, letterspaced label. Used only where it names what a block
+   IS — not as decoration. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  font-weight: 500;
 }
 
 a { color: var(--color-link); text-decoration: none; }

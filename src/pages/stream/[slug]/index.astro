@@ -1,7 +1,9 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import EntryRow from "../../../components/EntryRow.astro";
-import { getStreams, getStream, getEntries, getSubtreeEntries } from "../../../lib/streams";
+import LedgerStrip from "../../../components/LedgerStrip.astro";
+import { getStreams, getStream, getEntries, getSubtreeEntries, getAllEntries } from "../../../lib/streams";
+import { spanOf, colorFor } from "../../../lib/era";
 
 export function getStaticPaths() {
   return getStreams().map((s) => ({ params: { slug: s.slug } }));
@@ -17,6 +19,12 @@ const hasDescendants = subtree.length > own.length;
 // so the page reads correctly with JS off or before hydration. The toggle only
 // hides rows that are already in the DOM — no refetch, no reflow of the feed.
 const shown = subtree;
+
+// The GLOBAL span, deliberately — a stream's strip must be comparable with
+// every other stream's and with the one on the home page. Scaling each strip
+// to its own extent would make a project with three entries look as busy as
+// one with ninety.
+const span = spanOf(getAllEntries().map((e) => e.date));
 ---
 <BaseLayout
   title={stream.title}
@@ -40,6 +48,12 @@ const shown = subtree;
       <span class="ref">{stream.ref}</span>
     </p>
   </header>
+
+  {subtree.length > 0 && (
+    <div class="strip">
+      <LedgerStrip entries={subtree} span={span} />
+    </div>
+  )}
 
   {hasDescendants && (
     <div class="toggle-bar">
@@ -66,7 +80,7 @@ const shown = subtree;
     {shown.length === 0 && <p class="empty">No entries synced yet. Run <code>pnpm sync</code>.</p>}
     {shown.map((entry) => (
       <div data-own={entry.streamSlug === slug ? "true" : "false"}>
-        <EntryRow entry={entry} showOrigin={entry.streamSlug !== slug} />
+        <EntryRow entry={entry} showOrigin={entry.streamSlug !== slug} accent={colorFor(span, entry.date)} />
       </div>
     ))}
   </section>
@@ -93,8 +107,21 @@ const shown = subtree;
   .crumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1rem; }
   .crumbs .here { color: var(--color-text-muted); }
 
-  .head { margin-bottom: 1.25rem; }
-  .head h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin: 0.4rem 0 0.3rem; letter-spacing: -0.02em; }
+  .head { margin-bottom: 1.1rem; }
+  .head h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: var(--text-2xl);
+    margin: 0.35rem 0 0.3rem;
+    letter-spacing: -0.02em;
+  }
+
+  .strip {
+    margin: 0 calc(50% - 50vw) 1.75rem;
+    padding: 1.1rem max(1.25rem, calc(50vw - var(--shell) / 2)) 0.5rem;
+    border-block: 1px solid var(--color-border);
+    background: var(--color-surface-alt);
+  }
   .src { margin: 0; font-size: 0.82rem; color: var(--color-text-faint); display: flex; gap: 0.5rem; align-items: center; }
   .ref { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.05rem 0.35rem; border-radius: var(--radius); background: var(--color-surface-alt); }
 

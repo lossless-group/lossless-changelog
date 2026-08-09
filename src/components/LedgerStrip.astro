@@ -1,0 +1,137 @@
+---
+/**
+ * The ledger strip — this site's signature element.
+ *
+ * Every entry in scope is one hairline, positioned on the x-axis by its date
+ * and coloured by where it falls in the corpus's history (see lib/era.ts).
+ * Read left to right it is the fleet's whole shipping record: density is
+ * velocity, gaps are quiet weeks, hue is when.
+ *
+ * It is a chart, not an ornament — which is why there is no legend and no
+ * axis furniture beyond the year ticks. The gradient IS the legend, because
+ * the same ramp colours the dates everywhere else on the site.
+ *
+ * Pure SVG, no client JS, no chart library. Hairlines are <rect>s so they stay
+ * crisp at any width, and the whole thing scales with preserveAspectRatio.
+ */
+import type { Entry } from "../lib/streams";
+import { spanOf, positionIn, colorFor, type TimeSpan } from "../lib/era";
+
+interface Props {
+  entries: Entry[];
+  /** Shared span, so a stream page's strip aligns with the global one. */
+  span?: TimeSpan;
+  height?: number;
+  compact?: boolean;
+}
+const { entries, span: spanProp, height = 116, compact = false } = Astro.props;
+
+const dated = entries.filter((e) => e.date);
+const span = spanProp ?? spanOf(dated.map((e) => e.date));
+
+const W = 1000;
+const H = height;
+const PAD = compact ? 0 : 14;
+
+// Bucket by day so a busy day reads as a taller mark rather than a thicker
+// smear — volume becomes legible without inventing a y-axis for each entry.
+const buckets = new Map<number, { n: number; date: Date }>();
+for (const e of dated) {
+  const d = e.date!;
+  const key = Math.floor(d.getTime() / 86_400_000);
+  const b = buckets.get(key);
+  if (b) b.n += 1;
+  else buckets.set(key, { n: 1, date: d });
+}
+
+const maxN = Math.max(1, ...[...buckets.values()].map((b) => b.n));
+const marks = [...buckets.values()].map((b) => {
+  const t = positionIn(span, b.date);
+  // sqrt so a 12-entry day doesn't dwarf every single-entry day into invisibility
+  const h = Math.max(3, Math.sqrt(b.n / maxN) * (H - PAD * 2));
+  return {
+    x: PAD + t * (W - PAD * 2),
+    h,
+    n: b.n,
+    fill: colorFor(span, b.date),
+    label: `${b.date.toISOString().slice(0, 10)} · ${b.n} ${b.n === 1 ? "entry" : "entries"}`,
+  };
+});
+
+// Axis furniture: interior year boundaries only. A January 1st before the
+// corpus starts is not a tick — it would sit off the left edge and imply the
+// record goes back further than it does.
+const years: { x: number; label: string }[] = [];
+if (span.max > span.min) {
+  const y0 = new Date(span.min).getUTCFullYear();
+  const y1 = new Date(span.max).getUTCFullYear();
+  for (let y = y0 + 1; y <= y1; y++) {
+    const t = positionIn(span, new Date(Date.UTC(y, 0, 1)));
+    if (t > 0 && t < 1) years.push({ x: PAD + t * (W - PAD * 2), label: String(y) });
+  }
+}
+
+// The endpoints are labelled from the real first and last entries, so the axis
+// states the corpus's actual extent rather than a rounded year.
+const monthYear = (ms: number) =>
+  new Date(ms).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+const startLabel = monthYear(span.min);
+const endLabel = monthYear(span.max);
+---
+
+<figure class="ledger" data-compact={compact ? "" : undefined}>
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img"
+       aria-label={`Shipping cadence: ${dated.length} entries between ${new Date(span.min).toISOString().slice(0, 10)} and ${new Date(span.max).toISOString().slice(0, 10)}`}>
+    {!compact && years.map((y) => (
+      <line x1={y.x} x2={y.x} y1={0} y2={H} class="tick" />
+    ))}
+    {marks.map((m) => (
+      <rect x={m.x} y={(H - m.h) / 2} width={1.6} height={m.h} fill={m.fill} rx="0.8">
+        <title>{m.label}</title>
+      </rect>
+    ))}
+  </svg>
+
+  {!compact && dated.length > 0 && (
+    <figcaption>
+      <span class="end" style="left:0">{startLabel}</span>
+      {years.map((y) => (
+        <span style={`left:${(y.x / W) * 100}%`}>{y.label}</span>
+      ))}
+      <span class="end end--right" style="left:100%">{endLabel}</span>
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .ledger { margin: 0; position: relative; }
+  .ledger svg {
+    display: block;
+    width: 100%;
+    height: var(--ledger-height);
+  }
+  .ledger[data-compact] svg { height: 26px; }
+
+  .tick { stroke: var(--color-border); stroke-width: 1; }
+
+  rect { transition: opacity 0.15s ease; }
+  .ledger:hover rect { opacity: 0.45; }
+  .ledger rect:hover { opacity: 1; }
+
+  figcaption {
+    position: relative;
+    height: 1.1rem;
+    margin-top: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+  figcaption span { position: absolute; transform: translateX(-50%); }
+  /* Endpoints sit flush with the strip edges rather than centred on them. */
+  figcaption .end { transform: none; color: var(--color-text-muted); }
+  figcaption .end--right { transform: translateX(-100%); }
+
+  @media (prefers-reduced-motion: reduce) {
+    rect { transition: none; }
+  }
+</style>
