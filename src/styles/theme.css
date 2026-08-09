@@ -1,67 +1,140 @@
 /*
- * Two-tier token system per the Astro Knots convention.
+ * The Lossless Group — theme tokens.
  *
- *   Tier 1 — named tokens, BEM-ish `__` separator, raw values, private.
- *   Tier 2 — semantic tokens, kebab-case, reference Tier 1 via var().
+ * Extracted from site/src/styles/{global,lossless-theme}.css per
+ * context-v/specs/Extract-the-Lossless-Brand-Layer-from-lossless-site.md.
+ * Brand VALUES are carried forward verbatim; only the naming convention and
+ * the file organization change.
  *
- * Components read ONLY Tier 2. To reskin, add a named token up top and
- * re-point one semantic token; components never change.
+ * TWO TIERS, per the Astro Knots convention:
+ *   Tier 1 — named tokens, `__` separator, raw values. PRIVATE: components
+ *            must never read these directly.
+ *   Tier 2 — semantic tokens, kebab-case, resolved through var(). This is the
+ *            only tier components and Tailwind utilities may read. Kebab-case
+ *            is load-bearing — Tailwind v4 generates utilities only from it.
+ *
+ * DARK ONLY, BY DECISION.
+ * The theme-system skill specifies a three-mode contract (light/dark/vibrant).
+ * That contract exists for stakeholder management on CLIENT sites. Lossless
+ * Group is the house brand: the identity is dark, the cyan-aqua accent only
+ * reads against dark, and the eastern-crimson gradient is tuned luminous-on-
+ * dark. On white it would not be a light mode, it would be a different brand.
+ *
+ * Tier 2 still lives behind `:root, [data-mode="dark"]` rather than a bare
+ * `:root`. Cost today is one selector; the benefit is that adding a mode later
+ * is authoring one more block instead of refactoring every token. What we do
+ * NOT do is ship a half-authored light mode — worse than none.
  */
 
+/* ── Tier 1: named tokens ─────────────────────────────────────────────────
+   Raw brand values. Mode-independent. Private. */
 :root {
-  /* ── Tier 1: named ── */
-  --color__ink-900: #0d1117;
-  --color__ink-800: #151b23;
-  --color__ink-700: #1c2430;
-  --color__slate-600: #3d4756;
-  --color__slate-400: #8b97a8;
-  --color__slate-200: #c9d1d9;
-  --color__paper-50: #fbfcfd;
-  --color__paper-100: #f2f5f8;
-  --color__paper-200: #e4e9ef;
+  /* Brand gradient — the single most identity-carrying asset.
+     107deg variant, confirmed canonical 2026-08-08. The 112deg variant in the
+     old lossless-theme.css was dead code: global.css imported it and then
+     redefined the token, so 107deg is what has actually been shipping. */
+  --color__eastern-blue: hsla(186, 68%, 42%, 1);
+  --color__blue-purple: hsla(272, 73%, 55%, 1);
+  --color__alazarin-crimson: hsla(352, 72%, 49%, 1);
+  --color__sundshade-yellow: hsla(29, 90%, 62%, 1);
+  --gradient__eastern-crimson: linear-gradient(
+    107deg,
+    #22a6b5 5.36%,
+    #9138e0 23.14%,
+    #d9233b 47.56%,
+    #f59c49 72.33%
+  );
 
-  --color__violet-500: #7c5cff;
-  --color__violet-400: #9b82ff;
-  --color__cyan-500: #22b8cf;
-  --color__amber-500: #f0a020;
+  --gradient__shamrock-fountain: linear-gradient(90deg, #32c6ab 0%, #4ca7b6 100%);
 
+  /* Grounds */
+  --color__github-dark: #0d1117;        /* was --clr-stolen--github--dark */
+  --color__jaguar-black: hsla(288, 100%, 2%, 1);
+  --color__bastille-black: hsla(273, 18%, 10%, 1);
+  --color__bunker-black: hsla(218, 22%, 7%, 1);
+
+  /* Core accent + light */
+  --color__cyan-aqua-brightest: rgb(4, 229, 229);
+  --color__white-catskill: hsla(184, 35%, 92%, 1);
+  --color__purple-heart: hsla(272, 73%, 55%, 1);
+  --color__aquamarine: #6fffd6;
+
+  /* Spectrum — the .shade-* vocabulary */
+  --color__mystic-turquoise: hsla(169, 60%, 49%, 1);
+  --color__pelorous-ocean: hsla(188, 42%, 51%, 1);
+  --color__slate-blue: hsla(249, 53%, 58%, 1);
+  --color__purpureus: hsla(284, 51%, 47%, 1);
+  --color__dingy-dungeon: hsla(350, 55%, 49%, 1);
+  --color__jelly-bean: hsla(9, 62%, 56%, 1);
+  --color__porsche-orange: hsla(30, 76%, 63%, 1);
+
+  /* Attention grabbers */
+  --color__robins-egg-blue: hsla(180, 77%, 49%, 1);
+  --color__bright-lime: hsla(107, 73%, 55%, 1);
+  --color__algae-green: hsla(154, 62%, 72%, 1);
+  --color__pizzaz-pink: hsla(301, 93%, 62%, 1);
+
+  /* Alternates. Both of these were UNDEFINED in the source — a missing
+     semicolon after butterfly-bush-purple swallowed ice-blue with it. */
+  --color__butterfly-bush-purple: hsla(259, 34%, 45%, 1);
+  --color__ice-blue: hsla(173, 66%, 80%, 1);
+  --color__bondi-blue: hsla(187, 100%, 35%, 1);
+
+  /* Glass — white at alpha, for borders and translucent surfaces */
+  --color__white-10p: hsla(0, 0%, 100%, 0.1);
+  --color__white-20p: hsla(0, 0%, 100%, 0.2);
+  --color__white-45p: hsla(0, 0%, 100%, 0.45);
+  --color__white-70p: hsla(0, 0%, 100%, 0.7);
+
+  /* Type. Poppins/Krub are NOT wired yet — the source declared them as
+     --ff-base/--ff-legible but never fetched them, so the old site has been
+     rendering fallback sans-serif. Resolving that is Phase 2 of the spec;
+     until then this is an honest system stack rather than a broken promise. */
   --font__system: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font__mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font__poor-story: "Poor Story Regular", "Indie Flower", "Gaegu", cursive;
+}
 
-  /* ── Tier 2: semantic (light) ── */
-  --color-bg: var(--color__paper-50);
-  --color-surface: #ffffff;
-  --color-surface-alt: var(--color__paper-100);
-  --color-border: var(--color__paper-200);
-  --color-text: var(--color__ink-900);
-  --color-text-muted: var(--color__slate-600);
-  --color-text-faint: var(--color__slate-400);
-  --color-primary: var(--color__violet-500);
-  --color-accent: var(--color__cyan-500);
-  --color-warn: var(--color__amber-500);
+/* ── Tier 2: semantic tokens ──────────────────────────────────────────────
+   The only tier components read. */
+:root,
+[data-mode="dark"] {
+  --color-bg: var(--color__github-dark);
+  --color-surface: var(--color__bastille-black);
+  --color-surface-alt: var(--color__bunker-black);
+  --color-border: var(--color__white-10p);
+
+  --color-text: var(--color__white-catskill);
+  --color-text-muted: var(--color__white-70p);
+  --color-text-faint: var(--color__white-45p);
+  --color-heading: var(--color__cyan-aqua-brightest);
+
+  --color-primary: var(--color__cyan-aqua-brightest);
+  --color-accent: var(--color__purple-heart);
+  --color-link: var(--color__cyan-aqua-brightest);
+  --color-warn: var(--color__sundshade-yellow);
+
+  --gradient-primary: var(--gradient__eastern-crimson);
+  --gradient-cta: var(--gradient__shamrock-fountain);
 
   --font-body: var(--font__system);
+  --font-heading: var(--font__system);
   --font-mono: var(--font__mono);
+  --font-hand: var(--font__poor-story);
 
   --radius: 10px;
   --measure: 68ch;
   --shell: 1120px;
+
+  /* Native UI follows the theme — scrollbars, form controls, and the
+     descendants checkbox on stream pages all render light without this. */
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: var(--color__ink-900);
-    --color-surface: var(--color__ink-800);
-    --color-surface-alt: var(--color__ink-700);
-    --color-border: #263041;
-    --color-text: var(--color__paper-100);
-    --color-text-muted: var(--color__slate-200);
-    --color-text-faint: var(--color__slate-400);
-    --color-primary: var(--color__violet-400);
-  }
-}
-
-*, *::before, *::after { box-sizing: border-box; }
+/* ── base ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -72,13 +145,30 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: var(--color-primary); text-decoration: none; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  letter-spacing: -0.015em;
+}
+
+a { color: var(--color-link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 code, pre { font-family: var(--font-mono); font-size: 0.9em; }
 
+::selection { background: var(--color__purple-heart); color: var(--color__white-catskill); }
+
+/* ── utilities ────────────────────────────────────────────────────────────── */
 .shell { max-width: var(--shell); margin: 0 auto; padding: 0 1.25rem; }
 .measure { max-width: var(--measure); }
+
+/* The brand gradient as text fill. Used for the wordmark and hero headings. */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 .altitude {
   display: inline-block;
