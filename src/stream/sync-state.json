@@ -294,5 +294,13 @@
     "repo": "lossless-group/metafetch",
     "ref": "master",
     "path": "changelog/"
+  },
+  "lossless-changelog": {
+    "sha": "ff6e38542dec1674c6e6de6ba214413ab181f2cc",
+    "etag": "W/\"2bfb557f950577988ec9ba85c3e119b279e345818b5b14d87ddd68f142b247eb\"",
+    "count": 1,
+    "repo": "lossless-group/lossless-changelog",
+    "ref": "main",
+    "path": "changelog/"
   }
 }

@@ -168,6 +168,17 @@ streams:
     shape: root-dir
     title: Coglet Shuffle                       # n=1
 
+  # This site, tracking itself. Its own output carries `from:` provenance, so
+  # the frontmatter guard means it can only ever ingest the hand-written
+  # changelog/ here — never its own synced copies under src/stream/.
+  - slug: lossless-changelog
+    repo: lossless-group/lossless-changelog
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Lossless Changelog
+
   - slug: dark-matter
     repo: lossless-group/changelog_matter-site
     ref: main
