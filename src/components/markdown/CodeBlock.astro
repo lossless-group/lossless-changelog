@@ -1,4 +1,27 @@
 ---
+/**
+ * Code block renderer for AstroMarkdown output.
+ *
+ * ADAPTED from packages/lfm-astro/components/CodeBlock.astro — the copy-and-
+ * adapt pattern, not a verbatim copy. Three changes from the pattern source:
+ *
+ *   1. Real syntax highlighting via Shiki. The pattern source emitted plain
+ *      `<pre><code>{code}</code></pre>`. Astro's `markdown.syntaxHighlight`
+ *      config does NOT reach here — LFM parses the markdown and this component
+ *      renders it, so Astro's own markdown pipeline is never involved and its
+ *      highlighter setting is inert. Highlighting has to happen in here.
+ *   2. Chrome reads theme tokens. The source hardcoded Tailwind slate values
+ *      (#0f172a / #e2e8f0 / #64748b) and referenced `var(--border)`, a token
+ *      that exists in no Lossless site — so the frame silently collapsed to
+ *      the initial `border: none`.
+ *   3. Horizontal scroll is on the wrapper, so the language chip stays put
+ *      while long lines scroll under it.
+ *
+ * The highlighter itself lives in lib/highlighter.ts, cached on globalThis —
+ * a singleton held here does NOT survive Vite's per-page module re-evaluation.
+ */
+import { getHighlighter, THEME } from "../../lib/highlighter";
+
 export interface Props {
   language?: string;
   code: string;
@@ -7,47 +30,91 @@ export interface Props {
 
 const { language, code } = Astro.props as Props;
 
+const ALIASES: Record<string, string> = {
+  ts: "typescript", js: "javascript", sh: "bash", zsh: "bash", console: "bash",
+  yml: "yaml", md: "markdown", py: "python", rb: "ruby", "": "text",
+};
+
+const requested = (language ?? "").toLowerCase().trim();
+const resolved = ALIASES[requested] ?? requested;
+
+let html: string | null = null;
+if (resolved && resolved !== "text" && resolved !== "plaintext") {
+  try {
+    const hl = await getHighlighter();
+    // Unknown grammars (mermaid, and anything else an author invents) throw
+    // rather than degrade — catch and fall through to the plain rendering.
+    if (hl.getLoadedLanguages().includes(resolved as never)) {
+      html = hl.codeToHtml(code, { lang: resolved, theme: THEME });
+    }
+  } catch (err) {
+    console.error(`[CodeBlock] highlight failed for lang="${resolved}":`, err);
+    html = null;
+  }
+}
+
 const langLabel = language ? language.toUpperCase() : undefined;
 ---
 
 <div class="ak-codeblock-wrap">
   {langLabel && <div class="ak-codeblock-lang">{langLabel}</div>}
-  <pre class="ak-codeblock"><code>{code}</code></pre>
+  {html
+    ? <div class="ak-codeblock ak-shiki" set:html={html} />
+    : <pre class="ak-codeblock"><code>{code}</code></pre>}
 </div>
 
 <style>
   .ak-codeblock-wrap {
     position: relative;
-    margin-bottom: 1.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
+    margin: 1.5rem 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-alt);
     overflow: hidden;
   }
 
   .ak-codeblock-lang {
     position: absolute;
-    top: 0.5rem;
-    right: 0.75rem;
-    font-size: 0.65rem;
+    top: 0.4rem;
+    right: 0.6rem;
+    z-index: 1;
+    font-size: 0.62rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #64748b;
+    letter-spacing: 0.06em;
+    color: var(--color-text-faint);
+    background: var(--color-surface-alt);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
     pointer-events: none;
   }
 
   .ak-codeblock {
-    padding: 1rem;
-    background: #0f172a;
-    color: #e2e8f0;
-    overflow-x: auto;
-    font-size: 0.85rem;
-    line-height: 1.6;
     margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    color: var(--color-text);
   }
 
+  /* Shiki emits its own <pre class="shiki">; strip its chrome so the wrapper
+     owns the frame and the background matches the page ground. */
+  .ak-shiki :global(pre.shiki) {
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    overflow: visible;
+  }
+  .ak-shiki :global(code) {
+    display: block;
+    font-family: var(--font-mono);
+  }
+  /* Shiki emits one <span class="line"> per line; keep empty ones tall. */
+  .ak-shiki :global(.line) { min-height: 1.6em; }
+
   .ak-codeblock code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-      "Liberation Mono", "Courier New", monospace;
+    font-family: var(--font-mono);
+    white-space: pre;
   }
 </style>

@@ -50,6 +50,7 @@ export interface Entry {
   lede?: string;
   tags: string[];
   authors: string[];
+  augmentedWith: string[];
   body: string;
   sourceUrl: string;
 }
@@ -150,6 +151,7 @@ for (const [file, raw] of Object.entries(rawFiles)) {
     lede: (fm.lede ?? fm.summary ?? undefined) || undefined,
     tags: asArray(fm.tags),
     authors: asArray(fm.authors),
+    augmentedWith: asArray(fm.augmented_with),
     body,
     sourceUrl: `https://github.com/${fm.from_repo}/blob/${fm.from_ref}/${
       defBySlug.get(streamSlug)?.path ?? ""

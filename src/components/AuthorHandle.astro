@@ -1,0 +1,106 @@
+---
+/**
+ * Renders authors as headshot + name (+ role).
+ *
+ * EXTRACTED from site/src/components/basics/AuthorHandle.astro. The Starwind
+ * Avatar/AvatarImage/AvatarFallback trio is NOT carried over — this site does
+ * not use Starwind, and the whole of what those components provided here was
+ * a round image with an initials fallback. That is ~20 lines of CSS, so the
+ * dependency is not worth re-introducing to get it.
+ *
+ * Chrome reads Tier 2 theme tokens only.
+ */
+import { partitionAuthors } from "../lib/people";
+
+interface Props {
+  authors: string[];
+  size?: "sm" | "md";
+  showRole?: boolean;
+  augmentedWith?: string[];
+}
+const { authors, size = "md", showRole = false, augmentedWith = [] } = Astro.props;
+
+const { people, unmatched } = partitionAuthors(authors ?? []);
+
+const initials = (name: string) =>
+  name.split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+---
+
+{(people.length > 0 || unmatched.length > 0) && (
+  <div class="authors" data-size={size}>
+    {people.map((p) => (
+      <span class="author">
+        <span class="avatar">
+          {p.headshotOf
+            ? <img src={p.headshotOf} alt="" loading="lazy" decoding="async" width="40" height="40" />
+            : <span class="initials">{initials(p.name)}</span>}
+        </span>
+        <span class="who">
+          <span class="name">{p.name}</span>
+          {showRole && p.role && <span class="role">{p.role}</span>}
+        </span>
+      </span>
+    ))}
+
+    {/* Humans with no record yet — name only, no empty avatar chrome. */}
+    {unmatched.map((n) => (
+      <span class="author author--bare"><span class="name">{n}</span></span>
+    ))}
+
+    {augmentedWith.length > 0 && (
+      <span class="augmented" title={augmentedWith.join(", ")}>
+        augmented with {augmentedWith[0]}
+        {augmentedWith.length > 1 && ` +${augmentedWith.length - 1}`}
+      </span>
+    )}
+  </div>
+)}
+
+<style>
+  .authors {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .author { display: inline-flex; align-items: center; gap: 0.45rem; }
+
+  .avatar {
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    border-radius: 999px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    /* The brand gradient as a ring, visible behind a headshot that fails to
+       load and as the fallback ground for initials. */
+    background: var(--gradient-primary);
+    box-shadow: 0 0 0 1px var(--color-border);
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .initials {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-text);
+  }
+
+  [data-size="sm"] .avatar { width: 1.4rem; height: 1.4rem; }
+  [data-size="sm"] .initials { font-size: 0.55rem; }
+
+  .who { display: flex; flex-direction: column; line-height: 1.25; }
+  .name { font-size: 0.85rem; color: var(--color-text); }
+  [data-size="sm"] .name { font-size: 0.78rem; color: var(--color-text-muted); }
+  .role { font-size: 0.72rem; color: var(--color-text-faint); }
+
+  .author--bare .name { color: var(--color-text-muted); }
+
+  .augmented {
+    font-size: 0.72rem;
+    color: var(--color-text-faint);
+    border-left: 1px solid var(--color-border);
+    padding-left: 0.75rem;
+  }
+</style>

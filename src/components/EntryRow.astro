@@ -1,6 +1,7 @@
 ---
 import type { Entry } from "../lib/streams";
 import { getStream } from "../lib/streams";
+import AuthorHandle from "./AuthorHandle.astro";
 
 interface Props { entry: Entry; showOrigin?: boolean }
 const { entry, showOrigin = false } = Astro.props;
@@ -19,6 +20,7 @@ const stream = getStream(entry.streamSlug);
 
   <h3><a href={`/stream/${entry.streamSlug}/${entry.slug}/`}>{entry.title}</a></h3>
   {entry.lede && <p class="lede">{entry.lede}</p>}
+  <AuthorHandle authors={entry.authors} size="sm" />
 
   {entry.tags.length > 0 && (
     <ul class="tags">

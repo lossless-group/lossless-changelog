@@ -4,6 +4,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import AstroMarkdown from "../../../components/markdown/AstroMarkdown.astro";
 import Sources from "../../../components/markdown/Sources.astro";
 import { getAllEntries, getStream, getEntry } from "../../../lib/streams";
+import AuthorHandle from "../../../components/AuthorHandle.astro";
 
 export function getStaticPaths() {
   return getAllEntries().map((e) => ({
@@ -31,10 +32,10 @@ const citations = (tree as any).data?.citations?.ordered ?? [];
       <div class="meta">
         <time datetime={entry.date?.toISOString().slice(0, 10)}>{entry.dateLabel || "undated"}</time>
         <span class="altitude" data-a={stream.altitude}>{stream.altitude}</span>
-        {entry.authors.length > 0 && <span>{entry.authors.join(", ")}</span>}
       </div>
       <h1>{entry.title}</h1>
       {entry.lede && <p class="lede">{entry.lede}</p>}
+      <AuthorHandle authors={entry.authors} augmentedWith={entry.augmentedWith} showRole />
     </header>
 
     <div class="prose">
@@ -62,7 +63,7 @@ const citations = (tree as any).data?.citations?.ordered ?? [];
   .head { margin-bottom: 1.75rem; }
   .meta { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); }
   .head h1 { font-size: clamp(1.6rem, 4.5vw, 2.2rem); line-height: 1.2; margin: 0.5rem 0 0.5rem; letter-spacing: -0.02em; }
-  .lede { color: var(--color-text-muted); margin: 0; font-size: 1.02rem; }
+  .lede { color: var(--color-text-muted); margin: 0 0 1.1rem; font-size: 1.02rem; }
 
   /* Counter Tailwind-style preflight resets that strip list markers — a
      recurring issue across every site that renders LFM output. */
@@ -71,7 +72,10 @@ const citations = (tree as any).data?.citations?.ordered ?? [];
   .prose :global(li) { margin-block: 0.25rem; }
   .prose :global(h2) { margin-top: 2rem; font-size: 1.3rem; letter-spacing: -0.01em; }
   .prose :global(h3) { margin-top: 1.5rem; font-size: 1.08rem; }
-  .prose :global(pre) {
+  /* Fenced blocks are owned entirely by CodeBlock.astro — styling `pre` here
+     too would fight its scoped rules and re-introduce a second frame. Only
+     bare `pre` outside a code block (rare, from raw HTML) needs anything. */
+  .prose :global(pre:not(.ak-codeblock)) {
     background: var(--color-surface-alt);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
