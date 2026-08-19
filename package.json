@@ -1,7 +1,7 @@
 {
   "name": "lossless-changelog",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.1.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -14,10 +14,11 @@
     "lfm:jsr": "node scripts/lfm-mode.mjs jsr",
     "lfm:auto": "node scripts/lfm-mode.mjs auto",
     "sync": "node scripts/sync-streams.mjs",
-    "sync:commits": "node scripts/sync-commits.mjs"
+    "sync:commits": "node scripts/sync-commits.mjs",
+    "sync:lines": "node scripts/sync-line-classes.mjs"
   },
   "dependencies": {
-    "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@latest",
+    "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@0.5.1",
     "@types/mdast": "^4.0.4",
     "astro": "^7.1.6",
     "gray-matter": "^4.0.3",

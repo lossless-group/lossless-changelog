@@ -1,9 +1,55 @@
-node_modules/
+# build output
 dist/
+# generated types
 .astro/
-.vercel/
+
+# dependencies
+node_modules/
+.aider.*
+.aider.tags.cache.v4/
+.aider.input.history
+.aider.chat.history.md
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+# Broader than the sibling sites' `.env` + `.env.production` pair: any new
+# .env.<something> is ignored by default, and the example is the one exception.
 .env
 .env.*
 !.env.example
+
+# macOS-specific files
 .DS_Store
-design-system/
+
+# jetbrains setting folder
+.idea/
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+
+# backup files
+*.bak
+
+# Services
+.vercel/
+.netlify/
+
+# context-v scratch — the universal `extra/` folder is out-of-band material
+# and never committed, per the context-vigilance convention.
+context-v/extra/
+
+# Processed image staging — the CDN is the source of truth for served bytes,
+# per the prep-images-for-embed convention.
+.image-staging/
+
+# NOT ignored, deliberately:
+#   design-system/  — the reference surface is committed, per the astro-knots
+#                     Brand Kit / Design System convention.
+#   src/stream/     — synced changelog entries are the site's content.
