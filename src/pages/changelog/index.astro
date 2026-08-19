@@ -1,0 +1,75 @@
+---
+/**
+ * This site's own ship log. The aggregate at `/` is everyone else's record;
+ * this is ours. See lib/ownChangelog.ts for why it is loaded separately
+ * rather than declared as a stream.
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AuthorHandle from "../../components/AuthorHandle.astro";
+import LedgerStrip from "../../components/LedgerStrip.astro";
+import { ownEntries } from "../../lib/ownChangelog";
+import { spanOf, colorFor } from "../../lib/era";
+
+// Its own span, not the global one: two entries against the fleet's full
+// eighteen months would collapse into a single mark at the right edge.
+const span = spanOf(ownEntries.map((e) => e.date));
+---
+<BaseLayout
+  title="Changelog · Lossless Changelog"
+  description={`How this site got built — ${ownEntries.length} entries, written here rather than mirrored from anywhere else.`}
+>
+  <nav class="crumbs"><a href="/">All projects</a><span>/</span><span class="here">Changelog</span></nav>
+
+  <header class="head">
+    <p class="eyebrow">This site · ship log</p>
+    <h1>How this got built.</h1>
+    <p class="lede">
+      Everything else here is mirrored from somewhere else. These {ownEntries.length}
+      {" "}{ownEntries.length === 1 ? "entry was" : "entries were"} written in this repo.
+    </p>
+  </header>
+
+  {ownEntries.length > 1 && (
+    <div class="strip"><LedgerStrip entries={ownEntries as any} span={span} /></div>
+  )}
+
+  <ol class="feed">
+    {ownEntries.map((e) => (
+      <li>
+        <a class="row" href={`/changelog/${e.slug}/`}>
+          <time datetime={e.date?.toISOString().slice(0, 10)}
+                style={e.date ? `--accent:${colorFor(span, e.date)}` : undefined}>
+            {e.dateLabel || "undated"}
+          </time>
+          <span class="title">{e.title}</span>
+          {e.lede && <span class="lede-line">{e.lede}</span>}
+        </a>
+        <AuthorHandle authors={e.authors} augmentedWith={e.augmentedWith} />
+      </li>
+    ))}
+  </ol>
+</BaseLayout>
+
+<style>
+  .crumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1.25rem; }
+  .crumbs .here { color: var(--color-text-muted); }
+
+  .head { margin-bottom: 1.75rem; }
+  .eyebrow { margin: 0 0 0.5rem; font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-faint); }
+  h1 { font-family: var(--font-display); font-size: var(--text-2xl); margin: 0 0 0.6rem; }
+  .lede { margin: 0; max-width: var(--measure); color: var(--color-text-muted); }
+
+  .strip { margin-bottom: 2rem; }
+
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed > li { border-top: 1px solid var(--color-border); padding: 1rem 0; }
+  .feed > li:last-child { border-bottom: 1px solid var(--color-border); }
+
+  .row { display: grid; gap: 0.3rem; color: inherit; }
+  .row:hover { text-decoration: none; }
+  /* Same temporal accent the aggregate feed uses — hue is when, everywhere. */
+  time { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); border-left: 2px solid var(--accent, var(--color-border)); padding-left: 0.55rem; }
+  .title { font-size: var(--text-lg); font-weight: 500; }
+  .row:hover .title { color: var(--color-primary); }
+  .lede-line { max-width: var(--measure); color: var(--color-text-muted); font-size: var(--text-sm); }
+</style>

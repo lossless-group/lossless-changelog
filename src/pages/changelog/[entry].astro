@@ -1,0 +1,70 @@
+---
+/**
+ * One of this site's own changelog entries, rendered through
+ * @lossless-group/lfm — the same pipeline the aggregate entries use, so our
+ * own ship log gets callouts, citations, code fences, and heading anchors
+ * rather than being the one markdown on the site that renders as plain text.
+ */
+import { parseMarkdown } from "@lossless-group/lfm";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AstroMarkdown from "../../components/markdown/AstroMarkdown.astro";
+import Sources from "../../components/markdown/Sources.astro";
+import AuthorHandle from "../../components/AuthorHandle.astro";
+import { ownEntries, getOwnEntry } from "../../lib/ownChangelog";
+
+export function getStaticPaths() {
+  return ownEntries.map((e) => ({ params: { entry: e.slug } }));
+}
+
+const entry = getOwnEntry(Astro.params.entry!)!;
+
+// Citations are attached to the tree by remark-citations during the parse.
+const tree = await parseMarkdown(entry.body);
+const citations = (tree as any).data?.citations?.ordered ?? [];
+---
+<BaseLayout title={entry.title} description={entry.lede}>
+  <nav class="crumbs">
+    <a href="/">All projects</a><span>/</span><a href="/changelog/">Changelog</a>
+  </nav>
+
+  <article>
+    <header class="head">
+      <div class="meta">
+        <time datetime={entry.date?.toISOString().slice(0, 10)}>{entry.dateLabel || "undated"}</time>
+      </div>
+      <h1>{entry.title}</h1>
+      {entry.lede && <p class="lede">{entry.lede}</p>}
+      <AuthorHandle authors={entry.authors} augmentedWith={entry.augmentedWith} showRole />
+    </header>
+
+    <div class="prose">
+      <AstroMarkdown node={tree} />
+    </div>
+
+    {citations.length > 0 && <Sources citations={citations} />}
+
+    <footer class="foot">
+      {entry.tags.length > 0 && (
+        <ul class="tags">{entry.tags.map((t) => <li>{t}</li>)}</ul>
+      )}
+      {/* No "mirrored from" line, unlike an aggregate entry — this one is
+          written here, so this page IS the source of truth. */}
+      <p>Written in this repo · <code>changelog/{entry.slug}.md</code></p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .crumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1.25rem; }
+  .head { margin-bottom: 2rem; }
+  .meta { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.6rem; }
+  time { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); }
+  h1 { font-family: var(--font-display); font-size: var(--text-2xl); margin: 0 0 0.6rem; }
+  .lede { margin: 0 0 0.9rem; max-width: var(--measure); color: var(--color-text-muted); font-size: var(--text-lg); }
+
+  .prose { max-width: var(--measure); }
+
+  .foot { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); }
+  .tags { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.7rem; padding: 0; }
+  .tags li { padding: 0.1rem 0.45rem; border: 1px solid var(--color-border); border-radius: var(--radius); }
+</style>
