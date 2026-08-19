@@ -7,8 +7,18 @@ import "@fontsource-variable/jetbrains-mono";
 import "../styles/theme.css";
 import { totals } from "../lib/streams";
 
-interface Props { title: string; description?: string }
-const { title, description } = Astro.props;
+interface Props {
+  title: string;
+  description?: string;
+  /**
+   * Keep the page out of search results. The Brand Kit and Design System
+   * reference surfaces are internal by convention — they exist for developers
+   * and AI assistants working in this repo, not for readers arriving from a
+   * search engine.
+   */
+  noindex?: boolean;
+}
+const { title, description, noindex = false } = Astro.props;
 const full = title === "Lossless Changelog" ? title : `${title} · Lossless Changelog`;
 ---
 <!doctype html>
@@ -21,13 +31,18 @@ const full = title === "Lossless Changelog" ? title : `${title} · Lossless Chan
     <meta property="og:title" content={full} />
     {description && <meta property="og:description" content={description} />}
     <meta property="og:type" content="website" />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />}
   </head>
   <body>
     <header class="site-head">
       <div class="shell head-inner">
         <a href="/" class="wordmark">Lossless <span class="gradient-text">Changelog</span></a>
-        <span class="tally">{totals.entries} entries · {totals.streams} streams</span>
+        <nav class="head-nav">
+          {/* This site's own ship log, distinct from the aggregate at `/`. */}
+          <a href="/changelog/">Changelog</a>
+          <span class="tally">{totals.entries} entries · {totals.streams} streams</span>
+        </nav>
       </div>
     </header>
 
@@ -69,6 +84,15 @@ const full = title === "Lossless Changelog" ? title : `${title} · Lossless Chan
   }
   .wordmark span { font-style: italic; }
   .wordmark:hover { text-decoration: none; }
+  .head-nav { display: flex; align-items: baseline; gap: 1rem; }
+  .head-nav > a {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+  .head-nav > a:hover { color: var(--color-primary); text-decoration: none; }
   .tally { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); font-variant-numeric: tabular-nums; }
 
   main { padding-block: 2.25rem 4rem; }

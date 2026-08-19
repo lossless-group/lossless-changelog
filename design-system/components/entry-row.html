@@ -1,0 +1,302 @@
+<!-- @dsCard group="Components" name="Entry row" -->
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entry row</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Figtree:wght@300..900&family=JetBrains+Mono:wght@300..700&display=swap" rel="stylesheet">
+<style>
+  /* The site self-hosts these via @fontsource; the preview pulls the same
+     families from Google so a card renders standalone in the Design pane. */
+  :root, [data-mode="dark"] {
+    --font-display: "Bodoni Moda", Didot, Georgia, serif;
+    --font-body: "Figtree", ui-sans-serif, system-ui, sans-serif;
+    --font-heading: var(--font-body);
+    --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+</style>
+<style>
+/*
+ * The Lossless Group — theme tokens.
+ *
+ * Extracted from site/src/styles/{global,lossless-theme}.css per
+ * context-v/specs/Extract-the-Lossless-Brand-Layer-from-lossless-site.md.
+ * Brand VALUES are carried forward verbatim; only the naming convention and
+ * the file organization change.
+ *
+ * TWO TIERS, per the Astro Knots convention:
+ *   Tier 1 — named tokens, `__` separator, raw values. PRIVATE: components
+ *            must never read these directly.
+ *   Tier 2 — semantic tokens, kebab-case, resolved through var(). This is the
+ *            only tier components and Tailwind utilities may read. Kebab-case
+ *            is load-bearing — Tailwind v4 generates utilities only from it.
+ *
+ * DARK ONLY, BY DECISION.
+ * The theme-system skill specifies a three-mode contract (light/dark/vibrant).
+ * That contract exists for stakeholder management on CLIENT sites. Lossless
+ * Group is the house brand: the identity is dark, the cyan-aqua accent only
+ * reads against dark, and the eastern-crimson gradient is tuned luminous-on-
+ * dark. On white it would not be a light mode, it would be a different brand.
+ *
+ * Tier 2 still lives behind `:root, [data-mode="dark"]` rather than a bare
+ * `:root`. Cost today is one selector; the benefit is that adding a mode later
+ * is authoring one more block instead of refactoring every token. What we do
+ * NOT do is ship a half-authored light mode — worse than none.
+ */
+
+/* ── Tier 1: named tokens ─────────────────────────────────────────────────
+   Raw brand values. Mode-independent. Private. */
+:root {
+  /* Brand gradient — the single most identity-carrying asset.
+     107deg variant, confirmed canonical 2026-08-08. The 112deg variant in the
+     old lossless-theme.css was dead code: global.css imported it and then
+     redefined the token, so 107deg is what has actually been shipping. */
+  --color__eastern-blue: hsla(186, 68%, 42%, 1);
+  --color__blue-purple: hsla(272, 73%, 55%, 1);
+  --color__alazarin-crimson: hsla(352, 72%, 49%, 1);
+  --color__sundshade-yellow: hsla(29, 90%, 62%, 1);
+  --gradient__eastern-crimson: linear-gradient(
+    107deg,
+    #22a6b5 5.36%,
+    #9138e0 23.14%,
+    #d9233b 47.56%,
+    #f59c49 72.33%
+  );
+
+  --gradient__shamrock-fountain: linear-gradient(90deg, #32c6ab 0%, #4ca7b6 100%);
+
+  /* Grounds */
+  --color__github-dark: #0d1117;        /* was --clr-stolen--github--dark */
+  --color__jaguar-black: hsla(288, 100%, 2%, 1);
+  --color__bastille-black: hsla(273, 18%, 10%, 1);
+  --color__bunker-black: hsla(218, 22%, 7%, 1);
+
+  /* Core accent + light */
+  --color__cyan-aqua-brightest: rgb(4, 229, 229);
+  --color__white-catskill: hsla(184, 35%, 92%, 1);
+  --color__purple-heart: hsla(272, 73%, 55%, 1);
+  --color__aquamarine: #6fffd6;
+
+  /* Spectrum — the .shade-* vocabulary */
+  --color__mystic-turquoise: hsla(169, 60%, 49%, 1);
+  --color__pelorous-ocean: hsla(188, 42%, 51%, 1);
+  --color__slate-blue: hsla(249, 53%, 58%, 1);
+  --color__purpureus: hsla(284, 51%, 47%, 1);
+  --color__dingy-dungeon: hsla(350, 55%, 49%, 1);
+  --color__jelly-bean: hsla(9, 62%, 56%, 1);
+  --color__porsche-orange: hsla(30, 76%, 63%, 1);
+
+  /* Attention grabbers */
+  --color__robins-egg-blue: hsla(180, 77%, 49%, 1);
+  --color__bright-lime: hsla(107, 73%, 55%, 1);
+  --color__algae-green: hsla(154, 62%, 72%, 1);
+  --color__pizzaz-pink: hsla(301, 93%, 62%, 1);
+
+  /* Alternates. Both of these were UNDEFINED in the source — a missing
+     semicolon after butterfly-bush-purple swallowed ice-blue with it. */
+  --color__butterfly-bush-purple: hsla(259, 34%, 45%, 1);
+  --color__ice-blue: hsla(173, 66%, 80%, 1);
+  --color__bondi-blue: hsla(187, 100%, 35%, 1);
+
+  /* Glass — white at alpha, for borders and translucent surfaces */
+  --color__white-10p: hsla(0, 0%, 100%, 0.1);
+  --color__white-20p: hsla(0, 0%, 100%, 0.2);
+  --color__white-45p: hsla(0, 0%, 100%, 0.45);
+  --color__white-70p: hsla(0, 0%, 100%, 0.7);
+
+  /* Type. Three roles, deliberately in tension: a high-contrast didone for
+     display, a humanist grotesque for prose, a terminal mono for data. The
+     changelog convention is "marketing up top, engineering as the narrative
+     unfolds" — the type does that literally: a journal of record at the top of
+     a page, a terminal by the bottom.
+     Self-hosted; the old site declared Poppins/Krub and fetched neither. */
+  --font__bodoni: "Bodoni Moda Variable", "Bodoni Moda", Didot, Georgia, serif;
+  --font__figtree: "Figtree Variable", Figtree, ui-sans-serif, system-ui, sans-serif;
+  --font__jetbrains: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --font__poor-story: "Poor Story Regular", "Indie Flower", "Gaegu", cursive;
+}
+
+/* ── Tier 2: semantic tokens ──────────────────────────────────────────────
+   The only tier components read. */
+:root,
+[data-mode="dark"] {
+  --color-bg: var(--color__github-dark);
+  --color-surface: var(--color__bastille-black);
+  --color-surface-alt: var(--color__bunker-black);
+  --color-border: var(--color__white-10p);
+
+  --color-text: var(--color__white-catskill);
+  --color-text-muted: var(--color__white-70p);
+  --color-text-faint: var(--color__white-45p);
+  --color-heading: var(--color__cyan-aqua-brightest);
+
+  --color-primary: var(--color__cyan-aqua-brightest);
+  --color-accent: var(--color__purple-heart);
+  --color-link: var(--color__cyan-aqua-brightest);
+  --color-warn: var(--color__sundshade-yellow);
+
+  --gradient-primary: var(--gradient__eastern-crimson);
+  --gradient-cta: var(--gradient__shamrock-fountain);
+
+  --font-display: var(--font__bodoni);
+  --font-body: var(--font__figtree);
+  --font-heading: var(--font__figtree);
+  --font-mono: var(--font__jetbrains);
+  --font-hand: var(--font__poor-story);
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-base: 1rem;
+  --text-lg: 1.16rem;
+  --text-xl: clamp(1.3rem, 2.2vw, 1.6rem);
+  --text-2xl: clamp(1.7rem, 3.4vw, 2.4rem);
+  --text-display: clamp(2.6rem, 8vw, 5.4rem);
+
+  --ledger-height: 116px;
+
+  --radius: 10px;
+  --measure: 68ch;
+  --shell: 1120px;
+
+  /* Native UI follows the theme — scrollbars, form controls, and the
+     descendants checkbox on stream pages all render light without this. */
+  color-scheme: dark;
+}
+
+/* ── base ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  letter-spacing: -0.015em;
+}
+
+/* Eyebrow: a mono, letterspaced label. Used only where it names what a block
+   IS — not as decoration. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  font-weight: 500;
+}
+
+a { color: var(--color-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre { font-family: var(--font-mono); font-size: 0.9em; }
+
+::selection { background: var(--color__purple-heart); color: var(--color__white-catskill); }
+
+/* ── utilities ────────────────────────────────────────────────────────────── */
+.shell { max-width: var(--shell); margin: 0 auto; padding: 0 1.25rem; }
+.measure { max-width: var(--measure); }
+
+/* The brand gradient as text fill. Used for the wordmark and hero headings. */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.altitude {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-faint);
+}
+.altitude[data-a="fleet"]     { border-color: var(--color-primary); color: var(--color-primary); }
+.altitude[data-a="product"]   { border-color: var(--color-accent);  color: var(--color-accent); }
+.altitude[data-a="component"] { border-color: var(--color-border);  color: var(--color-text-faint); }
+
+  body { padding: 2rem; }
+  .ds-h { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.16em;
+          text-transform: uppercase; color: var(--color-text-faint); margin: 0 0 0.9rem; }
+  .ds-sec + .ds-sec { margin-top: 2.25rem; }
+</style>
+</head>
+<body>
+
+<p class="ds-h">Feed item · accent restates the temporal ramp</p>
+
+<article style="position:relative;padding:1.15rem 0 1.15rem 1rem;border-bottom:1px solid var(--color-border)">
+  <span style="position:absolute;inset:1.15rem auto 1.15rem 0;width:2px;border-radius:2px;background:#f59c49"></span>
+  <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-faint);margin-bottom:.3rem">
+    <time style="font-family:var(--font-mono)">08 August, 2026</time>
+    <span style="color:var(--color-text-muted)">component · Investment Memo Orchestrator</span>
+  </div>
+  <h3 style="margin:0 0 .35rem;font-size:var(--text-lg);line-height:1.3;font-weight:600;letter-spacing:-.012em">The corpora were never missing — one bad message had killed the subject</h3>
+  <p style="margin:0;max-width:68ch;color:var(--color-text-muted);font-size:.92rem">A single malformed message poisoned the subject index, and every downstream corpus read as empty. The data was intact the whole time.</p>
+  <ul style="list-style:none;display:flex;gap:.3rem;margin:.5rem 0 0;padding:0">
+    <li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Debugging</li><li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Corpora</li><li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Root-Cause</li>
+  </ul>
+</article>
+
+<article style="position:relative;padding:1.15rem 0 1.15rem 1rem;border-bottom:1px solid var(--color-border)">
+  <span style="position:absolute;inset:1.15rem auto 1.15rem 0;width:2px;border-radius:2px;background:#d9233b"></span>
+  <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-faint);margin-bottom:.3rem">
+    <time style="font-family:var(--font-mono)">12 May, 2026</time>
+    <span style="color:var(--color-text-muted)">fleet · Astro Knots</span>
+  </div>
+  <h3 style="margin:0 0 .35rem;font-size:var(--text-lg);line-height:1.3;font-weight:600;letter-spacing:-.012em">Sweep: LFM 0.3.0, Astro 6.3.1, and OpenPanel layered across the fleet</h3>
+  <p style="margin:0;max-width:68ch;color:var(--color-text-muted);font-size:.92rem">Eleven sites bumped in one pass, with the analytics layer landing behind a single shared component.</p>
+  <ul style="list-style:none;display:flex;gap:.3rem;margin:.5rem 0 0;padding:0">
+    <li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Dependency-Upgrade</li><li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Fleet-Wide</li>
+  </ul>
+</article>
+
+<article style="position:relative;padding:1.15rem 0 1.15rem 1rem;border-bottom:1px solid var(--color-border)">
+  <span style="position:absolute;inset:1.15rem auto 1.15rem 0;width:2px;border-radius:2px;background:#9138e0"></span>
+  <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-faint);margin-bottom:.3rem">
+    <time style="font-family:var(--font-mono)">03 November, 2025</time>
+    <span style="color:var(--color-text-muted)">product · MemoPop AI</span>
+  </div>
+  <h3 style="margin:0 0 .35rem;font-size:var(--text-lg);line-height:1.3;font-weight:600;letter-spacing:-.012em">Sources capture their own bibliography</h3>
+  <p style="margin:0;max-width:68ch;color:var(--color-text-muted);font-size:.92rem">Authors, publisher, and date now travel with the source rather than being re-derived at render time.</p>
+  <ul style="list-style:none;display:flex;gap:.3rem;margin:.5rem 0 0;padding:0">
+    <li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Citations</li><li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Schema</li>
+  </ul>
+</article>
+
+<article style="position:relative;padding:1.15rem 0 1.15rem 1rem;border-bottom:1px solid var(--color-border)">
+  <span style="position:absolute;inset:1.15rem auto 1.15rem 0;width:2px;border-radius:2px;background:#22a6b5"></span>
+  <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-faint);margin-bottom:.3rem">
+    <time style="font-family:var(--font-mono)">18 January, 2025</time>
+    <span style="color:var(--color-text-muted)">component · Cite Wide</span>
+  </div>
+  <h3 style="margin:0 0 .35rem;font-size:var(--text-lg);line-height:1.3;font-weight:600;letter-spacing:-.012em">Hex citations, day one</h3>
+  <p style="margin:0;max-width:68ch;color:var(--color-text-muted);font-size:.92rem">The retrospective that should have been written when Cite-Wide's identity emerged, filed sixteen months late.</p>
+  <ul style="list-style:none;display:flex;gap:.3rem;margin:.5rem 0 0;padding:0">
+    <li style="font-family:var(--font-mono);font-size:.68rem;padding:.1rem .4rem;border-radius:var(--radius);background:var(--color-surface-alt);color:var(--color-text-faint)">Retrospective</li>
+  </ul>
+</article>
+<p style="color:var(--color-text-muted);max-width:64ch;margin:1.2rem 0 0">
+  The 2px rule carries the same hue the ledger strip gives that day, so scanning
+  the feed and scanning the strip teach the same colour vocabulary. Ledes clamp
+  to three lines — across three years of convention drift they range from one
+  line to full paragraphs, and one stray long one would dominate the column.
+</p>
+</body>
+</html>
