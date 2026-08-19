@@ -2,32 +2,57 @@
 /**
  * The ledger strip — this site's signature element.
  *
- * Every entry in scope is one hairline, positioned on the x-axis by its date
- * and coloured by where it falls in the corpus's history (see lib/era.ts).
- * Read left to right it is the fleet's whole shipping record: density is
- * velocity, gaps are quiet weeks, hue is when.
+ * DIVERGING, around a centre baseline. Above it, one mark per day the fleet
+ * published a changelog entry, height by how many. Below it, weekly commit
+ * volume as an area. Read together: the top is what we WROTE DOWN, the bottom
+ * is what we BUILT, and a stretch of commit mass with nothing above it is a
+ * week that shipped and never got logged.
  *
- * It is a chart, not an ornament — which is why there is no legend and no
- * axis furniture beyond the year ticks. The gradient IS the legend, because
- * the same ramp colours the dates everywhere else on the site.
+ * It used to layer both series in one centred box, which was unreadable for
+ * two reasons. Entry marks grew from the middle in both directions, so a mark
+ * only ever used half the height it appeared to claim; and a sqrt scale
+ * against a 27-entry outlier squeezed 69% of days into a 19–33% band where
+ * nothing was distinguishable from anything else. Diverging gives each series
+ * its own full range, and the clipped linear scale below spends that range on
+ * the days there actually are.
  *
- * Pure SVG, no client JS, no chart library. Hairlines are <rect>s so they stay
- * crisp at any width, and the whole thing scales with preserveAspectRatio.
+ * It is a chart, not an ornament — which is why the axis furniture is limited
+ * to year ticks and, on the global strip only, two faint gridlines. Hue still
+ * carries chronology (lib/era.ts); the gradient IS the legend.
+ *
+ * Pure SVG, no client JS, no chart library.
  */
 import type { Entry } from "../lib/streams";
 import type { Week } from "../lib/commits";
 import { spanOf, positionIn, colorFor, type TimeSpan } from "../lib/era";
 
+/**
+ * Shared y-scale. Passed down from the page for the same reason `span` is:
+ * a project strip drawn to its own maximum would make three busy days look
+ * like the fleet's busiest week. Comparability across strips beats per-strip
+ * contrast.
+ */
+export interface LedgerScale {
+  /** Entries-per-day at which a mark reaches full height. */
+  entriesPerDay: number;
+  /** Commits-per-week at which the area reaches full depth. */
+  commitsPerWeek: number;
+}
+
 interface Props {
   entries: Entry[];
-  /** Shared span, so a stream page's strip aligns with the global one. */
   span?: TimeSpan;
-  /** Weekly commit volume, drawn as an area beneath the entry marks. */
   commits?: Week[];
+  scale?: LedgerScale;
   height?: number;
   compact?: boolean;
+  /** Minimal y-gridlines + labels. The global strip only. */
+  axis?: boolean;
 }
-const { entries, span: spanProp, commits = [], height = 116, compact = false } = Astro.props;
+const {
+  entries, span: spanProp, commits = [], scale: scaleProp,
+  height = 116, compact = false, axis = false,
+} = Astro.props;
 
 const dated = entries.filter((e) => e.date);
 const span = spanProp ?? spanOf(dated.map((e) => e.date));
@@ -36,8 +61,13 @@ const W = 1000;
 const H = height;
 const PAD = compact ? 0 : 14;
 
-// Bucket by day so a busy day reads as a taller mark rather than a thicker
-// smear — volume becomes legible without inventing a y-axis for each entry.
+// The baseline sits above centre: commit volume is the denser, more continuous
+// series and reads better with more room than the sparse daily marks need.
+const BASE = PAD + (H - PAD * 2) * 0.44;
+const UP = BASE - PAD;          // room for entry marks
+const DOWN = H - PAD - BASE;    // room for the commit area
+
+// Bucket entries by day — a busy day is one taller mark, not a thicker smear.
 const buckets = new Map<number, { n: number; date: Date }>();
 for (const e of dated) {
   const d = e.date!;
@@ -47,52 +77,56 @@ for (const e of dated) {
   else buckets.set(key, { n: 1, date: d });
 }
 
-const maxN = Math.max(1, ...[...buckets.values()].map((b) => b.n));
+const activeCommits = commits.filter((w) => w.commits > 0);
+
+/**
+ * Clip at the 95th percentile rather than the maximum. Four of 126 days carry
+ * more than eight entries and one carries 27; scaling to that outlier is what
+ * flattened everything else. Days past the cap are drawn at full height and
+ * flagged, which is honest — the mark says "at least this many" and the
+ * tooltip says how many.
+ */
+function p95(values: number[], fallback: number): number {
+  if (!values.length) return fallback;
+  const s = [...values].sort((a, b) => a - b);
+  return Math.max(1, s[Math.min(s.length - 1, Math.floor(s.length * 0.95))]);
+}
+const scale: LedgerScale = scaleProp ?? {
+  entriesPerDay: p95([...buckets.values()].map((b) => b.n), 1),
+  commitsPerWeek: p95(activeCommits.map((w) => w.commits), 1),
+};
+
 const marks = [...buckets.values()].map((b) => {
   const t = positionIn(span, b.date);
-  // sqrt so a 12-entry day doesn't dwarf every single-entry day into invisibility
-  const h = Math.max(3, Math.sqrt(b.n / maxN) * (H - PAD * 2));
+  const over = b.n > scale.entriesPerDay;
+  // Linear against the clipped cap. A floor of 2px keeps a one-entry day from
+  // vanishing on the compact sparkline.
+  const h = Math.max(2, Math.min(1, b.n / scale.entriesPerDay) * UP);
   return {
     x: PAD + t * (W - PAD * 2),
-    h,
-    n: b.n,
+    h, over,
     fill: colorFor(span, b.date),
     label: `${b.date.toISOString().slice(0, 10)} · ${b.n} ${b.n === 1 ? "entry" : "entries"}`,
   };
 });
 
-/**
- * Commit volume as a filled area under the marks. Two series on one axis:
- * the area is what we BUILT, the hairlines are what we WROTE DOWN. Where the
- * area rises with no hairline above it, code shipped and nobody logged it —
- * which is the point of drawing them together rather than side by side.
- *
- * Deliberately quiet: a low-opacity fill in a single neutral, so it reads as
- * ground the entries stand on rather than a second competing chart.
- */
-const activeCommits = commits.filter((w) => w.commits > 0);
-const maxC = Math.max(1, ...activeCommits.map((w) => w.commits));
-const areaH = H - PAD * 2;
-
+// Commit volume, mirrored below the baseline.
 let areaPath = "";
 if (activeCommits.length > 1) {
   const pts = activeCommits.map((w) => {
     const t = positionIn(span, new Date(w.w * 1000));
     const x = PAD + Math.min(Math.max(t, 0), 1) * (W - PAD * 2);
-    // sqrt for the same reason the marks use it — one 200-commit week would
-    // otherwise flatten every ordinary week into the baseline.
-    const y = H - PAD - Math.sqrt(w.commits / maxC) * areaH;
+    const y = BASE + Math.min(1, w.commits / scale.commitsPerWeek) * DOWN;
     return [x, y] as const;
   });
   areaPath =
-    `M ${pts[0][0].toFixed(1)} ${H - PAD} ` +
+    `M ${pts[0][0].toFixed(1)} ${BASE} ` +
     pts.map(([x, y]) => `L ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") +
-    ` L ${pts[pts.length - 1][0].toFixed(1)} ${H - PAD} Z`;
+    ` L ${pts[pts.length - 1][0].toFixed(1)} ${BASE} Z`;
 }
 
-// Axis furniture: interior year boundaries only. A January 1st before the
-// corpus starts is not a tick — it would sit off the left edge and imply the
-// record goes back further than it does.
+// Interior year boundaries only — a January before the corpus starts would sit
+// off the left edge and imply the record goes back further than it does.
 const years: { x: number; label: string }[] = [];
 if (span.max > span.min) {
   const y0 = new Date(span.min).getUTCFullYear();
@@ -103,8 +137,6 @@ if (span.max > span.min) {
   }
 }
 
-// The endpoints are labelled from the real first and last entries, so the axis
-// states the corpus's actual extent rather than a rounded year.
 const monthYear = (ms: number) =>
   new Date(ms).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
 const startLabel = monthYear(span.min);
@@ -113,24 +145,43 @@ const endLabel = monthYear(span.max);
 
 <figure class="ledger" data-compact={compact ? "" : undefined}>
   <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img"
-       aria-label={`Shipping cadence: ${dated.length} entries between ${new Date(span.min).toISOString().slice(0, 10)} and ${new Date(span.max).toISOString().slice(0, 10)}`}>
+       aria-label={`Shipping cadence: ${dated.length} entries between ${new Date(span.min).toISOString().slice(0, 10)} and ${new Date(span.max).toISOString().slice(0, 10)}, above weekly commit volume`}>
+
+    {!compact && years.map((y) => <line x1={y.x} x2={y.x} y1={0} y2={H} class="tick" />)}
+
+    {/* Gridlines before the data, so marks sit on top of them. */}
+    {axis && (
+      <>
+        <line x1={PAD} x2={W - PAD} y1={PAD} y2={PAD} class="grid" />
+        <line x1={PAD} x2={W - PAD} y1={H - PAD} y2={H - PAD} class="grid" />
+      </>
+    )}
+
     {areaPath && <path d={areaPath} class="commits" />}
-    {!compact && years.map((y) => (
-      <line x1={y.x} x2={y.x} y1={0} y2={H} class="tick" />
-    ))}
+
     {marks.map((m) => (
-      <rect x={m.x} y={(H - m.h) / 2} width={1.6} height={m.h} fill={m.fill} rx="0.8">
+      <rect x={m.x} y={BASE - m.h} width={1.6} height={m.h} fill={m.fill} rx="0.8"
+            data-over={m.over ? "" : undefined}>
         <title>{m.label}</title>
       </rect>
     ))}
+
+    {/* The baseline is the reference both series are read against, so it is
+        drawn last and stays visible through them. */}
+    <line x1={PAD} x2={W - PAD} y1={BASE} y2={BASE} class="base" />
   </svg>
+
+  {axis && (
+    <div class="yaxis" aria-hidden="true">
+      <span class="up">{scale.entriesPerDay}+ entries/day</span>
+      <span class="down">{scale.commitsPerWeek}+ commits/week</span>
+    </div>
+  )}
 
   {!compact && dated.length > 0 && (
     <figcaption>
       <span class="end" style="left:0">{startLabel}</span>
-      {years.map((y) => (
-        <span style={`left:${(y.x / W) * 100}%`}>{y.label}</span>
-      ))}
+      {years.map((y) => <span style={`left:${(y.x / W) * 100}%`}>{y.label}</span>)}
       <span class="end end--right" style="left:100%">{endLabel}</span>
     </figcaption>
   )}
@@ -138,38 +189,42 @@ const endLabel = monthYear(span.max);
 
 <style>
   .ledger { margin: 0; position: relative; }
-  .ledger svg {
-    display: block;
-    width: 100%;
-    height: var(--ledger-height);
-  }
+  .ledger svg { display: block; width: 100%; height: var(--ledger-height); }
   .ledger[data-compact] svg { height: 26px; }
 
   .tick { stroke: var(--color-border); stroke-width: 1; }
+  .grid { stroke: var(--color-border); stroke-width: 1; stroke-dasharray: 2 4; }
+  .base { stroke: var(--color-border); stroke-width: 1; }
 
-  /* Ground, not figure. One neutral fill at low opacity so the coloured
-     entry marks stay the thing you read. */
-  .commits { fill: var(--color-text); opacity: 0.09; }
-  .ledger:hover .commits { opacity: 0.14; }
+  /* Ground, not figure — one neutral fill so the coloured marks stay the
+     thing you read. */
+  .commits { fill: var(--color-text); opacity: 0.16; }
+  .ledger:hover .commits { opacity: 0.22; }
 
   rect { transition: opacity 0.15s ease; }
   .ledger:hover rect { opacity: 0.45; }
   .ledger rect:hover { opacity: 1; }
+  /* A day past the clip is drawn at full height; the notch says "and then
+     some" so a capped mark is not mistaken for an exact reading. */
+  rect[data-over] { stroke: var(--color-bg); stroke-width: 0.8; stroke-dasharray: 2 2; }
+
+  .yaxis {
+    position: absolute; inset: 0; pointer-events: none;
+    font-family: var(--font-mono); font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+  .yaxis span { position: absolute; right: 0; }
+  .yaxis .up { top: -0.15rem; }
+  .yaxis .down { bottom: -0.15rem; }
 
   figcaption {
-    position: relative;
-    height: 1.1rem;
-    margin-top: 0.4rem;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
+    position: relative; height: 1.1rem; margin-top: 0.4rem;
+    font-family: var(--font-mono); font-size: var(--text-xs);
     color: var(--color-text-faint);
   }
   figcaption span { position: absolute; transform: translateX(-50%); }
-  /* Endpoints sit flush with the strip edges rather than centred on them. */
   figcaption .end { transform: none; color: var(--color-text-muted); }
   figcaption .end--right { transform: translateX(-100%); }
 
-  @media (prefers-reduced-motion: reduce) {
-    rect { transition: none; }
-  }
+  @media (prefers-reduced-motion: reduce) { rect { transition: none; } }
 </style>

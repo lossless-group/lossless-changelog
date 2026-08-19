@@ -6,7 +6,7 @@ import ProjectRow from "../components/ProjectRow.astro";
 import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/streams";
 import { spanOf, colorFor } from "../lib/era";
 import ModelBand from "../components/ModelBand.astro";
-import { globalWeeks, globalTotals, statsForSubtree } from "../lib/commits";
+import { globalWeeks, globalTotals, statsForSubtree, ledgerScale } from "../lib/commits";
 import { globalLines, proseLines } from "../lib/lines";
 import LineBar from "../components/LineBar.astro";
 import { augmentationRate } from "../lib/models";
@@ -23,6 +23,9 @@ const span = spanOf([
 ]);
 
 const aug = augmentationRate(all);
+
+// One scale for every strip on the page, so the rows stay comparable.
+const scale = ledgerScale(all.map((e) => e.date));
 
 const dated = all.filter((e) => e.date);
 const first = dated.length ? dated[dated.length - 1].date! : null;
@@ -56,7 +59,7 @@ const fmt = (d: Date | null) =>
   </section>
 
   <section class="strip">
-    <LedgerStrip entries={all} span={span} commits={globalWeeks} />
+    <LedgerStrip entries={all} span={span} commits={globalWeeks} scale={scale} axis />
     <ModelBand entries={all} span={span} />
     <dl class="legend">
       <div><dt>Commits</dt><dd>{globalTotals.commits.toLocaleString()}</dd></div>
@@ -81,19 +84,19 @@ const fmt = (d: Date | null) =>
       {roots.map((root) => (
         <li class="root">
           <ProjectRow stream={root} entries={getSubtreeEntries(root.slug)}
-                      commits={statsForSubtree(root).weeks} span={span} count={root.totalCount} />
+                      commits={statsForSubtree(root).weeks} span={span} scale={scale} count={root.totalCount} />
           {root.children.length > 0 && (
             <ul class="kids">
               {root.children.map((child) => (
                 <li>
                   <ProjectRow stream={child} entries={getSubtreeEntries(child.slug)}
-                              commits={statsForSubtree(child).weeks} span={span} count={child.ownCount} kid />
+                              commits={statsForSubtree(child).weeks} span={span} scale={scale} count={child.ownCount} kid />
                   {child.children.length > 0 && (
                     <ul class="kids kids--deep">
                       {child.children.map((g) => (
                         <li>
                           <ProjectRow stream={g} entries={getSubtreeEntries(g.slug)}
-                                      commits={statsForSubtree(g).weeks} span={span} count={g.ownCount} kid />
+                                      commits={statsForSubtree(g).weeks} span={span} scale={scale} count={g.ownCount} kid />
                         </li>
                       ))}
                     </ul>

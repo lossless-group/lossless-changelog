@@ -9,6 +9,7 @@
  */
 import type { Stream } from "../lib/streams";
 import type { Week } from "../lib/commits";
+import type { LedgerScale } from "./LedgerStrip.astro";
 import type { TimeSpan } from "../lib/era";
 import LedgerStrip from "./LedgerStrip.astro";
 import type { Entry } from "../lib/streams";
@@ -18,10 +19,12 @@ interface Props {
   entries: Entry[];
   commits: Week[];
   span: TimeSpan;
+  /** Shared y-scale — see LedgerStrip. Rows must all use the same one. */
+  scale?: LedgerScale;
   count: number;
   kid?: boolean;
 }
-const { stream, entries, commits, span, count, kid = false } = Astro.props;
+const { stream, entries, commits, span, scale, count, kid = false } = Astro.props;
 ---
 
 <div class:list={["row", kid && "row--kid"]}>
@@ -74,7 +77,7 @@ const { stream, entries, commits, span, count, kid = false } = Astro.props;
   </span>
 
   <span class="spark">
-    <LedgerStrip entries={entries} span={span} commits={commits} compact />
+    <LedgerStrip entries={entries} span={span} commits={commits} scale={scale} compact />
   </span>
   <span class="n">{count}</span>
 </div>

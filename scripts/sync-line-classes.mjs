@@ -37,6 +37,7 @@ import { parse as parseYaml } from "yaml";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = join(ROOT, "src/config/streams.yaml");
 const OUT = join(ROOT, "src/stream/_lines.json");
+const OUT_DAILY = join(ROOT, "src/stream/_daily.json");
 
 /** The anchor pseudomonorepo — every clone we can reach lives under it. */
 const TREE = join(ROOT, "../../..");
@@ -126,6 +127,24 @@ const out = {};
 const missing = [];
 const fmt = (n) => String(n).padStart(8);
 
+/**
+ * Per-DAY commits and authored lines, summed across every repo.
+ *
+ * GitHub's stats endpoint only buckets by week, which is too coarse to show
+ * what this record is actually about: a solo operator's focus days. The median
+ * active day carries 8 commits and the busiest carries 129 — a weekly bucket
+ * averages that distinction away entirely. Local history has the resolution,
+ * so we take it from there.
+ *
+ * Keyed YYYY-MM-DD -> [commits, code, contextv, changelog, content].
+ */
+const daily = new Map();
+const dayBucket = (d) => {
+  let v = daily.get(d);
+  if (!v) { v = { c: 0, code: 0, contextv: 0, changelog: 0, content: 0 }; daily.set(d, v); }
+  return v;
+};
+
 for (const repo of repos) {
   const dir = clones.get(repo.toLowerCase());
   if (!dir) { missing.push(repo); continue; }
@@ -134,7 +153,7 @@ for (const repo of repos) {
   try {
     log = execFileSync(
       "git",
-      ["-C", dir, "log", "--no-merges", "--no-renames", "--numstat", "--format=%x01"],
+      ["-C", dir, "log", "--no-merges", "--no-renames", "--numstat", "--format=%x01%cs"],
       { maxBuffer: 1 << 30, stdio: ["ignore", "pipe", "ignore"] },
     ).toString();
   } catch (err) {
@@ -145,13 +164,21 @@ for (const repo of repos) {
 
   const isContent = contentRepos.has(repo.toLowerCase());
   const t = EMPTY();
+  let day = null;
   for (const line of log.split("\n")) {
-    // %x01 marks a commit header; numstat rows are added\tdeleted\tpath.
-    if (!line || line.charCodeAt(0) === 1) continue;
+    if (!line) continue;
+    // %x01 marks a commit header and carries its date; numstat rows follow as
+    // added\tdeleted\tpath.
+    if (line.charCodeAt(0) === 1) { day = line.slice(1); dayBucket(day).c += 1; continue; }
     const parts = line.split("\t");
     // "-" in the additions column means a binary file, which has no lines.
     if (parts.length < 3 || parts[0] === "-") continue;
-    t[classify(parts.slice(2).join("\t"), isContent)] += Number(parts[0]) || 0;
+    const kind = classify(parts.slice(2).join("\t"), isContent);
+    const n = Number(parts[0]) || 0;
+    t[kind] += n;
+    // Lockfiles and vendored trees are excluded here too — a focus day should
+    // not look productive because a lockfile churned.
+    if (day && kind !== "lock" && kind !== "vendored") dayBucket(day)[kind] += n;
   }
 
   const local = Object.values(t).reduce((a, b) => a + b, 0);
@@ -175,4 +202,14 @@ for (const k of ["code", "contextv", "changelog", "content"]) {
   console.log(`  ${k.padEnd(10)} ${fmt(sum(k))}  ${((sum(k) / authored) * 100).toFixed(1)}%`);
 }
 console.log(`  ${"dropped".padEnd(10)} ${fmt(sum("lock") + sum("vendored"))}  (lockfiles + vendored)`);
+// Daily series is a full rewrite each run, not merged: it is derived from the
+// same scan, and a stale day carried forward would misreport a quiet week.
+const dailyOut = {};
+for (const [d, v] of [...daily.entries()].sort())
+  dailyOut[d] = [v.c, v.code, v.contextv, v.changelog, v.content];
+writeFileSync(OUT_DAILY, JSON.stringify({ generated: null, days: dailyOut }, null, 0) + "\n");
+
+const surge = Object.values(dailyOut).filter(([c]) => c > 10).length;
+console.log(`${Object.keys(dailyOut).length} active days · ${surge} with more than 10 commits`);
+
 if (missing.length) console.error(`\n${missing.length} without a local clone: ${missing.join(", ")}`);
