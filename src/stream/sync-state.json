@@ -1,47 +1,47 @@
 {
   "astro-knots": {
-    "sha": "8844e13da8b01a3bd3ded2b7f5a063cab00f6612",
-    "etag": "W/\"c361ad7aefe67100a3ecae6195f2cfe1f701929fd31938156a72983047c3899f\"",
+    "sha": "6bb98b579ee957c9ce43607b56655a956e222f17",
+    "etag": "W/\"ad38c6557d475412face189d51b502488c7d176fc0f0c660069039b175f1edd6\"",
     "count": 12,
     "repo": "lossless-group/astro-knots",
     "ref": "master",
     "path": "changelog/"
   },
   "ai-labs": {
-    "sha": "83468886d0128fa26b87ce9679ef1ecff409738a",
-    "etag": "W/\"679694547ec4aecad64fb2c19e1f48d48c91f1a0bf3856ff6e95eac2183b11f2\"",
-    "count": 12,
+    "sha": "8055808c85f3d887220cb00037f6b2b46193e68f",
+    "etag": "W/\"33fa1166ebc96a7e0f7a802f0641083e5a813c3338375561b5a35482a022a255\"",
+    "count": 13,
     "repo": "lossless-group/lossless-ai-labs",
     "ref": "main",
     "path": "changelog/"
   },
   "content-farm": {
-    "sha": "4533988ddbbbca70b015628380076d278f26b37a",
-    "etag": "W/\"07c6e414103efd46aced587f340a8d5effafee009968c80a57be1ab362cb9e96\"",
-    "count": 7,
+    "sha": "53d4c027508009219254547ddaea07e4115538d6",
+    "etag": "W/\"b1b2f22fa5a0d9f8c14d3757821bbcd7f152df7cb665ddd79a3ff55b360f21b6\"",
+    "count": 9,
     "repo": "lossless-group/content-farm",
     "ref": "main",
     "path": "changelog/"
   },
   "self-host-stack": {
-    "sha": "e3fda1db20bf1ede6a8760f6d4d2df98af2f74a9",
-    "etag": "W/\"282f186a8f078afbb63acbc4b7cef8da61a9d477226c309d25f9c68ce49bc9d4\"",
-    "count": 13,
+    "sha": "ece772edd0bcedb52a6cce2c49ef520952371846",
+    "etag": "W/\"6579d783b345a489863bf7e36e89cd62c39f036209ab8ec6371e23c9f28bb7ed\"",
+    "count": 22,
     "repo": "lossless-group/vc-self-host-stack",
     "ref": "main",
     "path": "changelog/"
   },
   "lfm": {
-    "sha": "1cae7f38d6262507d91907d2716c3f0c19021fd4",
-    "etag": "W/\"8c30bb4fcca932d83c9c4f5ed79b1e1fa9916ebd762dbfab0906d87decd154f7\"",
-    "count": 6,
+    "sha": "2e88c2f691df576a02ea26f00b638ddd3fcd7930",
+    "etag": "W/\"a397e54e1930725f5d21f31204385a54abccefe8e9637dbee1b3f175726b7c10\"",
+    "count": 10,
     "repo": "lossless-group/lossless-flavored-markdown-package",
     "ref": "main",
     "path": "changelog/"
   },
   "lossless-site": {
-    "sha": "2886ca0587b82a2066294260ca993c833c41a951",
-    "etag": "W/\"02c3a64d7bd09c07e7a70bbfe29dc4e401e20a639ec1c31cf09ee7e4de71a96f\"",
+    "sha": "563780e17c0f9d5bd50de8388a630a9dafa72bdc",
+    "etag": "W/\"c3d395ab214424cb98ac9cc8bb7066ccdc31cadd09c4fc42668a7a5eaf83a26b\"",
     "count": 1,
     "repo": "lossless-group/lossless-site",
     "ref": "master",
@@ -56,104 +56,104 @@
     "path": ""
   },
   "fullstack-vc": {
-    "sha": "7aad653b1e86bc521e528b6614c1292a25fc9820",
-    "etag": "W/\"4d35df7fcc44a37870252d942f873fa290738212c75469c1c2d0b24dd84e1af4\"",
-    "count": 26,
+    "sha": "0abaa2218b325254a7ba9b39d3aca4b0952fd2f0",
+    "etag": "W/\"cc358899821e2fe74d8460b5f18bc7cd0e563bc8d305980fbaea9eca4fe95e10\"",
+    "count": 31,
     "repo": "lossless-group/fullstack-vc",
     "ref": "main",
     "path": "changelog/"
   },
   "banner-site": {
-    "sha": "3f766b3b8f65d59fd2ec4c858c7c2cb559e8e2c8",
-    "etag": "W/\"28ab42b0050b972a0c42597fb448567ea879c27523d8f0d74c65d3d49f34753c\"",
+    "sha": "1ebe158882ccd7011d0893ad2a9b5210b8686d00",
+    "etag": "W/\"50f544a50bfa71561945e387f03c22d21aa893dedb69b0a417d6e76a07761c56\"",
     "count": 12,
     "repo": "lossless-group/emblem-site",
     "ref": "main",
     "path": "changelog/"
   },
   "hypernova-site": {
-    "sha": "b3cea78f4bc696ea8acbdedf31b509e4f14dafac",
-    "etag": "W/\"2fcd0c3d68fbaed39e6ceaaaac3e69367d9e0535fb214cf91fb883e04d3ea89e\"",
+    "sha": "a394f488012c5725a703a02857ebdf9ba295995b",
+    "etag": "W/\"1d200ac80244f30d75ca6683255a2f369b7cdf22c8a6d8c58a43fbc4e2b99f9d\"",
     "count": 6,
     "repo": "lossless-group/hypernova-site",
     "ref": "master",
     "path": "changelog/"
   },
   "twf-site": {
-    "sha": "f4c4211c307a56fdbfad4ef85d412ed92b54cd62",
-    "etag": "W/\"e49bc26c8ca6f1764387f9b41c647d37b182e1e51f7e9993a712a3da59336c55\"",
+    "sha": "400682a4d1479fdd7e03048af30ef0df8f70b693",
+    "etag": "W/\"42b05b7bb1e9f35e9714df630d423075b61a7b26ba7a0530bb5a87e224a28a7e\"",
     "count": 5,
     "repo": "lossless-group/the-water-foundation-site",
     "ref": "main",
     "path": "changelog/"
   },
   "arthouse-site": {
-    "sha": "333037964e0ecae0532e88eded7732085ceb2952",
-    "etag": "W/\"8c5dee67dbb44e261aaaca08bc21f5d0e0b56c6efb020214a2f1487925b93e4a\"",
+    "sha": "465b5f4ab89420ab4cc40816f71531d79d7b21b2",
+    "etag": "W/\"24a83819161adde6c0e9540b691eee762a49c4fec7506e12f9c75d8558e25344\"",
     "count": 4,
     "repo": "lossless-group/arthouse-site",
     "ref": "main",
     "path": "changelog/"
   },
   "learnstart-site": {
-    "sha": "ab5c0d4567449964728e1573d55e69604cc6a3e4",
-    "etag": "W/\"e4e09492084e71e6ad98f4ae9b3d9b833d1497a8467738442f2c1d23895b6c9d\"",
+    "sha": "8ca5e163a49247b3c3f65f38f0891a9dbc2f3239",
+    "etag": "W/\"7aa5ba94772c99c8d0b80742279cfa0946b078211415f764524254bb81b38aa3\"",
     "count": 3,
     "repo": "lossless-group/learnstart-site",
     "ref": "main",
     "path": "changelog/"
   },
   "cilantro-site": {
-    "sha": "3508d13f0cf12339d800e990d9abd90272380126",
-    "etag": "W/\"9dea899e90f3254e4e10fd78bb1986bc45009d63ce810a33017a0c67dfea4254\"",
+    "sha": "6ef6fbd6f922a537781cbf540b591bf7c7054154",
+    "etag": "W/\"6278ef0a55ca28ec410cf08ba0e5e556bceca33dededff4502ed27e6f4cc4388\"",
     "count": 2,
     "repo": "lossless-group/cilantro-site",
     "ref": "main",
     "path": "changelog/"
   },
   "cogs-site": {
-    "sha": "835e5bd8162ac0d502e7b6d46259e8ea47d23423",
-    "etag": "W/\"669c09fb7ba8b3aa84825b866549d6239f578008af8a8fddceb0fb1b00800184\"",
+    "sha": "e6f91dd2f4296f10f7e6d6bbfe5bff8b44ad1229",
+    "etag": "W/\"d7b3fbc71b4f9c61b358d2dd2c9f232af34d97e6d74e0bb94b6ece1c94cc5bde\"",
     "count": 2,
     "repo": "lossless-group/cogs-site",
     "ref": "main",
     "path": "changelog/"
   },
   "mpstaton-site": {
-    "sha": "f3e9cdbfc4cb617e0861d498190f5803c2417fff",
-    "etag": "W/\"c986bbb158a6d606c9c3781e7f2cc8080506684bee43e2edbcecc92339b2548d\"",
-    "count": 2,
+    "sha": "79c6f48cabd2fe3dc9c4af06c73a7d540a91ff45",
+    "etag": "W/\"0ca9db39e5f738ea7eed1d3f8c5cff0c25b263c1722b86ee0c07359183b388a7\"",
+    "count": 14,
     "repo": "lossless-group/mpstaton-site",
     "ref": "main",
     "path": "changelog/"
   },
   "coglet-shuffle": {
-    "sha": "b3223b8b967c7f8bfe3e570d4f20e62a5f05abce",
-    "etag": "W/\"012682097dcf8cc5a36c3186423e2454389fcb4fb563a581d69d706185e551ec\"",
+    "sha": "12adebb47e368b012ea48c4906b0bb19564d69e9",
+    "etag": "W/\"03dc656a87e8d1360aa768182865ffb44812eb61b7ec3dc474650834c47c5be7\"",
     "count": 1,
     "repo": "lossless-group/steampunk-site",
     "ref": "main",
     "path": "changelog/"
   },
   "dark-matter": {
-    "sha": "07a1d6a9fed2e37d28ab4a0ca57cd4e89e3a990f",
-    "etag": "W/\"b558ab8eeaa7608f7ba7f0c3e0d6509da516e9a7d2231df7700663d66064d4aa\"",
+    "sha": "6e625f0ac988eef427b8e25b4d1502a6d9f2afd8",
+    "etag": "W/\"6994efdb22586b9e5736cb11a2808e081541e0d51f6525f5d0ae7f1662c06397\"",
     "count": 25,
     "repo": "lossless-group/changelog_matter-site",
     "ref": "main",
     "path": ""
   },
   "augment-it": {
-    "sha": "254765fcd257051702d1c796604e18f0d73b85a9",
-    "etag": "W/\"03bce74de9e9136c5c51bd8b91d3f1c157e01f1890bde68c3d217d08a52e9187\"",
-    "count": 95,
+    "sha": "3b172bf7a41c11ac18cd3501a644286ab05c9a6c",
+    "etag": "W/\"c347156201f4cac6fc59218a42901ee76f4eb453394e9339d4bdeb9ab16d4f61\"",
+    "count": 99,
     "repo": "lossless-group/augment-it",
     "ref": "rebuild/turbo-rsbuild",
     "path": "changelog/"
   },
   "dididecks-ai": {
-    "sha": "0ccb6fc013f5ffe6d0f0f892c0eab5fe9980d921",
-    "etag": "W/\"81698714d0ae74c301dbbea0552205b990628812008cb197d456686d4ae4c9de\"",
+    "sha": "61197aafd61de4a91fbaea23ea0e51d5a3bd8d23",
+    "etag": "W/\"314cf4af7048a4d7e3d3f59dc1ed0d1fba3b81b10248f695c6d373130e03d7a3\"",
     "count": 16,
     "repo": "lossless-group/dididecks-ai",
     "ref": "development",
@@ -168,139 +168,147 @@
     "path": "changelog/"
   },
   "context-vigilance-kit": {
-    "sha": "f553a846f251d635c1565365b677e95069a9cd8e",
-    "etag": "W/\"8ee6c3d2e9bf71903fc3ad9943b281150a2d9f245739ca5fd3228151cf828444\"",
+    "sha": "b5c3673f3b903c8216ea2df931212b47e51e9db5",
+    "etag": "W/\"a9e01cc9793f105b3675b2d61c6f749f87c5e5185e0539a3f941ecb2092fdbf0\"",
     "count": 6,
     "repo": "lossless-group/context-vigilance-kit",
     "ref": "master",
     "path": "changelog/"
   },
   "memopop-ai": {
-    "sha": "350c4e012c6f84acee4e971630c01ff3a12925eb",
-    "etag": "W/\"1bd99f0ef84ed72f1c5a9250c0be8ef0180ba29639d36028c97d94cd3c246748\"",
+    "sha": "2dcb40e3fd5009fb98c08809d00f48d5f863cd7d",
+    "etag": "W/\"976ddd95722cfe813f4474753519a01b18f93fd7edda137d574a46ca270723d8\"",
     "count": 5,
     "repo": "lossless-group/memopop-ai",
     "ref": "main",
     "path": "changelog/"
   },
   "corpora-builder": {
-    "sha": "4f882d1d7f7a78249d5e361b453bdaa22e924e3e",
-    "etag": "W/\"a6d9f8380935a1d6fe9fc80691af1cd03e6c409b35087a7df3f9c4f5ff3a785e\"",
+    "sha": "4874839652f4370fff51fcde33b054d47f29647a",
+    "etag": "W/\"6b43190abd886a4b9c71dc50ad3dab1c8b18d802f5f34dd72e23cc9fe8660416\"",
     "count": 2,
     "repo": "lossless-group/corpora-builder",
     "ref": "main",
     "path": "changelog/"
   },
   "memopop-orchestrator": {
-    "sha": "59e3d7f2d9f82c2d7497c1d6e581ceab1cb0d7a1",
-    "etag": "W/\"7d9b21f4f7c5819454ae8bed8fd556a60b859ce9b4b20afeaa058f5938aea688\"",
+    "sha": "a86ce97c2e310831fba4bf8f27582d9e08c681f5",
+    "etag": "W/\"b48c3737e2f9d91b959343de085e1a63a76dc0d8ff5a2d1eac5180fd0de2bc18\"",
     "count": 71,
     "repo": "lossless-group/investment-memo-orchestrator",
     "ref": "main",
     "path": "changelog/"
   },
   "memopop-native": {
-    "sha": "b23fb55d6fdf75474be383a9992482b8a53a9970",
-    "etag": "W/\"37d49e03c4517b640041cc2ab5de7c4bfc9040541c9ee4dfcd0ec39eecd9f5fb\"",
+    "sha": "2dcb40e3fd5009fb98c08809d00f48d5f863cd7d",
+    "etag": "W/\"976ddd95722cfe813f4474753519a01b18f93fd7edda137d574a46ca270723d8\"",
     "count": 6,
     "repo": "lossless-group/memopop-ai",
     "ref": "main",
     "path": "apps/memopop-native/changelog/"
   },
   "memopop-site": {
-    "sha": "83a1387aee36fe224a30810b52b6353c95b597df",
-    "etag": "W/\"d39c08ca395823c1cf9ba42c7930bcdf4f41ce28a15ab0d47d11a0ef3c2a7d48\"",
+    "sha": "2dcb40e3fd5009fb98c08809d00f48d5f863cd7d",
+    "etag": "W/\"976ddd95722cfe813f4474753519a01b18f93fd7edda137d574a46ca270723d8\"",
     "count": 3,
     "repo": "lossless-group/memopop-ai",
     "ref": "main",
     "path": "apps/memopop-site/changelog/"
   },
   "perplexed": {
-    "sha": "01897c0903e8df25c9f00d4249df160c62c67205",
-    "etag": "W/\"de73682d5da61a0943cd23d4b2ff138140dc687ae6e65c46792d223753471781\"",
-    "count": 13,
+    "sha": "cd00a6b2743c71d7bceaefea63bb00baab43bd16",
+    "etag": "W/\"550cc6a37f5398c21d5cf535b149ff930ac4325242e4bf974ce636f52e6d109f\"",
+    "count": 14,
     "repo": "lossless-group/perplexed-plugin",
     "ref": "main",
     "path": "changelog/"
   },
   "cite-wide": {
-    "sha": "158758ad4509e5c07d02997b7eb5e9e934e4296c",
-    "etag": "W/\"20a3707fa31741f767780c19ff2a48ef6f39d3fb9b4799022208b7e1bc3c4d6d\"",
-    "count": 9,
+    "sha": "63459aa0800ce2159a44292f1bf97a54b4ea4f1c",
+    "etag": "W/\"493fc0260cab59c120cc0bd3f3ac4630e8448c48569e3bff03209bdbeb5a3b6c\"",
+    "count": 11,
     "repo": "lossless-group/cite-wide",
     "ref": "master",
     "path": "changelog/"
   },
   "image-gin": {
-    "sha": "ffaaa1b1cadc7bb21fab7f198d1e736ad33ba5f4",
-    "etag": "W/\"f25121cfc55bb9e23d85faf54c71fc73f5ae213a40ecc096400ef88ebdf0eb7f\"",
-    "count": 7,
+    "sha": "d71d4648b94a26a05b2021d975cac9d39db1b2a6",
+    "etag": "W/\"56afdf836dd455cf31b2100e1ff6df32021039688a5cb15efdfc9d4a225280ad\"",
+    "count": 8,
     "repo": "lossless-group/image-gin",
     "ref": "master",
     "path": "changelog/"
   },
   "lmstud-yo": {
-    "sha": "9149d9b05b255883f8bf29292ffded10698f4e2d",
-    "etag": "W/\"94bf80888a7a3e37e8f61f8aa30caebd90932e93e17fc1ad227116a1c610427c\"",
+    "sha": "5f9a42038a2b01f7b0e8099db480b9a0833c3ccf",
+    "etag": "W/\"d878963ec83bf1bec70a6e63bee5a080806fc308717dd4d8eabf81e17e1adf95\"",
     "count": 3,
     "repo": "lossless-group/lmstud-yo",
     "ref": "development",
     "path": "changelog/"
   },
   "plunk-it": {
-    "sha": "00a5a9eba55a4161ef423f6502d64b8fc03834f8",
-    "etag": "W/\"26384cc0494da11abd530e4dbb9307f9b1215bb8b1a880d786ffbbad04c5d03d\"",
+    "sha": "7a8b8a802508f380e36e6c5a56d5ff3807b911ae",
+    "etag": "W/\"1ebd93ea1d3643a1fa508b7eedce9e2aba13163fa10b40b7ca622195933148b3\"",
     "count": 2,
     "repo": "lossless-group/plunk-it",
     "ref": "development",
     "path": "changelog/"
   },
   "filestarter": {
-    "sha": "477d05c20e0dd677c8af57acb087a1cdf529e109",
-    "etag": "W/\"a3e465c97d864b8c7c8e7965b9597dce2318e9aafa11876bcc665900eee7b352\"",
+    "sha": "6cd5e3eb1650e288c65c6c137169a46bdd42bafb",
+    "etag": "W/\"425bfd5e5737b844eb88d2be6f5ddb62e5b34aadc2416514ae6fedcaa3068899\"",
     "count": 2,
     "repo": "lossless-group/obsidian-plugin-starter",
     "ref": "development",
     "path": "changelog/"
   },
   "file-transporter": {
-    "sha": "6508e97d44da8c7aec56b2d7c30c54c5f5472404",
-    "etag": "W/\"87969e2a8483a1dde74c8e02ab6c8ca12a0d0457b14ec1a7723d6ce85b1343f1\"",
+    "sha": "20d1c3c9d83bb2974f96ab81535fa2238bf896be",
+    "etag": "W/\"bb6d56a797f3b29d9058ce16fca0bd51cad0cacda2e2b5929a2c737588efde0a\"",
     "count": 2,
     "repo": "lossless-group/google-docs-api-plugin",
     "ref": "development",
     "path": "changelog/"
   },
   "grab-reference": {
-    "sha": "29d6703406c421e9076b56bd52bb314d515c6ec4",
-    "etag": "W/\"ffd5f911e767d3674e6cff4672d6491e018a4528dd3d3542efc0108e1fb3f59b\"",
+    "sha": "285745241a0e7a3537c2a38f3d2dcdfaf248af8e",
+    "etag": "W/\"34fdc73ab7a6efad9dde2055bff8b1833700e5ca5ddd01a2f88c477adbe53416\"",
     "count": 1,
     "repo": "lossless-group/grab-reference",
     "ref": "development",
     "path": "changelog/"
   },
   "image-wrangler": {
-    "sha": "f70da9ac89ab0f7f208f5580fd0b9cdfb3450d58",
-    "etag": "W/\"63a92021585e1c8051306d3784cb63dd51c3afb9386066378629c79dba6d31c0\"",
+    "sha": "dd27690d0f6f4a4075fb75d6a13dd1d86ccb219e",
+    "etag": "W/\"e2aef8b8499e04a8d8a0bb483d25ff03cc95db8c13fc16d598a1d683c77b6b80\"",
     "count": 1,
     "repo": "lossless-group/ai-image-wrangler-obsidian-plugin",
     "ref": "development",
     "path": "changelog/"
   },
   "metafetch": {
-    "sha": "24e5a5c129af1dd8a9148ab10399258cda843cf1",
-    "etag": "W/\"c2c1cf740c164180919ae2a2c25a3577bce1135962d03b618914c53b208c3b37\"",
-    "count": 1,
+    "sha": "dacc0da2fea77bef8c001588e5d87d338994f762",
+    "etag": "W/\"ddc45092e9042f3a962dfed0bca0b136d3f3536ded3ef63443473fbd1ff93408\"",
+    "count": 4,
     "repo": "lossless-group/metafetch",
     "ref": "master",
     "path": "changelog/"
   },
   "lossless-changelog": {
-    "sha": "ff6e38542dec1674c6e6de6ba214413ab181f2cc",
-    "etag": "W/\"2bfb557f950577988ec9ba85c3e119b279e345818b5b14d87ddd68f142b247eb\"",
-    "count": 1,
+    "sha": "ddc6ff71ecdcad7e04c909db1088e1a59a709ab4",
+    "etag": "W/\"ab7c66c86bfedfd34bac89127f47a8d92cdb2f3de6cf4480eb5467c0b0ad0ab1\"",
+    "count": 2,
     "repo": "lossless-group/lossless-changelog",
     "ref": "main",
     "path": "changelog/"
+  },
+  "content": {
+    "sha": "cbf290442f91739662dece2ed3a47956d5dfec2a",
+    "etag": "W/\"3c7f7c25083e2396c221cab761d424d7254909d8a020d462060c73e3cee51a35\"",
+    "count": 0,
+    "repo": "lossless-group/lossless-content",
+    "ref": "development",
+    "path": "changelog--content/"
   }
 }

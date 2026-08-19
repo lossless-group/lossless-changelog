@@ -11,7 +11,8 @@
  *
  * Parsing is LENIENT by design. The corpus spans ~30 repos and three years of
  * evolving convention: 12 entries have no `title`, one isn't date-named, and
- * the date lives under `date_created`, `date`, or nowhere at all. The job is to
+ * the date lives under `date_created`, `date`, `date_authored_initial_draft`,
+ * or nowhere at all. The job is to
  * surface what people actually wrote, not to gatekeep it.
  */
 import matter from "gray-matter";
@@ -71,7 +72,7 @@ const defs: StreamDef[] = (parseYaml(manifestRaw).streams as StreamDef[]).filter
 );
 const defBySlug = new Map(defs.map((d) => [d.slug, d]));
 
-function ancestorsOf(slug: string): StreamDef[] {
+export function ancestorsOf(slug: string): StreamDef[] {
   const out: StreamDef[] = [];
   let cur = defBySlug.get(slug)?.parent ?? null;
   // Guard against a manifest typo producing a cycle rather than hanging the build.
@@ -149,6 +150,11 @@ for (const [file, raw] of Object.entries(rawFiles)) {
   const date =
     (fromName ? new Date(`${fromName[1]}-${fromName[2]}-${fromName[3]}T00:00:00Z`) : null) ??
     coerceDate(fm.date_created) ??
+    // Upstream repos are migrating `date:` → `date_authored_initial_draft:`
+    // as files get touched. Both spellings have to resolve, or an entry whose
+    // filename carries no date silently loses its place on the timeline the
+    // day its source repo normalizes frontmatter.
+    coerceDate(fm.date_authored_initial_draft) ??
     coerceDate(fm.date) ??
     coerceDate(fm.date_modified);
 
