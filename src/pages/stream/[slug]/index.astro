@@ -5,6 +5,8 @@ import LedgerStrip from "../../../components/LedgerStrip.astro";
 import { getStreams, getStream, getEntries, getSubtreeEntries, getAllEntries } from "../../../lib/streams";
 import { spanOf, colorFor } from "../../../lib/era";
 import { globalWeeks, statsForSubtree } from "../../../lib/commits";
+import { linesForSubtree } from "../../../lib/lines";
+import LineBar from "../../../components/LineBar.astro";
 
 export function getStaticPaths() {
   return getStreams().map((s) => ({ params: { slug: s.slug } }));
@@ -31,6 +33,7 @@ const span = spanOf([
 ]);
 
 const code = statsForSubtree(stream);
+const lines = linesForSubtree(stream);
 ---
 <BaseLayout
   title={stream.title}
@@ -55,15 +58,20 @@ const code = statsForSubtree(stream);
     </p>
   </header>
 
-  {subtree.length > 0 && (
+  {/* The strip needs entries to draw; the line split does not. A repo can
+      have written a great deal and aggregated none of its ledger here — see
+      the `content` stream, whose entries are excluded by design. Gating the
+      bar on entries would hide the only thing that stream has to report. */}
+  {(subtree.length > 0 || lines.total > 0) && (
     <div class="strip">
-      <LedgerStrip entries={subtree} span={span} commits={code.weeks} />
+      {subtree.length > 0 && <LedgerStrip entries={subtree} span={span} commits={code.weeks} />}
       {code.commits > 0 && (
         <p class="code-stats">
-          {code.commits.toLocaleString()} commits · +{code.additions.toLocaleString()} lines
+          {code.commits.toLocaleString()} commits · +{lines.total.toLocaleString()} lines
           {stream.children.length > 0 && " across this project and its sub-projects"}
         </p>
       )}
+      {lines.total > 0 && <LineBar lines={lines} />}
     </div>
   )}
 
@@ -89,7 +97,15 @@ const code = statsForSubtree(stream);
   )}
 
   <section class="feed" id="feed">
-    {shown.length === 0 && <p class="empty">No entries synced yet. Run <code>pnpm sync</code>.</p>}
+    {shown.length === 0 && (stream.kind === "content" ? (
+      <p class="empty">
+        Counted for its lines, not aggregated for its entries — this corpus keeps
+        its ledgers under <code>changelog--</code> prefixes, which the sync
+        excludes by design.
+      </p>
+    ) : (
+      <p class="empty">No entries synced yet. Run <code>pnpm sync</code>.</p>
+    ))}
     {shown.map((entry) => (
       <div data-own={entry.streamSlug === slug ? "true" : "false"}>
         <EntryRow entry={entry} showOrigin={entry.streamSlug !== slug} accent={colorFor(span, entry.date)} />
@@ -135,7 +151,7 @@ const code = statsForSubtree(stream);
     background: var(--color-surface-alt);
   }
   .code-stats {
-    margin: 0.7rem 0 0;
+    margin: 0.7rem 0 0.55rem;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--color-text-faint);

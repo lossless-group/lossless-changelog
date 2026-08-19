@@ -7,6 +7,8 @@ import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/strea
 import { spanOf, colorFor } from "../lib/era";
 import ModelBand from "../components/ModelBand.astro";
 import { globalWeeks, globalTotals, statsForSubtree } from "../lib/commits";
+import { globalLines, proseLines } from "../lib/lines";
+import LineBar from "../components/LineBar.astro";
 import { augmentationRate } from "../lib/models";
 
 const roots = getRoots();
@@ -44,9 +46,10 @@ const fmt = (d: Date | null) =>
       we <em>shipped</em>.
     </h1>
     <p class="thesis">
-      {globalTotals.commits.toLocaleString()} commits and
-      {" "}{(globalTotals.additions / 1_000_000).toFixed(1)}M lines across
+      {globalTotals.commits.toLocaleString()} commits across
       {" "}{globalTotals.repos} repositories, {fmt(first)} to {fmt(latest)} —
+      {" "}{(globalLines.code / 1_000_000).toFixed(1)}M lines of code and
+      {" "}{(proseLines(globalLines) / 1_000_000).toFixed(1)}M of prose,
       mostly one person and a rotating cast of frontier models. The marks are
       the days we wrote it down.
     </p>
@@ -57,11 +60,19 @@ const fmt = (d: Date | null) =>
     <ModelBand entries={all} span={span} />
     <dl class="legend">
       <div><dt>Commits</dt><dd>{globalTotals.commits.toLocaleString()}</dd></div>
-      <div><dt>Lines added</dt><dd>{(globalTotals.additions / 1_000_000).toFixed(1)}M</dd></div>
       <div><dt>Repos</dt><dd>{globalTotals.repos}</dd></div>
       <div><dt>Entries</dt><dd>{totals.entries}</dd></div>
       <div><dt>Agent-augmented</dt><dd>{aug.pct}%</dd></div>
     </dl>
+
+    <div class="lines">
+      <LineBar lines={globalLines} />
+      <p class="caveat">
+        Lines by kind. Lockfiles and vendored trees are excluded — nobody wrote
+        them. Proportions are measured from each repository's own history;
+        totals follow GitHub's per-repo accounting, which does not agree with it.
+      </p>
+    </div>
   </section>
 
   <section class="fleet">
@@ -109,8 +120,11 @@ const fmt = (d: Date | null) =>
 
 <style>
   /* ── hero ── */
-  .hero { padding-block: 2rem 1.75rem; max-width: 46ch; }
+  /* No max-width on the hero itself — the display h1 wants the narrow
+     measure, the thesis under it does not. Each sets its own. */
+  .hero { padding-block: 2rem 1.75rem; }
   .hero h1 {
+    max-width: 46ch;
     font-family: var(--font-display);
     font-size: var(--text-display);
     font-weight: 500;
@@ -130,6 +144,9 @@ const fmt = (d: Date | null) =>
   }
   .thesis {
     margin: 0;
+    /* Twice the display measure. This is a stat line, not body prose — the
+       short measure that suits a didone headline just made it wrap early. */
+    max-width: 92ch;
     color: var(--color-text-muted);
     font-size: var(--text-lg);
     line-height: 1.5;
@@ -161,6 +178,16 @@ const fmt = (d: Date | null) =>
   .legend div { display: flex; align-items: baseline; gap: 0.5rem; }
   .legend dt { font-size: var(--text-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); }
   .legend dd { margin: 0; font-size: var(--text-sm); color: var(--color-text); font-variant-numeric: tabular-nums; }
+
+  .lines { margin-top: 1.1rem; }
+  .caveat {
+    margin: 0.6rem 0 0;
+    max-width: 124ch;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--color-text-faint);
+  }
 
   /* ── project ledger ── */
   h2.eyebrow { margin: 0 0 0.6rem; }

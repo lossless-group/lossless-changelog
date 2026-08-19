@@ -32,6 +32,12 @@ export interface StreamDef {
   splash?: string;
   /** The live product on its real domain. Distinct from a splash; some have both. */
   website?: string;
+  /**
+   * `content` marks a prose corpus rather than a codebase — its non-changelog
+   * lines are counted as content, not code. Read by scripts/sync-line-classes.mjs
+   * and by the empty state below. See lib/lines.ts.
+   */
+  kind?: "content";
   enabled?: boolean;
 }
 

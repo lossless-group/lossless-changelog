@@ -14,6 +14,10 @@
 #           altitude is DERIVED from depth: 1=fleet, 2=product, 3=component.
 #   shape   root-dir | nested-path | submodule-ref | standalone-repo
 #           Asserted at sync time: a mismatch is a loud error, not an empty stream.
+#   kind    optional. `content` marks a repo whose non-changelog lines are PROSE,
+#           not code — lossless-content is a corpus, not a program, and counting
+#           its 1.2M lines as code would swamp every real codebase in the tree.
+#           Read only by scripts/sync-line-classes.mjs. Default is code.
 #   title   display name.
 #   splash  optional. The project's own splash page (GitHub Pages) — a page
 #           ABOUT the work, generated from changelog/ and context-v/.
@@ -53,6 +57,29 @@ streams:
     title: Content Farm                         # n=7
 
   # ── standalone roots (no parent in the tree) ───────────────────────────────
+  - slug: content
+    repo: lossless-group/lossless-content
+    ref: development
+    path: changelog--content/
+    parent: null
+    shape: root-dir
+    kind: content
+    title: Lossless Content                     # n=26
+    # DECLARED FOR ITS LINES, NOT ITS ENTRIES. This repo is a 645k-line prose
+    # corpus; counting it as code would swamp every real codebase in the tree,
+    # and leaving it out entirely understated the writing by a fifth. Line
+    # stats are keyed by REPO and read from the local clone, so the split lands
+    # whether or not any entry syncs.
+    #
+    # No entry will sync: all three of its ledgers are named `changelog--*`
+    # (--code, --content, --laerdal) and sync-streams denies that prefix
+    # outright as exclusion layer 2. That rule predates this stream and is left
+    # alone — `path` names the ledger a reader should go read, and the row
+    # honestly shows a corpus with lines but no aggregated ledger.
+    #
+    # `development` is the live tier here; main and master both stop at
+    # 2026-07-14.
+
   - slug: self-host-stack
     repo: lossless-group/vc-self-host-stack
     ref: main
@@ -69,15 +96,6 @@ streams:
     shape: root-dir
     splash: https://lossless-group.github.io/lossless-flavored-markdown-package/
     title: Lossless Flavored Markdown           # n=6
-
-  - slug: lossless-site
-    repo: lossless-group/lossless-site
-    ref: master
-    path: changelog/
-    parent: null
-    shape: root-dir
-    splash: https://lossless-group.github.io/lossless-site/
-    title: Lossless Site                        # n=1
 
   - slug: neo
     repo: lossless-group/changelog-neo
@@ -97,6 +115,28 @@ streams:
     enabled: false
 
   # ── astro-knots sites ──────────────────────────────────────────────────────
+  # The first one. It lives at lossless-monorepo/site rather than under
+  # astro-knots/sites/ because it predates the conventions — most of what
+  # astro-knots codifies was learned here and corrected for afterwards, and the
+  # site is too complex to have been refactored back into the fold. Parented
+  # here anyway: the hierarchy should say what a thing IS, not where its
+  # checkout happens to sit.
+  #
+  # Two omissions, both already enforced rather than declared here:
+  #   changelog/            counted in its own bucket, never as code
+  #                         (scripts/sync-line-classes.mjs)
+  #   src/generated-content/ a submodule of lossless-content, so it adds no
+  #                         lines to this repo's history, and sync-streams.mjs
+  #                         denies the path outright as exclusion layer 2.
+  - slug: lossless-site
+    repo: lossless-group/lossless-site
+    ref: master
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    splash: https://lossless-group.github.io/lossless-site/
+    title: Lossless Site                        # n=1
+
   - slug: fullstack-vc
     repo: lossless-group/fullstack-vc
     ref: main

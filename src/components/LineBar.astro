@@ -1,0 +1,122 @@
+---
+/**
+ * Lines by kind — a stacked bar that says what the work actually was.
+ *
+ * Replaces a single "5.9M lines" figure that filed prose under code. Four
+ * segments: code, context-v, changelog, content. See lib/lines.ts for how the
+ * split is measured and why the totals are GitHub's while the ratios are the
+ * local history's.
+ *
+ * DELIBERATELY MONOCHROME. Hue on this site means WHEN — the brand ramp is
+ * mapped onto the corpus's time axis (lib/era.ts) and colouring anything else
+ * with it would break the one thing the reader is being taught to read. So the
+ * kinds separate by value alone: code sits at full text colour and the three
+ * prose kinds step down from it. Same reason the commit area under the ledger
+ * strip is one neutral at low opacity.
+ */
+import { LINE_KINDS, LINE_LABELS, type LineSplit } from "../lib/lines";
+
+interface Props {
+  lines: LineSplit;
+  /** Drops the label row, for use inside a dense row. */
+  compact?: boolean;
+}
+const { lines, compact = false } = Astro.props;
+
+/**
+ * Value steps, code first. The floor is 0.24 rather than something fainter:
+ * below roughly a fifth, a white segment on this background stops separating
+ * from the track behind it (--color-border is white at 10%) and the 8px key
+ * swatches go illegible.
+ */
+const OPACITY: Record<string, number> = {
+  code: 1, contextv: 0.62, changelog: 0.4, content: 0.24,
+};
+
+const fmt = (n: number) =>
+  n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M`
+  : n >= 1_000 ? `${Math.round(n / 1_000)}k`
+  : String(n);
+
+// A kind with no lines is omitted rather than drawn as a zero-width sliver —
+// most single-project rows have no `content` at all.
+const segments = LINE_KINDS
+  .map((kind) => ({
+    kind,
+    label: LINE_LABELS[kind],
+    value: lines[kind],
+    pct: lines.total > 0 ? (lines[kind] / lines.total) * 100 : 0,
+    opacity: OPACITY[kind],
+  }))
+  .filter((s) => s.value > 0);
+---
+
+{segments.length > 0 && (
+  <div class="linebar" data-compact={compact ? "" : undefined}>
+    <div class="bar" role="img"
+         aria-label={`${lines.total.toLocaleString()} lines: ${segments.map((s) => `${s.value.toLocaleString()} ${s.label.toLowerCase()}`).join(", ")}`}>
+      {/* role="img" + aria-label carries the whole reading; the segments are
+          presentational, and labelling each one only duplicates it. */}
+      {segments.map((s) => (
+        <span class="seg" style={`width:${s.pct}%;opacity:${s.opacity}`}></span>
+      ))}
+    </div>
+
+    {!compact && (
+      <dl class="keys">
+        {segments.map((s) => (
+          <div>
+            <dt><i style={`opacity:${s.opacity}`}></i>{s.label}</dt>
+            <dd>{fmt(s.value)}<small>{s.pct.toFixed(0)}%</small></dd>
+          </div>
+        ))}
+      </dl>
+    )}
+  </div>
+)}
+
+<style>
+  .linebar { margin: 0; }
+
+  .bar {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    /* Darker than the faintest segment, so a thin `content` sliver still
+       reads as a segment rather than as track. */
+    background: var(--color-surface-alt);
+  }
+  .linebar[data-compact] .bar { height: 4px; border-radius: 2px; }
+
+  /* Value, never hue — hue is reserved for chronology. */
+  /* flex:none — the widths ARE the data; letting flex shrink them would
+     quietly redraw the proportions. */
+  .seg { background: var(--color-text); display: block; flex: none; min-width: 1px; }
+  /* Hairlines between segments so adjacent value steps stay countable. */
+  .seg + .seg { box-shadow: inset 1px 0 0 var(--color-bg); }
+
+  .keys {
+    display: flex; flex-wrap: wrap; gap: 0 1.75rem;
+    margin: 0.55rem 0 0; padding: 0;
+    font-family: var(--font-mono);
+  }
+  .keys div { display: flex; align-items: baseline; gap: 0.45rem; }
+  .keys dt {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: var(--text-xs); letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--color-text-faint);
+  }
+  .keys dt i {
+    width: 8px; height: 8px; border-radius: 2px;
+    background: var(--color-text); flex: none;
+  }
+  .keys dd {
+    margin: 0; font-size: var(--text-sm);
+    color: var(--color-text); font-variant-numeric: tabular-nums;
+  }
+  .keys dd small {
+    margin-left: 0.35rem;
+    font-size: var(--text-xs); color: var(--color-text-faint);
+  }
+</style>
