@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <!-- Ribbon A — indigo-electric → chartreuse (matches --color-accent → --color-thread in dark mode) -->
+    <linearGradient id="ka" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5b6fff"/>
+      <stop offset="100%" stop-color="#c8ff2e"/>
+    </linearGradient>
+    <!-- Ribbon B — chartreuse → amber (matches --color-thread → --color-accent-warm in dark mode) -->
+    <linearGradient id="kb" x1="64" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c8ff2e"/>
+      <stop offset="100%" stop-color="#ffb84d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Ribbon A — left loop into right under-pass -->
+  <path d="M 12 32 C 12 18 24 14 32 22 C 38 30 52 30 52 18" stroke="url(#ka)" stroke-width="3.4"/>
+  <path d="M 52 18 C 52 30 40 30 32 38 C 24 46 12 46 12 32" stroke="url(#ka)" stroke-width="3.4"/>
+
+  <!-- Ribbon B — drawn last so it appears on top at the cross -->
+  <path d="M 12 18 C 12 30 24 30 32 22" stroke="url(#kb)" stroke-width="3.4"/>
+  <path d="M 32 38 C 40 46 52 46 52 32 C 52 18 40 14 32 22" stroke="url(#kb)" stroke-width="3.4"/>
+</svg>

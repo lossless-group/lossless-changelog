@@ -6,6 +6,7 @@ import { getStreams, getStream, getEntries, getSubtreeEntries, getAllEntries } f
 import { spanOf, colorFor } from "../../../lib/era";
 import { globalWeeks, statsForSubtree, ledgerScale } from "../../../lib/commits";
 import { linesForSubtree } from "../../../lib/lines";
+import { days as fleetDays, dailyForSubtree } from "../../../lib/daily";
 import LineBar from "../../../components/LineBar.astro";
 
 export function getStaticPaths() {
@@ -35,7 +36,7 @@ const span = spanOf([
 const code = statsForSubtree(stream);
 const lines = linesForSubtree(stream);
 // The GLOBAL scale, matching the home page — same reason the span is global.
-const scale = ledgerScale(getAllEntries().map((e) => e.date));
+const scale = ledgerScale(getAllEntries().map((e) => e.date), fleetDays.map((d) => d.commits));
 ---
 <BaseLayout
   title={stream.title}
@@ -66,7 +67,7 @@ const scale = ledgerScale(getAllEntries().map((e) => e.date));
       bar on entries would hide the only thing that stream has to report. */}
   {(subtree.length > 0 || lines.total > 0) && (
     <div class="strip">
-      {subtree.length > 0 && <LedgerStrip entries={subtree} span={span} commits={code.weeks} scale={scale} axis />}
+      {subtree.length > 0 && <LedgerStrip entries={subtree} span={span} days={dailyForSubtree(stream)} scale={scale} axis />}
       {code.commits > 0 && (
         <p class="code-stats">
           {code.commits.toLocaleString()} commits · +{lines.total.toLocaleString()} lines

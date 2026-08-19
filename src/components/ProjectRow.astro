@@ -8,27 +8,35 @@
  * title is the link; hover styling still treats the whole row as one target.
  */
 import type { Stream } from "../lib/streams";
-import type { Week } from "../lib/commits";
+import type { Day } from "../lib/daily";
 import type { LedgerScale } from "./LedgerStrip.astro";
 import type { TimeSpan } from "../lib/era";
 import LedgerStrip from "./LedgerStrip.astro";
+import { iconFor } from "../lib/groups";
 import type { Entry } from "../lib/streams";
 
 interface Props {
   stream: Stream;
   entries: Entry[];
-  commits: Week[];
+  days: Day[];
   span: TimeSpan;
   /** Shared y-scale — see LedgerStrip. Rows must all use the same one. */
   scale?: LedgerScale;
   count: number;
   kid?: boolean;
 }
-const { stream, entries, commits, span, scale, count, kid = false } = Astro.props;
+const { stream, entries, days, span, scale, count, kid = false } = Astro.props;
+
+// Only a project's OWN mark. Falling back to the group's would put the same
+// icon on a dozen rows and stop meaning anything.
+const icon = iconFor(stream.slug);
 ---
 
 <div class:list={["row", kid && "row--kid"]}>
   <span class="name">
+    {icon
+      ? <img class="mark" src={icon} alt="" width="15" height="15" loading="lazy" />
+      : <span class="mark mark--none" aria-hidden="true"></span>}
     <a class="title" href={`/stream/${stream.slug}/`}>{stream.title}</a>
 
     <a class="ico" href={`https://github.com/${stream.repo}`} rel="noreferrer"
@@ -77,7 +85,7 @@ const { stream, entries, commits, span, scale, count, kid = false } = Astro.prop
   </span>
 
   <span class="spark">
-    <LedgerStrip entries={entries} span={span} commits={commits} scale={scale} compact />
+    <LedgerStrip entries={entries} span={span} days={days} scale={scale} compact />
   </span>
   <span class="n">{count}</span>
 </div>
@@ -99,6 +107,11 @@ const { stream, entries, commits, span, scale, count, kid = false } = Astro.prop
   .row--kid { color: var(--color-text-muted); padding-left: 0.9rem; }
 
   .name { display: inline-flex; align-items: center; gap: 0.4rem; min-width: 0; }
+  /* A fixed slot whether or not there is a mark, so titles stay aligned down
+     the column — 19 of 39 projects have no favicon of their own. */
+  .mark { flex: none; width: 15px; height: 15px; border-radius: 3px; }
+  .mark:not(.mark--none) { background: var(--color-text); padding: 1px; }
+  .mark--none { border: 1px dashed var(--color-border); }
   .title {
     color: inherit;
     font-weight: 500;

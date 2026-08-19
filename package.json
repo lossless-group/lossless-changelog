@@ -15,7 +15,8 @@
     "lfm:auto": "node scripts/lfm-mode.mjs auto",
     "sync": "node scripts/sync-streams.mjs",
     "sync:commits": "node scripts/sync-commits.mjs",
-    "sync:lines": "node scripts/sync-line-classes.mjs"
+    "sync:lines": "node scripts/sync-line-classes.mjs",
+    "sync:icons": "node scripts/sync-icons.mjs"
   },
   "dependencies": {
     "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@0.5.1",

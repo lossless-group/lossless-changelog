@@ -6,14 +6,32 @@ import ProjectRow from "../components/ProjectRow.astro";
 import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/streams";
 import { spanOf, colorFor } from "../lib/era";
 import ModelBand from "../components/ModelBand.astro";
-import { globalWeeks, globalTotals, statsForSubtree, ledgerScale } from "../lib/commits";
+import { globalWeeks, globalTotals, ledgerScale } from "../lib/commits";
 import { globalLines, proseLines } from "../lib/lines";
 import LineBar from "../components/LineBar.astro";
 import { augmentationRate } from "../lib/models";
+import { GROUPS, groupOf, groupCounts } from "../lib/groups";
+import { days as fleetDays, focusTotals, dailyForSubtree } from "../lib/daily";
 
 const roots = getRoots();
 const all = getAllEntries();
-const recent = all.slice(0, 30);
+/**
+ * The feed renders deeper than it shows. Thirty entries is the right unfiltered
+ * length, but filtering thirty down to one group leaves three or four rows —
+ * so each group contributes its most recent 25, and everything past the first
+ * thirty overall is marked `data-extra` and revealed only when a filter is on.
+ * All of it is in the DOM, so the filter is pure CSS and needs no client JS.
+ */
+const PER_GROUP = 25;
+const seen = new Map<string, number>();
+const feed = all.filter((e) => {
+  const g = groupOf(e.streamSlug);
+  const n = (seen.get(g) ?? 0) + 1;
+  seen.set(g, n);
+  return n <= PER_GROUP;
+});
+const SHOWN = 30;
+const counts = groupCounts(all);
 
 // The span covers BOTH series, so the commit area is never clipped by the
 // changelog's extent — the record starts whenever the first of either began.
@@ -25,15 +43,11 @@ const span = spanOf([
 const aug = augmentationRate(all);
 
 // One scale for every strip on the page, so the rows stay comparable.
-const scale = ledgerScale(all.map((e) => e.date));
+const scale = ledgerScale(all.map((e) => e.date), fleetDays.map((d) => d.commits));
 
 const dated = all.filter((e) => e.date);
 const first = dated.length ? dated[dated.length - 1].date! : null;
 const latest = dated.length ? dated[0].date! : null;
-const months =
-  first && latest
-    ? Math.max(1, Math.round((latest.getTime() - first.getTime()) / 2_629_800_000))
-    : 1;
 
 const fmt = (d: Date | null) =>
   d ? d.toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "";
@@ -59,13 +73,17 @@ const fmt = (d: Date | null) =>
   </section>
 
   <section class="strip">
-    <LedgerStrip entries={all} span={span} commits={globalWeeks} scale={scale} axis />
+    <LedgerStrip entries={all} span={span} days={fleetDays} scale={scale} axis />
     <ModelBand entries={all} span={span} />
     <dl class="legend">
       <div><dt>Commits</dt><dd>{globalTotals.commits.toLocaleString()}</dd></div>
       <div><dt>Repos</dt><dd>{globalTotals.repos}</dd></div>
       <div><dt>Entries</dt><dd>{totals.entries}</dd></div>
       <div><dt>Agent-augmented</dt><dd>{aug.pct}%</dd></div>
+      {/* The shape of a solo record: not a steady rate, a few days a month
+          given over to it entirely. */}
+      <div><dt>Focus days</dt><dd>{focusTotals.days}<small>/{focusTotals.activeDays}</small></dd></div>
+      <div><dt>Busiest day</dt><dd>{focusTotals.busiest?.commits}<small>commits</small></dd></div>
     </dl>
 
     <div class="lines">
@@ -74,6 +92,9 @@ const fmt = (d: Date | null) =>
         Lines by kind. Lockfiles and vendored trees are excluded — nobody wrote
         them. Proportions are measured from each repository's own history;
         totals follow GitHub's per-repo accounting, which does not agree with it.
+        The marks on the strip's baseline are the {focusTotals.days} days that
+        carried more than ten commits — {focusTotals.commitShare}% of everything
+        ever committed here landed on one of them.
       </p>
     </div>
   </section>
@@ -84,19 +105,19 @@ const fmt = (d: Date | null) =>
       {roots.map((root) => (
         <li class="root">
           <ProjectRow stream={root} entries={getSubtreeEntries(root.slug)}
-                      commits={statsForSubtree(root).weeks} span={span} scale={scale} count={root.totalCount} />
+                      days={dailyForSubtree(root)} span={span} scale={scale} count={root.totalCount} />
           {root.children.length > 0 && (
             <ul class="kids">
               {root.children.map((child) => (
                 <li>
                   <ProjectRow stream={child} entries={getSubtreeEntries(child.slug)}
-                              commits={statsForSubtree(child).weeks} span={span} scale={scale} count={child.ownCount} kid />
+                              days={dailyForSubtree(child)} span={span} scale={scale} count={child.ownCount} kid />
                   {child.children.length > 0 && (
                     <ul class="kids kids--deep">
                       {child.children.map((g) => (
                         <li>
                           <ProjectRow stream={g} entries={getSubtreeEntries(g.slug)}
-                                      commits={statsForSubtree(g).weeks} span={span} scale={scale} count={g.ownCount} kid />
+                                      days={dailyForSubtree(g)} span={span} scale={scale} count={g.ownCount} kid />
                         </li>
                       ))}
                     </ul>
@@ -112,11 +133,37 @@ const fmt = (d: Date | null) =>
 
   <section class="feed">
     <h2 class="eyebrow">Latest</h2>
-    {recent.map((entry) => (
-      <EntryRow entry={entry} showOrigin accent={colorFor(span, entry.date)} />
-    ))}
+
+    {/* Radio, not checkbox: these are views of one feed, not additive facets,
+        and a single-select filter is what pure-CSS isolation can express
+        honestly. Each project's own mark where it has one. */}
+    <div class="gf" role="group" aria-label="Filter by project">
+      <input type="radio" name="grp" id="g-all" checked />
+      <label for="g-all"><span class="dot" aria-hidden="true"></span>All<em>{totals.entries}</em></label>
+      {GROUPS.map((g) => (
+        <>
+          <input type="radio" name="grp" id={`g-${g.id}`} />
+          <label for={`g-${g.id}`}>
+            {g.icon
+              ? <img src={g.icon} alt="" width="16" height="16" loading="lazy" />
+              : <span class="dot" aria-hidden="true"></span>}
+            {g.title}<em>{counts[g.id]}</em>
+          </label>
+        </>
+      ))}
+    </div>
+
+    <div class="rows">
+      {feed.map((entry, i) => (
+        <div data-group={groupOf(entry.streamSlug)} data-extra={i >= SHOWN ? "" : undefined}>
+          <EntryRow entry={entry} showOrigin accent={colorFor(span, entry.date)} />
+        </div>
+      ))}
+    </div>
+
     <p class="more">
-      Showing {recent.length} of {totals.entries}. Every entry lives on its project's page.
+      Showing {Math.min(SHOWN, feed.length)} of {totals.entries} — filter to see
+      more from one project. Every entry lives on its project's page.
     </p>
   </section>
 </BaseLayout>
@@ -181,6 +228,7 @@ const fmt = (d: Date | null) =>
   .legend div { display: flex; align-items: baseline; gap: 0.5rem; }
   .legend dt { font-size: var(--text-xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); }
   .legend dd { margin: 0; font-size: var(--text-sm); color: var(--color-text); font-variant-numeric: tabular-nums; }
+  .legend dd small { margin-left: 0.25rem; font-size: var(--text-xs); color: var(--color-text-faint); }
 
   .lines { margin-top: 1.1rem; }
   .caveat {
@@ -204,6 +252,61 @@ const fmt = (d: Date | null) =>
   .kids--deep { margin-left: 0.9rem; }
 
   /* ── feed ── */
+  /* ── group filter ── */
+  .gf { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.15rem; }
+  .gf input { position: absolute; opacity: 0; pointer-events: none; }
+  .gf label {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.32rem 0.7rem 0.32rem 0.45rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    font-family: var(--font-mono); font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    cursor: pointer; user-select: none;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .gf label:hover { color: var(--color-text); border-color: var(--color-text-faint); }
+  .gf input:checked + label {
+    color: var(--color-text);
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+  }
+  .gf input:focus-visible + label { outline: 1px solid var(--color-primary); outline-offset: 2px; }
+
+  /* The counts hang back so the project name reads first. */
+  .gf label em {
+    font-style: normal;
+    color: var(--color-text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .gf input:checked + label em { color: var(--color-text-muted); }
+
+  /* No plate behind the marks. Every one of them is already designed for a
+     dark ground — ai-labs and content-farm carry their own background rect,
+     astro-knots is transparent line-art in indigo and chartreuse — so the
+     white swatch that used to sit behind them was the only thing making them
+     look broken. */
+  .gf label img { display: block; flex: none; }
+  /* A stand-in for the groups with no mark, so every chip has the same
+     left-hand rhythm. */
+  .dot {
+    width: 16px; height: 16px; flex: none;
+    border-radius: 50%;
+    border: 1px dashed var(--color-border);
+  }
+  .gf input:checked + label .dot { border-style: solid; border-color: var(--color-primary); }
+
+  @media (prefers-reduced-motion: reduce) { .gf label { transition: none; } }
+
+  /* Deep rows stay hidden until a filter narrows the feed. */
+  .rows > [data-extra] { display: none; }
+  .feed:has(.gf input:not(#g-all):checked) .rows > [data-extra] { display: block; }
+
+  .feed:has(#g-ai-labs:checked) .rows > :not([data-group="ai-labs"]),
+  .feed:has(#g-astro-knots:checked) .rows > :not([data-group="astro-knots"]),
+  .feed:has(#g-content-farm:checked) .rows > :not([data-group="content-farm"]),
+  .feed:has(#g-misc:checked) .rows > :not([data-group="misc"]) { display: none; }
+
   .more {
     margin-top: 1.25rem;
     font-family: var(--font-mono);

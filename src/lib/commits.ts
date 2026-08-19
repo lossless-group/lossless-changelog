@@ -117,18 +117,19 @@ export function silentWeeks(entryDates: (Date | null)[]): { weeks: number; commi
  *
  * Computed once from the whole corpus and passed down, for the same reason
  * `span` is: a project strip scaled to its own busiest day would make three
- * entries look like the fleet's record week. Comparability across strips beats
- * per-strip contrast.
+ * entries look like the fleet's record week.
  *
- * Clipped at the 95th percentile rather than the maximum. The busiest day in
- * the corpus carries 27 entries against a median of 2 — scaling to that is
- * what flattened 69% of days into an indistinguishable band. Four days exceed
- * the cap; they render at full height and are flagged as clipped.
+ * Clipped at the 95th percentile rather than the maximum. The busiest day
+ * carries 27 entries against a median of 2, and 129 commits against a median
+ * of 8 — scaling to those is what flattened everything else.
+ *
+ * Lives here rather than in lib/daily.ts to avoid an import cycle: daily.ts
+ * reads streams, and the pages want both from one place.
  */
-export function ledgerScale(entryDates: (Date | null)[]): {
-  entriesPerDay: number;
-  commitsPerWeek: number;
-} {
+export function ledgerScale(
+  entryDates: (Date | null)[],
+  commitsPerDaySeries: number[],
+): { entriesPerDay: number; commitsPerDay: number } {
   const perDay = new Map<number, number>();
   for (const d of entryDates) {
     if (!d) continue;
@@ -142,6 +143,6 @@ export function ledgerScale(entryDates: (Date | null)[]): {
   };
   return {
     entriesPerDay: p95([...perDay.values()]),
-    commitsPerWeek: p95(globalWeeks.filter((w) => w.commits > 0).map((w) => w.commits)),
+    commitsPerDay: p95(commitsPerDaySeries.filter((n) => n > 0)),
   };
 }

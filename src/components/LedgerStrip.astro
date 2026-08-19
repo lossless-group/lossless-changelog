@@ -2,55 +2,55 @@
 /**
  * The ledger strip — this site's signature element.
  *
- * DIVERGING, around a centre baseline. Above it, one mark per day the fleet
- * published a changelog entry, height by how many. Below it, weekly commit
- * volume as an area. Read together: the top is what we WROTE DOWN, the bottom
- * is what we BUILT, and a stretch of commit mass with nothing above it is a
- * week that shipped and never got logged.
+ * TWO SERIES, ONE BASELINE, LAYERED. Behind: commits per day, as a filled
+ * area. In front: one coloured hairline per day an entry was published,
+ * height by how many. Both grow from the same bottom baseline, so the marks
+ * sit ON the volume rather than beside it, and you read them together —
+ * commit mass with no hairline above it is a day that shipped and never got
+ * logged.
  *
- * It used to layer both series in one centred box, which was unreadable for
- * two reasons. Entry marks grew from the middle in both directions, so a mark
- * only ever used half the height it appeared to claim; and a sqrt scale
- * against a 27-entry outlier squeezed 69% of days into a 19–33% band where
- * nothing was distinguishable from anything else. Diverging gives each series
- * its own full range, and the clipped linear scale below spends that range on
- * the days there actually are.
+ * Commits are DAILY, not weekly. GitHub's stats endpoint only buckets by
+ * week, which averages away the thing this record is actually about: a solo
+ * operator's focus days. The median active day carries 8 commits and the
+ * busiest carries 129. Daily comes from local git via lib/daily.ts.
  *
- * It is a chart, not an ornament — which is why the axis furniture is limited
- * to year ticks and, on the global strip only, two faint gridlines. Hue still
- * carries chronology (lib/era.ts); the gradient IS the legend.
+ * Both scales are LINEAR, clipped at the 95th percentile rather than the
+ * maximum. A sqrt scale against the 27-entry outlier used to squeeze 69% of
+ * days into a 19–33% band where nothing was distinguishable from anything.
+ *
+ * Hue means WHEN — the brand ramp mapped onto the corpus's own time axis
+ * (lib/era.ts). The gradient IS the legend for the marks; the key below only
+ * has to say which series is which.
  *
  * Pure SVG, no client JS, no chart library.
  */
 import type { Entry } from "../lib/streams";
-import type { Week } from "../lib/commits";
+import type { Day } from "../lib/daily";
 import { spanOf, positionIn, colorFor, type TimeSpan } from "../lib/era";
 
 /**
- * Shared y-scale. Passed down from the page for the same reason `span` is:
- * a project strip drawn to its own maximum would make three busy days look
- * like the fleet's busiest week. Comparability across strips beats per-strip
- * contrast.
+ * Shared y-scale, passed down for the same reason `span` is: a project strip
+ * drawn to its own maximum would make three busy days look like the fleet's
+ * record week. Comparability across strips beats per-strip contrast.
  */
 export interface LedgerScale {
-  /** Entries-per-day at which a mark reaches full height. */
   entriesPerDay: number;
-  /** Commits-per-week at which the area reaches full depth. */
-  commitsPerWeek: number;
+  commitsPerDay: number;
 }
 
 interface Props {
   entries: Entry[];
   span?: TimeSpan;
-  commits?: Week[];
+  /** Commits + lines per day. Replaces the old weekly series. */
+  days?: Day[];
   scale?: LedgerScale;
   height?: number;
   compact?: boolean;
-  /** Minimal y-gridlines + labels. The global strip only. */
+  /** Axis furniture + key. The global and per-stream strips, not sparklines. */
   axis?: boolean;
 }
 const {
-  entries, span: spanProp, commits = [], scale: scaleProp,
+  entries, span: spanProp, days = [], scale: scaleProp,
   height = 116, compact = false, axis = false,
 } = Astro.props;
 
@@ -60,12 +60,14 @@ const span = spanProp ?? spanOf(dated.map((e) => e.date));
 const W = 1000;
 const H = height;
 const PAD = compact ? 0 : 14;
-
-// The baseline sits above centre: commit volume is the denser, more continuous
-// series and reads better with more room than the sparse daily marks need.
-const BASE = PAD + (H - PAD * 2) * 0.44;
-const UP = BASE - PAD;          // room for entry marks
-const DOWN = H - PAD - BASE;    // room for the commit area
+const BASE = H - PAD;
+/**
+ * 88% of the available height, not all of it. Values past the p95 clip render
+ * at full height, and with no headroom they landed exactly on the top edge —
+ * which reads as the chart being cropped rather than the value being capped.
+ * The remaining 12% is the air that makes a capped mark legible as capped.
+ */
+const TALL = (H - PAD * 2) * 0.88;
 
 // Bucket entries by day — a busy day is one taller mark, not a thicker smear.
 const buckets = new Map<number, { n: number; date: Date }>();
@@ -77,15 +79,8 @@ for (const e of dated) {
   else buckets.set(key, { n: 1, date: d });
 }
 
-const activeCommits = commits.filter((w) => w.commits > 0);
+const active = days.filter((d) => d.commits > 0);
 
-/**
- * Clip at the 95th percentile rather than the maximum. Four of 126 days carry
- * more than eight entries and one carries 27; scaling to that outlier is what
- * flattened everything else. Days past the cap are drawn at full height and
- * flagged, which is honest — the mark says "at least this many" and the
- * tooltip says how many.
- */
 function p95(values: number[], fallback: number): number {
   if (!values.length) return fallback;
   const s = [...values].sort((a, b) => a - b);
@@ -93,36 +88,68 @@ function p95(values: number[], fallback: number): number {
 }
 const scale: LedgerScale = scaleProp ?? {
   entriesPerDay: p95([...buckets.values()].map((b) => b.n), 1),
-  commitsPerWeek: p95(activeCommits.map((w) => w.commits), 1),
+  commitsPerDay: p95(active.map((d) => d.commits), 1),
 };
 
-const marks = [...buckets.values()].map((b) => {
-  const t = positionIn(span, b.date);
-  const over = b.n > scale.entriesPerDay;
-  // Linear against the clipped cap. A floor of 2px keeps a one-entry day from
-  // vanishing on the compact sparkline.
-  const h = Math.max(2, Math.min(1, b.n / scale.entriesPerDay) * UP);
+const xOf = (d: Date) =>
+  PAD + Math.min(Math.max(positionIn(span, d), 0), 1) * (W - PAD * 2);
+
+const marks = [...buckets.values()].map((b) => ({
+  x: xOf(b.date),
+  h: Math.max(2, Math.min(1, b.n / scale.entriesPerDay) * TALL),
+  over: b.n > scale.entriesPerDay,
+  fill: colorFor(span, b.date),
+  label: `${b.date.toISOString().slice(0, 10)} · ${b.n} ${b.n === 1 ? "entry" : "entries"}`,
+}));
+
+/**
+ * The commit area. Daily data is spiky by nature — most days are zero — so
+ * the outline is what carries the shape and the fill only grounds it. Drawn
+ * as an explicit polyline down to the baseline between runs, rather than
+ * interpolating across gaps, so a quiet fortnight reads as quiet.
+ */
+const pts = active.map((d) => [xOf(d.date), BASE - Math.min(1, d.commits / scale.commitsPerDay) * TALL] as const);
+const areaPath = pts.length > 1
+  ? `M ${pts[0][0].toFixed(1)} ${BASE} ` +
+    pts.map(([x, y]) => `L ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") +
+    ` L ${pts[pts.length - 1][0].toFixed(1)} ${BASE} Z`
+  : "";
+const linePath = pts.length > 1
+  ? `M ` + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L ")
+  : "";
+
+/**
+ * Focus days — more than ten commits. Drawn as a heavier column in the commit
+ * series so the emphasis lands on the volume itself rather than on a separate
+ * row of glyphs competing with the entry marks.
+ */
+const FOCUS = 10;
+const focus = active.filter((d) => d.commits > FOCUS).map((d) => {
+  const kinds = [
+    d.code && `${d.code.toLocaleString()} code`,
+    d.contextv && `${d.contextv.toLocaleString()} context`,
+    d.changelog && `${d.changelog.toLocaleString()} changelog`,
+    d.content && `${d.content.toLocaleString()} content`,
+  ].filter(Boolean).join(" · ");
   return {
-    x: PAD + t * (W - PAD * 2),
-    h, over,
-    fill: colorFor(span, b.date),
-    label: `${b.date.toISOString().slice(0, 10)} · ${b.n} ${b.n === 1 ? "entry" : "entries"}`,
+    x: xOf(d.date),
+    h: Math.min(1, d.commits / scale.commitsPerDay) * TALL,
+    label: `${d.date.toISOString().slice(0, 10)} · ${d.commits} commits · ${kinds || "no line changes"}`,
   };
 });
 
-// Commit volume, mirrored below the baseline.
-let areaPath = "";
-if (activeCommits.length > 1) {
-  const pts = activeCommits.map((w) => {
-    const t = positionIn(span, new Date(w.w * 1000));
-    const x = PAD + Math.min(Math.max(t, 0), 1) * (W - PAD * 2);
-    const y = BASE + Math.min(1, w.commits / scale.commitsPerWeek) * DOWN;
-    return [x, y] as const;
-  });
-  areaPath =
-    `M ${pts[0][0].toFixed(1)} ${BASE} ` +
-    pts.map(([x, y]) => `L ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") +
-    ` L ${pts[pts.length - 1][0].toFixed(1)} ${BASE} Z`;
+// Month boundaries — rhythm, unlabelled. Eighteen labels would crowd the axis,
+// but the grid is what makes a burst read as "three weeks in May".
+const months: number[] = [];
+if (span.max > span.min && !compact) {
+  const d = new Date(span.min);
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + 1);
+  while (d.getTime() < span.max) {
+    const t = positionIn(span, d);
+    if (t > 0 && t < 1) months.push(PAD + t * (W - PAD * 2));
+    d.setUTCMonth(d.getUTCMonth() + 1);
+  }
 }
 
 // Interior year boundaries only — a January before the corpus starts would sit
@@ -139,51 +166,78 @@ if (span.max > span.min) {
 
 const monthYear = (ms: number) =>
   new Date(ms).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
-const startLabel = monthYear(span.min);
-const endLabel = monthYear(span.max);
 ---
 
 <figure class="ledger" data-compact={compact ? "" : undefined}>
   <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img"
-       aria-label={`Shipping cadence: ${dated.length} entries between ${new Date(span.min).toISOString().slice(0, 10)} and ${new Date(span.max).toISOString().slice(0, 10)}, above weekly commit volume`}>
+       aria-label={`${dated.length} changelog entries and ${active.reduce((n, d) => n + d.commits, 0).toLocaleString()} commits between ${new Date(span.min).toISOString().slice(0, 10)} and ${new Date(span.max).toISOString().slice(0, 10)}`}>
 
+    {months.map((x) => <line x1={x} x2={x} y1={PAD} y2={BASE} class="tick tick--month" />)}
     {!compact && years.map((y) => <line x1={y.x} x2={y.x} y1={0} y2={H} class="tick" />)}
 
-    {/* Gridlines before the data, so marks sit on top of them. */}
-    {axis && (
-      <>
-        <line x1={PAD} x2={W - PAD} y1={PAD} y2={PAD} class="grid" />
-        <line x1={PAD} x2={W - PAD} y1={H - PAD} y2={H - PAD} class="grid" />
-      </>
-    )}
-
     {areaPath && <path d={areaPath} class="commits" />}
+    {focus.map((f) => (
+      <rect x={f.x - 1} y={BASE - f.h} width={2} height={f.h} class="focus">
+        <title>{f.label}</title>
+      </rect>
+    ))}
+    {linePath && <path d={linePath} class="commits-line" />}
 
     {marks.map((m) => (
-      <rect x={m.x} y={BASE - m.h} width={1.6} height={m.h} fill={m.fill} rx="0.8"
+      <rect class="mark" x={m.x} y={BASE - m.h} width={1.6} height={m.h} fill={m.fill} rx="0.8"
             data-over={m.over ? "" : undefined}>
         <title>{m.label}</title>
       </rect>
     ))}
 
-    {/* The baseline is the reference both series are read against, so it is
-        drawn last and stays visible through them. */}
     <line x1={PAD} x2={W - PAD} y1={BASE} y2={BASE} class="base" />
   </svg>
 
-  {axis && (
-    <div class="yaxis" aria-hidden="true">
-      <span class="up">{scale.entriesPerDay}+ entries/day</span>
-      <span class="down">{scale.commitsPerWeek}+ commits/week</span>
-    </div>
-  )}
-
   {!compact && dated.length > 0 && (
     <figcaption>
-      <span class="end" style="left:0">{startLabel}</span>
+      <span class="end" style="left:0">{monthYear(span.min)}</span>
       {years.map((y) => <span style={`left:${(y.x / W) * 100}%`}>{y.label}</span>)}
-      <span class="end end--right" style="left:100%">{endLabel}</span>
+      <span class="end end--right" style="left:100%">{monthYear(span.max)}</span>
     </figcaption>
+  )}
+
+  {axis && (
+    /* Each item isolates its series — hover to preview, click to hold. Pure
+       CSS via :has(); the checkbox is the state and the label is the control,
+       so it works on touch and from the keyboard with no client JS. One key
+       per page, so the ids cannot collide. */
+    <ul class="key">
+      <li class="k k--entries">
+        <input type="checkbox" id="k-entries" />
+        <label for="k-entries">
+          <i class="sw sw--entry"></i>a day's changelog entries
+          <em>{scale.entriesPerDay}+ = full height</em>
+        </label>
+      </li>
+      <li class="k k--commits">
+        <input type="checkbox" id="k-commits" />
+        <label for="k-commits">
+          <i class="sw sw--commit"></i>a day's commits
+          <em>{scale.commitsPerDay}+ = full height</em>
+        </label>
+      </li>
+      <li class="k k--focus">
+        <input type="checkbox" id="k-focus" />
+        <label for="k-focus">
+          <i class="sw sw--focus"></i>focus day
+          <em>more than {FOCUS} commits</em>
+        </label>
+      </li>
+      {/* The one encoding the swatches above cannot show: a mark's HUE is its
+          date. Nothing else is colour-coded on this chart, and without saying
+          so a reader assumes colour means project or category. Shown as the
+          ramp itself with the axis's own endpoints under it. */}
+      <li class="k k--hue">
+        <span class="ramp" aria-hidden="true"></span>
+        colour = when
+        <em>{monthYear(span.min)} → {monthYear(span.max)}</em>
+      </li>
+    </ul>
   )}
 </figure>
 
@@ -193,29 +247,27 @@ const endLabel = monthYear(span.max);
   .ledger[data-compact] svg { height: 26px; }
 
   .tick { stroke: var(--color-border); stroke-width: 1; }
-  .grid { stroke: var(--color-border); stroke-width: 1; stroke-dasharray: 2 4; }
+  .tick--month { stroke: var(--color-border); stroke-width: 0.5; opacity: 0.4; }
   .base { stroke: var(--color-border); stroke-width: 1; }
 
-  /* Ground, not figure — one neutral fill so the coloured marks stay the
-     thing you read. */
-  .commits { fill: var(--color-text); opacity: 0.16; }
-  .ledger:hover .commits { opacity: 0.22; }
+  /* Ground for the coloured marks, but no longer a whisper — commits per day
+     is half of what this chart says and 9% opacity was hiding it. */
+  .commits { fill: var(--color-text); opacity: 0.14; }
+  /* The outline carries the shape; daily data is spiky and a fill alone reads
+     as mush at this width. */
+  .commits-line { fill: none; stroke: var(--color-text); stroke-width: 0.9; opacity: 0.5; vector-effect: non-scaling-stroke; }
+  .ledger svg:hover .commits { opacity: 0.2; }
+
+  /* Emphasis inside the commit series rather than a competing row of glyphs. */
+  .focus { fill: var(--color-text); opacity: 0.42; }
+  .focus:hover { opacity: 0.85; }
 
   rect { transition: opacity 0.15s ease; }
-  .ledger:hover rect { opacity: 0.45; }
+  .ledger svg:hover rect { opacity: 0.5; }
   .ledger rect:hover { opacity: 1; }
-  /* A day past the clip is drawn at full height; the notch says "and then
-     some" so a capped mark is not mistaken for an exact reading. */
+  /* A day past the clip is drawn at full height; the dashed edge says "and
+     then some" so it is not mistaken for an exact reading. */
   rect[data-over] { stroke: var(--color-bg); stroke-width: 0.8; stroke-dasharray: 2 2; }
-
-  .yaxis {
-    position: absolute; inset: 0; pointer-events: none;
-    font-family: var(--font-mono); font-size: var(--text-xs);
-    color: var(--color-text-faint);
-  }
-  .yaxis span { position: absolute; right: 0; }
-  .yaxis .up { top: -0.15rem; }
-  .yaxis .down { bottom: -0.15rem; }
 
   figcaption {
     position: relative; height: 1.1rem; margin-top: 0.4rem;
@@ -225,6 +277,63 @@ const endLabel = monthYear(span.max);
   figcaption span { position: absolute; transform: translateX(-50%); }
   figcaption .end { transform: none; color: var(--color-text-muted); }
   figcaption .end--right { transform: translateX(-100%); }
+
+  .key {
+    display: flex; flex-wrap: wrap; gap: 0.35rem 1.5rem;
+    list-style: none; margin: 0.55rem 0 0; padding: 0;
+    font-family: var(--font-mono); font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+  .key input { position: absolute; opacity: 0; pointer-events: none; }
+  .key label {
+    display: flex; align-items: center; gap: 0.45rem;
+    cursor: pointer; user-select: none;
+    padding: 0.1rem 0.3rem; margin: -0.1rem -0.3rem;
+    border-radius: var(--radius);
+  }
+  .key label:hover { color: var(--color-text); }
+  .key input:focus-visible + label { outline: 1px solid var(--color-primary); outline-offset: 1px; }
+  .key input:checked + label { color: var(--color-text); background: var(--color-surface); }
+  .key em { font-style: normal; color: var(--color-text-faint); }
+
+  .sw { width: 11px; height: 11px; border-radius: 2px; flex: none; }
+  /* The entry swatch carries the whole era ramp rather than one accent —
+     the marks it stands for are every hue on that ramp, so no single
+     colour would be honest. */
+  .sw--entry { width: 4px; height: 13px; border-radius: 2px; background: var(--gradient-primary); }
+  /* Fill plus top rule, matching how the commit series is actually drawn. */
+  .sw--commit {
+    background: color-mix(in srgb, var(--color-text) 14%, transparent);
+    border-top: 1.5px solid color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+  .sw--focus { background: color-mix(in srgb, var(--color-text) 42%, transparent); }
+
+  /* The era ramp itself, so the legend IS the thing it describes. */
+  .k--hue { display: flex; align-items: center; gap: 0.45rem; }
+  .ramp {
+    width: 52px; height: 8px; border-radius: 4px; flex: none;
+    background: var(--gradient-primary);
+  }
+
+  /* ── isolation ──
+     Hover previews, checked holds. Listed after the base opacities so these
+     win without needing !important. */
+  .ledger:has(.k--entries label:hover) :is(.commits, .commits-line, .focus),
+  .ledger:has(.k--entries input:checked) :is(.commits, .commits-line, .focus) { opacity: 0.05; }
+  .ledger:has(.k--entries label:hover) .mark,
+  .ledger:has(.k--entries input:checked) .mark { opacity: 1; }
+
+  .ledger:has(.k--commits label:hover) .mark,
+  .ledger:has(.k--commits input:checked) .mark { opacity: 0.07; }
+  .ledger:has(.k--commits label:hover) :is(.commits, .focus),
+  .ledger:has(.k--commits input:checked) :is(.commits, .focus) { opacity: 0.26; }
+  .ledger:has(.k--commits label:hover) .commits-line,
+  .ledger:has(.k--commits input:checked) .commits-line { opacity: 0.9; }
+
+  .ledger:has(.k--focus label:hover) :is(.mark, .commits, .commits-line),
+  .ledger:has(.k--focus input:checked) :is(.mark, .commits, .commits-line) { opacity: 0.07; }
+  .ledger:has(.k--focus label:hover) .focus,
+  .ledger:has(.k--focus input:checked) .focus { opacity: 0.95; }
 
   @media (prefers-reduced-motion: reduce) { rect { transition: none; } }
 </style>

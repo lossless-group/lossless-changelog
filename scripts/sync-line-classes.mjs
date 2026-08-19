@@ -28,11 +28,12 @@
  * file as 0/0, which would erase large reorganizations from the record. It
  * also brings the local number closer to GitHub's own accounting.
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { parse as parseYaml } from "yaml";
+import { findClones } from "./lib/clones.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = join(ROOT, "src/config/streams.yaml");
@@ -41,8 +42,6 @@ const OUT_DAILY = join(ROOT, "src/stream/_daily.json");
 
 /** The anchor pseudomonorepo — every clone we can reach lives under it. */
 const TREE = join(ROOT, "../../..");
-/** How deep to walk looking for .git dirs. Submodules nest about four deep. */
-const MAX_DEPTH = 5;
 
 // ── path classification ─────────────────────────────────────────────────────
 
@@ -75,39 +74,6 @@ function classify(path, repoIsContent) {
 
 const EMPTY = () => ({ code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, vendored: 0 });
 
-// ── locate local clones ─────────────────────────────────────────────────────
-
-/**
- * Map owner/name -> local directory by reading each clone's origin remote.
- * Matching on the remote rather than on directory name is what lets
- * `./content` resolve to lossless-group/lossless-content, and it refuses to
- * be fooled by the several dirs whose names collide with a different repo.
- */
-function findClones() {
-  const found = new Map();
-  const walk = (dir, depth) => {
-    if (depth > MAX_DEPTH) return;
-    let items;
-    try { items = readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    if (items.some((e) => e.name === ".git")) {
-      try {
-        const url = execFileSync("git", ["-C", dir, "remote", "get-url", "origin"],
-                                 { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
-        const slug = url.replace(/.*github\.com[:/]/, "").replace(/\.git$/, "").toLowerCase();
-        // First clone wins: lossless-content is checked out twice (./content and
-        // ./site/src/generated-content) and the shallower one is the real one.
-        if (slug && !found.has(slug)) found.set(slug, dir);
-      } catch { /* not a working clone — keep walking */ }
-    }
-    for (const e of items) {
-      if (!e.isDirectory() || e.name === "node_modules" || e.name === ".git") continue;
-      walk(join(dir, e.name), depth + 1);
-    }
-  };
-  walk(TREE, 0);
-  return found;
-}
-
 // ── main ────────────────────────────────────────────────────────────────────
 
 const manifest = parseYaml(readFileSync(MANIFEST, "utf8"));
@@ -120,7 +86,7 @@ const contentRepos = new Set(
 const repos = [...new Set(active.map((s) => s.repo))];
 
 console.log(`Locating clones under ${relative(process.cwd(), TREE) || "."}…`);
-const clones = findClones();
+const clones = findClones(TREE);
 console.log(`  ${clones.size} clones found\n`);
 
 const out = {};
@@ -136,14 +102,13 @@ const fmt = (n) => String(n).padStart(8);
  * averages that distinction away entirely. Local history has the resolution,
  * so we take it from there.
  *
- * Keyed YYYY-MM-DD -> [commits, code, contextv, changelog, content].
+ * Keyed by REPO, then YYYY-MM-DD -> [commits, code, contextv, changelog,
+ * content]. Per-repo rather than fleet-wide so a project row's sparkline can
+ * be drawn in the same unit as the global strip; merging happens at read time
+ * in lib/daily.ts, deduped by repo the way every other total here is.
  */
 const daily = new Map();
-const dayBucket = (d) => {
-  let v = daily.get(d);
-  if (!v) { v = { c: 0, code: 0, contextv: 0, changelog: 0, content: 0 }; daily.set(d, v); }
-  return v;
-};
+let dayBucket = () => { throw new Error("dayBucket used before a repo was set"); };
 
 for (const repo of repos) {
   const dir = clones.get(repo.toLowerCase());
@@ -164,6 +129,13 @@ for (const repo of repos) {
 
   const isContent = contentRepos.has(repo.toLowerCase());
   const t = EMPTY();
+  const repoDays = new Map();
+  daily.set(repo, repoDays);
+  dayBucket = (d) => {
+    let v = repoDays.get(d);
+    if (!v) { v = { c: 0, code: 0, contextv: 0, changelog: 0, content: 0 }; repoDays.set(d, v); }
+    return v;
+  };
   let day = null;
   for (const line of log.split("\n")) {
     if (!line) continue;
@@ -205,11 +177,22 @@ console.log(`  ${"dropped".padEnd(10)} ${fmt(sum("lock") + sum("vendored"))}  (l
 // Daily series is a full rewrite each run, not merged: it is derived from the
 // same scan, and a stale day carried forward would misreport a quiet week.
 const dailyOut = {};
-for (const [d, v] of [...daily.entries()].sort())
-  dailyOut[d] = [v.c, v.code, v.contextv, v.changelog, v.content];
-writeFileSync(OUT_DAILY, JSON.stringify({ generated: null, days: dailyOut }, null, 0) + "\n");
+const fleet = new Map();
+for (const [repo, repoDays] of [...daily.entries()].sort()) {
+  if (!repoDays.size) continue;
+  const o = {};
+  for (const [d, v] of [...repoDays.entries()].sort()) {
+    o[d] = [v.c, v.code, v.contextv, v.changelog, v.content];
+    const f = fleet.get(d) ?? [0, 0, 0, 0, 0];
+    for (let i = 0; i < 5; i++) f[i] += o[d][i];
+    fleet.set(d, f);
+  }
+  dailyOut[repo] = o;
+}
+writeFileSync(OUT_DAILY, JSON.stringify({ generated: null, repos: dailyOut }, null, 0) + "\n");
 
-const surge = Object.values(dailyOut).filter(([c]) => c > 10).length;
-console.log(`${Object.keys(dailyOut).length} active days · ${surge} with more than 10 commits`);
+const surge = [...fleet.values()].filter(([c]) => c > 10).length;
+const busiest = Math.max(0, ...[...fleet.values()].map(([c]) => c));
+console.log(`${fleet.size} active days · ${surge} with more than 10 commits · busiest ${busiest}`);
 
 if (missing.length) console.error(`\n${missing.length} without a local clone: ${missing.join(", ")}`);

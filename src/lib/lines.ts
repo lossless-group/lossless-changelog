@@ -65,6 +65,24 @@ type RawCommits = { repos: Record<string, { additions: number }> };
 const localByRepo = (lineData as RawLines).repos ?? {};
 const githubByRepo = (commitData as RawCommits).repos ?? {};
 
+/**
+ * Sanity band for the GitHub-over-local scale factor.
+ *
+ * Every other repo in the fleet sits between 1.0x and 2.6x — GitHub counts a
+ * bit more than local git does, consistently. A factor far outside that means
+ * the two sources are no longer describing the same history, and the ratio is
+ * meaningless rather than merely imprecise.
+ *
+ * This is not hypothetical. `node_modules` was removed from this repo's git
+ * history on 2026-08-18; local additions dropped from 1,075,860 to 80,635
+ * while GitHub's cached stats still reported 2,151,718, producing a 26.7x
+ * factor that inflated the fleet's code total from 2.8M to 4.7M. GitHub
+ * recomputes eventually, and until it does the honest number is the one we
+ * measured ourselves.
+ */
+const SCALE_MIN = 0.5;
+const SCALE_MAX = 3;
+
 const empty = (): LineSplit =>
   ({ code: 0, contextv: 0, changelog: 0, content: 0, total: 0, unsplit: 0 });
 
@@ -90,12 +108,23 @@ function splitRepo(repo: string): LineSplit {
 
   // A repo GitHub has no stats for (newly added to the manifest, or its stats
   // endpoint never settled) falls back to its own local count, unscaled.
-  const scale = github && local.local > 0 ? github.additions / local.local : 1;
+  const raw = github && local.local > 0 ? github.additions / local.local : 1;
+  // Out of band means the two sources disagree about what history IS, most
+  // likely because it was rewritten. Trust the measurement over the estimate.
+  const scale = raw >= SCALE_MIN && raw <= SCALE_MAX ? raw : 1;
+  if (scale !== raw) unscaled.push({ repo, factor: raw });
 
   for (const kind of LINE_KINDS) out[kind] = Math.round(local[kind] * scale);
   out.total = LINE_KINDS.reduce((n, k) => n + out[k], 0);
   return out;
 }
+
+/**
+ * Repos whose scale factor was rejected. Exposed rather than swallowed — a
+ * silent fallback that changes a headline is the kind of thing that should be
+ * visible to whoever next wonders why a number moved.
+ */
+export const unscaled: { repo: string; factor: number }[] = [];
 
 const splitCache = new Map<string, LineSplit>();
 export function linesForRepo(repo: string): LineSplit {
