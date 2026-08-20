@@ -49,7 +49,13 @@ context-v/extra/
 # per the prep-images-for-embed convention.
 .image-staging/
 
+# Scratch for the OG compositor — QuickLook renders and intermediate crops.
+# Recreated on every run of scripts/og-compose/compose.mjs.
+.og-tmp/
+
 # NOT ignored, deliberately:
 #   design-system/  — the reference surface is committed, per the astro-knots
 #                     Brand Kit / Design System convention.
+#   .ideogram-candidates/ — raw generation runs are the audit trail for why a
+#                     card looks the way it does; kept deliberately.
 #   src/stream/     — synced changelog entries are the site's content.
