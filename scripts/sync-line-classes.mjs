@@ -64,11 +64,12 @@ const CONTEXTV = /(^|\/)context-v\//;
 /** `changelog/`, `changelogs/`, and lossless-content's `changelog--code/` trio. */
 const CHANGELOG = /(^|\/)changelogs?(--[a-z0-9-]+)?\//i;
 
-function classify(path, repoIsContent) {
+function classify(path, repoIsContent, repoIsContext) {
   if (LOCK.test(path)) return "lock";
   if (VENDORED.test(path)) return "vendored";
   if (CONTEXTV.test(path)) return "contextv";
   if (CHANGELOG.test(path)) return "changelog";
+  if (repoIsContext) return "contextv";
   return repoIsContent ? "content" : "code";
 }
 
@@ -82,6 +83,10 @@ const active = manifest.streams.filter((s) => s.enabled !== false);
 /** Repos the manifest declares as content rather than code. */
 const contentRepos = new Set(
   active.filter((s) => s.kind === "content").map((s) => s.repo.toLowerCase()),
+);
+/** Repos that are prose-as-product but belong in the context bucket, not content. */
+const contextRepos = new Set(
+  active.filter((s) => s.kind === "context").map((s) => s.repo.toLowerCase()),
 );
 const repos = [...new Set(active.map((s) => s.repo))];
 
@@ -128,6 +133,7 @@ for (const repo of repos) {
   }
 
   const isContent = contentRepos.has(repo.toLowerCase());
+  const isContext = contextRepos.has(repo.toLowerCase());
   const t = EMPTY();
   const repoDays = new Map();
   daily.set(repo, repoDays);
@@ -145,7 +151,7 @@ for (const repo of repos) {
     const parts = line.split("\t");
     // "-" in the additions column means a binary file, which has no lines.
     if (parts.length < 3 || parts[0] === "-") continue;
-    const kind = classify(parts.slice(2).join("\t"), isContent);
+    const kind = classify(parts.slice(2).join("\t"), isContent, isContext);
     const n = Number(parts[0]) || 0;
     t[kind] += n;
     // Lockfiles and vendored trees are excluded here too — a focus day should

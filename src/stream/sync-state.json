@@ -310,5 +310,13 @@
     "repo": "lossless-group/lossless-content",
     "ref": "development",
     "path": "changelog--content/"
+  },
+  "context": {
+    "sha": "1a8c71ba3e382a47ef4a76b89d5cbe3d45394b6e",
+    "etag": "W/\"9a3597e14f8b264eb7550e66ef5e5ba67b3e9b7abb27f08acbdf2400d097f0cd\"",
+    "count": 11,
+    "repo": "lossless-group/lossless-agent-skills",
+    "ref": "main",
+    "path": "changelog/"
   }
 }

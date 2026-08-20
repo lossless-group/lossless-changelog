@@ -9,6 +9,7 @@ import ModelBand from "../components/ModelBand.astro";
 import { globalWeeks, globalTotals, ledgerScale } from "../lib/commits";
 import { globalLines, proseLines } from "../lib/lines";
 import LineBar from "../components/LineBar.astro";
+import ShareRow from "../components/ShareRow.astro";
 import { augmentationRate } from "../lib/models";
 import { GROUPS, groupOf, groupCounts } from "../lib/groups";
 import { days as fleetDays, focusTotals, dailyForSubtree } from "../lib/daily";
@@ -96,11 +97,19 @@ const fmt = (d: Date | null) =>
         carried more than ten commits — {focusTotals.commitShare}% of everything
         ever committed here landed on one of them.
       </p>
+      <ShareRow />
     </div>
   </section>
 
   <section class="fleet">
     <h2 class="eyebrow">Projects</h2>
+    {/* Column header, so the right-hand figure reads as a quantity of
+        something rather than an unexplained number. */}
+    <div class="ledger-head" aria-hidden="true">
+      <span>Project</span>
+      <span class="mid">Cadence — entries above, commits below</span>
+      <span class="cnt" title="Changelog entries, including sub-projects">Changelog Entries</span>
+    </div>
     <ol class="ledger-rows">
       {roots.map((root) => (
         <li class="root">
@@ -111,13 +120,13 @@ const fmt = (d: Date | null) =>
               {root.children.map((child) => (
                 <li>
                   <ProjectRow stream={child} entries={getSubtreeEntries(child.slug)}
-                              days={dailyForSubtree(child)} span={span} scale={scale} count={child.ownCount} kid />
+                              days={dailyForSubtree(child)} span={span} scale={scale} count={child.totalCount} kid />
                   {child.children.length > 0 && (
                     <ul class="kids kids--deep">
                       {child.children.map((g) => (
                         <li>
                           <ProjectRow stream={g} entries={getSubtreeEntries(g.slug)}
-                                      days={dailyForSubtree(g)} span={span} scale={scale} count={g.ownCount} kid />
+                                      days={dailyForSubtree(g)} span={span} scale={scale} count={g.totalCount} kid />
                         </li>
                       ))}
                     </ul>
@@ -243,6 +252,25 @@ const fmt = (d: Date | null) =>
   /* ── project ledger ── */
   h2.eyebrow { margin: 0 0 0.6rem; }
   .fleet { margin-bottom: 3.25rem; }
+  /* Mirrors ProjectRow's grid so each label sits over its own column. */
+  .ledger-head {
+    display: grid;
+    grid-template-columns: minmax(11rem, 17rem) 1fr 4.5rem;
+    gap: 1rem;
+    align-items: end;
+    padding: 0 0 0.4rem;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+  .ledger-head .cnt { text-align: right; line-height: 1.15; }
+  @media (max-width: 640px) {
+    .ledger-head { grid-template-columns: 1fr 4rem; }
+    .ledger-head .mid { display: none; }
+  }
   .ledger-rows, .kids { list-style: none; margin: 0; padding: 0; }
 
 

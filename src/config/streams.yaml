@@ -14,9 +14,10 @@
 #           altitude is DERIVED from depth: 1=fleet, 2=product, 3=component.
 #   shape   root-dir | nested-path | submodule-ref | standalone-repo
 #           Asserted at sync time: a mismatch is a loud error, not an empty stream.
-#   kind    optional. `content` marks a repo whose non-changelog lines are PROSE,
-#           not code — lossless-content is a corpus, not a program, and counting
-#           its 1.2M lines as code would swamp every real codebase in the tree.
+#   kind    optional. `content` or `context` marks a repo whose non-changelog
+#           lines are PROSE, not code. lossless-content is a corpus, not a
+#           program; lossless-agent-skills is 184 markdown files that ARE the
+#           product. Counting either as code misreports what the work was.
 #           Read only by scripts/sync-line-classes.mjs. Default is code.
 #   title   display name.
 #   splash  optional. The project's own splash page (GitHub Pages) — a page
@@ -79,6 +80,19 @@ streams:
     #
     # `development` is the live tier here; main and master both stop at
     # 2026-07-14.
+
+  - slug: context
+    repo: lossless-group/lossless-agent-skills
+    ref: main
+    path: changelog/
+    parent: null
+    shape: root-dir
+    kind: context
+    splash: https://lossless-group.github.io/lossless-agent-skills/
+    title: Context                              # n=11
+    # 184 markdown files, 32 of them SKILL.md. The repo has no code in it — the
+    # words are the product — so `kind: context` files its lines under context
+    # rather than letting a skill definition count as a program.
 
   - slug: self-host-stack
     repo: lossless-group/vc-self-host-stack
