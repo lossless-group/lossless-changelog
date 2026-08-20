@@ -89,7 +89,7 @@ streams:
     shape: root-dir
     kind: context
     splash: https://lossless-group.github.io/lossless-agent-skills/
-    title: Context                              # n=11
+    title: Lossless Agent Skills                # n=11
     # 184 markdown files, 32 of them SKILL.md. The repo has no code in it — the
     # words are the product — so `kind: context` files its lines under context
     # rather than letting a skill definition count as a program.
@@ -148,8 +148,11 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
-    splash: https://lossless-group.github.io/lossless-site/
+    website: https://lossless.group
     title: Lossless Site                        # n=1
+    # A real website on its own domain, not a splash. It previously carried
+    # splash: https://lossless-group.github.io/lossless-site/ — a URL that
+    # returns 404 and appears never to have existed.
 
   - slug: fullstack-vc
     repo: lossless-group/fullstack-vc

@@ -16,7 +16,8 @@
     "sync": "node scripts/sync-streams.mjs",
     "sync:commits": "node scripts/sync-commits.mjs",
     "sync:lines": "node scripts/sync-line-classes.mjs",
-    "sync:icons": "node scripts/sync-icons.mjs"
+    "sync:icons": "node scripts/sync-icons.mjs",
+    "lines:explain": "node scripts/explain-lines.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bodoni-moda": "5.3.0",

@@ -67,8 +67,8 @@ const fmt = (d: Date | null) =>
     <p class="thesis">
       {globalTotals.commits.toLocaleString()} commits across
       {" "}{globalTotals.repos} repositories, {fmt(first)} to {fmt(latest)} —
-      {" "}{(globalLines.code / 1_000_000).toFixed(1)}M lines of code and
-      {" "}{(proseLines(globalLines) / 1_000_000).toFixed(1)}M of prose,
+      {" "}{(globalLines.code / 1_000_000).toFixed(2)}M lines of code and
+      {" "}{(proseLines(globalLines) / 1_000_000).toFixed(2)}M of prose,
       mostly one person and a rotating cast of frontier models. The marks are
       the days we wrote it down.
     </p>
@@ -229,6 +229,10 @@ const fmt = (d: Date | null) =>
 
   /* ── signature strip: full-bleed out of the shell ── */
   .strip {
+    /* No clipping here — LedgerStrip opens its SVG's overflow on hover so the
+       tallest commit days escape the chart, and a hidden overflow anywhere up
+       the chain would silently undo that. */
+    overflow: visible;
     margin: 0 calc(50% - 50vw) 3.5rem;
     padding: 0 max(1.25rem, calc(50vw - var(--shell) / 2));
     border-block: 1px solid var(--color-border);

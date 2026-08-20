@@ -66,22 +66,28 @@ const localByRepo = (lineData as RawLines).repos ?? {};
 const githubByRepo = (commitData as RawCommits).repos ?? {};
 
 /**
- * Sanity band for the GitHub-over-local scale factor.
+ * NO SCALING. Line counts are the ones we measured.
  *
- * Every other repo in the fleet sits between 1.0x and 2.6x — GitHub counts a
- * bit more than local git does, consistently. A factor far outside that means
- * the two sources are no longer describing the same history, and the ratio is
- * meaningless rather than merely imprecise.
+ * This used to apportion GitHub's per-repo `additions` across the local
+ * path-split — GitHub set the magnitude, local history set the proportions.
+ * The reason was continuity: the site had published "5.9M lines" and a smaller
+ * number would have looked like a regression.
  *
- * This is not hypothetical. `node_modules` was removed from this repo's git
- * history on 2026-08-18; local additions dropped from 1,075,860 to 80,635
- * while GitHub's cached stats still reported 2,151,718, producing a 26.7x
- * factor that inflated the fleet's code total from 2.8M to 4.7M. GitHub
- * recomputes eventually, and until it does the honest number is the one we
- * measured ourselves.
+ * That justification did not survive. The 5.9M was itself inflated by a
+ * committed node_modules that has since been removed from history, the headline
+ * has moved several times regardless, and the scaling was adding 45% on top of
+ * the measured figures — 1.96M of real code was being published as 2.95M.
+ * It also produced an outright failure once: rewriting this repo's history sent
+ * its factor to 26.7x and the fleet code total to 4.7M in a single rebuild,
+ * which needed a clamp to contain.
+ *
+ * Every number below is now something we counted with `git log --numstat`.
+ * Smaller, stable, and defensible line by line — and immune to GitHub's stats
+ * cache drifting underneath us.
+ *
+ * `_commits.json` is still the source for COMMIT counts and the weekly series;
+ * only the line apportionment is gone.
  */
-const SCALE_MIN = 0.5;
-const SCALE_MAX = 3;
 
 const empty = (): LineSplit =>
   ({ code: 0, contextv: 0, changelog: 0, content: 0, total: 0, unsplit: 0 });
@@ -98,33 +104,17 @@ const empty = (): LineSplit =>
 function splitRepo(repo: string): LineSplit {
   const out = empty();
   const local = localByRepo[repo];
-  const github = githubByRepo[repo];
 
   if (!local) {
     // No clone to read. Rather than guess at a shape, hold the total aside.
-    out.unsplit = github?.additions ?? 0;
+    out.unsplit = githubByRepo[repo]?.additions ?? 0;
     return out;
   }
 
-  // A repo GitHub has no stats for (newly added to the manifest, or its stats
-  // endpoint never settled) falls back to its own local count, unscaled.
-  const raw = github && local.local > 0 ? github.additions / local.local : 1;
-  // Out of band means the two sources disagree about what history IS, most
-  // likely because it was rewritten. Trust the measurement over the estimate.
-  const scale = raw >= SCALE_MIN && raw <= SCALE_MAX ? raw : 1;
-  if (scale !== raw) unscaled.push({ repo, factor: raw });
-
-  for (const kind of LINE_KINDS) out[kind] = Math.round(local[kind] * scale);
+  for (const kind of LINE_KINDS) out[kind] = local[kind];
   out.total = LINE_KINDS.reduce((n, k) => n + out[k], 0);
   return out;
 }
-
-/**
- * Repos whose scale factor was rejected. Exposed rather than swallowed — a
- * silent fallback that changes a headline is the kind of thing that should be
- * visible to whoever next wonders why a number moved.
- */
-export const unscaled: { repo: string; factor: number }[] = [];
 
 const splitCache = new Map<string, LineSplit>();
 export function linesForRepo(repo: string): LineSplit {

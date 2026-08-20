@@ -141,6 +141,17 @@ export function ledgerScale(
     const s = [...xs].sort((a, b) => a - b);
     return Math.max(1, s[Math.min(s.length - 1, Math.floor(s.length * 0.95))]);
   };
+  /**
+   * Both clip at p95. At rest the strip should read as a normal time series —
+   * a median day of 8 commits needs visible height, and scaling to the
+   * 132-commit record squashed a whole year into a flat line with three spikes,
+   * which made eighteen months of steady work look like nothing happened.
+   *
+   * The peaks are not lost, they are deferred: LedgerStrip draws a second,
+   * UNCLIPPED series revealed on hover, where a 132-commit day runs to nearly
+   * four times the frame height and out of the top. Rest reads the rhythm;
+   * hover reads the outliers.
+   */
   return {
     entriesPerDay: p95([...perDay.values()]),
     commitsPerDay: p95(commitsPerDaySeries.filter((n) => n > 0)),
