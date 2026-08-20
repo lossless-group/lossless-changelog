@@ -6,33 +6,24 @@ import "@fontsource-variable/figtree";
 import "@fontsource-variable/jetbrains-mono";
 import "../styles/theme.css";
 import { totals } from "../lib/streams";
+import MetaTags from "../components/MetaTags.astro";
+import type { ShareImage } from "../lib/seo";
 
 interface Props {
   title: string;
   description?: string;
-  /**
-   * Keep the page out of search results. The Brand Kit and Design System
-   * reference surfaces are internal by convention — they exist for developers
-   * and AI assistants working in this repo, not for readers arriving from a
-   * search engine.
-   */
   noindex?: boolean;
+  /** Per-page share card. Shapes come from lib/seo.ts SHARE_IMAGES. */
+  ogImage?: ShareImage;
 }
-const { title, description, noindex = false } = Astro.props;
-const full = title === "Lossless Changelog" ? title : `${title} · Lossless Changelog`;
+const { title, description, noindex = false, ogImage } = Astro.props;
 ---
 <!doctype html>
 <html lang="en" data-mode="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{full}</title>
-    {description && <meta name="description" content={description} />}
-    <meta property="og:title" content={full} />
-    {description && <meta property="og:description" content={description} />}
-    <meta property="og:type" content="website" />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
-    {!noindex && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />}
+    <MetaTags title={title} description={description} noindex={noindex} ogImage={ogImage} />
   </head>
   <body>
     <header class="site-head">

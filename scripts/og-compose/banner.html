@@ -1,0 +1,96 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>og compose — lossless-changelog banner</title>
+<style>
+  /* Self-hosted brand faces, loaded by absolute path so QuickLook's renderer
+     resolves them. Bodoni is doing real identity work in the headline —
+     falling back to a system serif would be a different brand. */
+  @font-face {
+    font-family: "Bodoni Moda Variable"; font-style: normal; font-weight: 400 900;
+    src: url("file:///Users/mpstaton/code/lossless-monorepo/astro-knots/sites/lossless-changelog/node_modules/@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-standard-normal.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Figtree Variable"; font-style: normal; font-weight: 300 900;
+    src: url("file:///Users/mpstaton/code/lossless-monorepo/astro-knots/sites/lossless-changelog/node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "JetBrains Mono Variable"; font-style: normal; font-weight: 300 700;
+    src: url("file:///Users/mpstaton/code/lossless-monorepo/astro-knots/sites/lossless-changelog/node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    background: #0d1117;
+    font-family: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+    color: hsl(184 35% 92%);
+  }
+  .bg {
+    position: absolute; inset: 0;
+    background-image: url("file:///Users/mpstaton/code/lossless-monorepo/astro-knots/sites/lossless-changelog/.ideogram-candidates/flowcircle-16x9-20260819-205946/crop-D.png");
+    background-size: cover;
+    background-position: center;
+  }
+  /* Scrim. The art is dark upper-left and bright along the lower-right ribbon;
+     this guarantees headline contrast wherever the flow lands and pulls the
+     whole frame back toward the brand ground. */
+  .scrim {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(100deg,
+        rgba(13,17,23,0.94) 0%,
+        rgba(13,17,23,0.86) 34%,
+        rgba(13,17,23,0.42) 58%,
+        rgba(13,17,23,0.06) 100%),
+      linear-gradient(0deg, rgba(13,17,23,0.62) 0%, rgba(13,17,23,0) 42%);
+  }
+  .wrap {
+    position: relative;
+    height: 100%;
+    padding: 68px 72px;
+    display: flex; flex-direction: column; justify-content: center;
+    max-width: 780px;
+  }
+  h1 {
+    font-family: "Bodoni Moda Variable", Didot, Georgia, serif;
+    font-size: 76px;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    font-weight: 500;
+  }
+  /* The era ramp, on the word that names the thing. Same 107deg stops the
+     site uses to colour every mark by its date. */
+  h1 .grad {
+    background: linear-gradient(107deg, #22a6b5 5.36%, #9138e0 23.14%, #d9233b 47.56%, #f59c49 72.33%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sub {
+    margin-top: 26px;
+    font-size: 24px;
+    line-height: 1.4;
+    color: hsla(0,0%,100%,0.74);
+    max-width: 24ch;
+  }
+  .foot {
+    position: absolute; left: 72px; bottom: 56px;
+    display: flex; align-items: center; gap: 14px;
+    font-family: "JetBrains Mono Variable", ui-monospace, Menlo, monospace;
+    font-size: 16px;
+    color: hsla(0,0%,100%,0.58);
+  }
+  .foot b { color: rgb(4,229,229); font-weight: 600; }
+  .dot { width: 4px; height: 4px; border-radius: 50%; background: hsla(0,0%,100%,0.32); }
+</style>
+<div class="bg"></div>
+<div class="scrim"></div>
+<div class="wrap">
+  <h1>The Lossless<br /><span class="grad">Changelog</span></h1>
+  <p class="sub">Accelerating with Graph, Loop, Harness, and Context Engineering</p>
+</div>
+<div class="foot">
+  <span><b>Check it out</b></span>
+  <span class="dot"></span>
+  <span>Vibe with us.</span>
+</div>

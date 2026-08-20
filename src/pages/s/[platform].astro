@@ -1,0 +1,65 @@
+---
+/**
+ * Platform-tagged share target.
+ *
+ * One page can only advertise one `og:image`, so each platform gets its own
+ * URL and therefore its own card. A crawler fetching `/s/whatsapp/` reads the
+ * Messages aspect; one fetching `/s/x/` reads the wide banner. Humans are
+ * redirected straight to the real page and never see this.
+ *
+ * `rel=canonical` points home so this doesn't split link equity or show up in
+ * search results — the stub is plumbing, not a page.
+ */
+import { SHARE_TARGETS, SITE_NAME, SITE_TAGLINE, OG_IMAGE_ALT, type SharePlatform } from "../../lib/seo";
+
+export function getStaticPaths() {
+  return Object.keys(SHARE_TARGETS).map((platform) => ({ params: { platform } }));
+}
+
+const platform = Astro.params.platform as SharePlatform;
+const target = SHARE_TARGETS[platform];
+const img = target.image;
+
+const origin = (Astro.site?.toString() ?? Astro.url.origin).replace(/\/$/, "");
+const home = `${origin}/`;
+const abs = (p: string) => `${origin}${p}`;
+---
+<!doctype html>
+<html lang="en" data-mode="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{SITE_NAME}</title>
+    <meta name="description" content={SITE_TAGLINE} />
+
+    {/* The stub must never be indexed — it is a redirect wearing a head. */}
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href={home} />
+
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={SITE_NAME} />
+    <meta property="og:description" content={SITE_TAGLINE} />
+    <meta property="og:url" content={home} />
+    <meta property="og:image" content={abs(img.path)} />
+    <meta property="og:image:secure_url" content={abs(img.path)} />
+    <meta property="og:image:type" content={img.type} />
+    <meta property="og:image:width" content={String(img.width)} />
+    <meta property="og:image:height" content={String(img.height)} />
+    <meta property="og:image:alt" content={OG_IMAGE_ALT} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={SITE_NAME} />
+    <meta name="twitter:description" content={SITE_TAGLINE} />
+    <meta name="twitter:image" content={abs(img.path)} />
+    <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
+
+    {/* Humans only. Crawlers read the head above and stop; the ones that do
+        follow land on the canonical page, whose tags are equally correct. */}
+    <meta http-equiv="refresh" content={`0; url=${home}`} />
+    <script is:inline define:vars={{ home }}>location.replace(home);</script>
+  </head>
+  <body style="background:#0d1117;color:#e2f2f4;font-family:system-ui,sans-serif;padding:2rem">
+    <p>Redirecting to <a href={home} style="color:#04e5e5">{SITE_NAME}</a>…</p>
+  </body>
+</html>

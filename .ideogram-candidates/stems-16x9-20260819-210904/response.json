@@ -1,0 +1,41 @@
+{
+  "created": "2026-08-20T02:09:04.523620+00:00",
+  "data": [
+    {
+      "is_image_safe": true,
+      "prompt": "Top half of frame is empty negative space, dark gradient sky. Bottom half contains slender arcing stems with small round tips rising from broad ribbon bands of current sweeping forward left to right.",
+      "resolution": "1312x736",
+      "seed": 811724,
+      "style_type": "GENERAL",
+      "upscaled_resolution": null,
+      "url": "https://ideogram.ai/api/images/ephemeral/2bw2XUBOWzC5B6CxghIOaQ.png?exp=1787278163&sig=dcd9e9f7985e348458c8ce2300bac3e46ef6983ab7819b147a6922953a84f192"
+    },
+    {
+      "is_image_safe": true,
+      "prompt": "Top half of frame is empty negative space, dark gradient sky. Bottom half contains slender arcing stems with small round tips rising from broad ribbon bands of current sweeping forward left to right.",
+      "resolution": "1312x736",
+      "seed": 811724,
+      "style_type": "GENERAL",
+      "upscaled_resolution": null,
+      "url": "https://ideogram.ai/api/images/ephemeral/9A0B1yaoVaayoVvndqOE_A.png?exp=1787278163&sig=3b0250ad1d4f9797e62986d7a229cf57d8962b3679e16d0f961376fcc8e52bdd"
+    },
+    {
+      "is_image_safe": true,
+      "prompt": "Top half of frame is empty negative space, dark gradient sky. Bottom half contains slender arcing stems with small round tips rising from broad ribbon bands of current sweeping forward left to right.",
+      "resolution": "1312x736",
+      "seed": 811724,
+      "style_type": "GENERAL",
+      "upscaled_resolution": null,
+      "url": "https://ideogram.ai/api/images/ephemeral/Et-_de5RUZaEKVl61pJm6w.png?exp=1787278163&sig=02a5facf7388dc6688f7bb8a9953f885eecdf883eb3acf54ddeaf7c755b2e1e1"
+    },
+    {
+      "is_image_safe": true,
+      "prompt": "Top half of frame is empty negative space, dark gradient sky. Bottom half contains slender arcing stems with small round tips rising from broad ribbon bands of current sweeping forward left to right.",
+      "resolution": "1312x736",
+      "seed": 811724,
+      "style_type": "GENERAL",
+      "upscaled_resolution": null,
+      "url": "https://ideogram.ai/api/images/ephemeral/WjiEz8IHVySlcF0_A1h-Zg.png?exp=1787278163&sig=62340024ba7e3a4db455a127f7fe62a9a14fd4bb98ca8c4b456c4ae8a6a404d3"
+    }
+  ]
+}

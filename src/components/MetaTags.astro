@@ -1,0 +1,70 @@
+---
+/**
+ * Every `<head>` tag that governs how this site appears elsewhere — search
+ * results, link unfurls, browser tabs.
+ *
+ * The astro-knots convention: ONE component owns these, and no page or layout
+ * emits `<title>`, `<meta name="description">`, or any `og:*` tag directly.
+ * Two `<title>` tags stacking up from a layout and a page is the failure this
+ * prevents. Data lives in `src/lib/seo.ts`; this file only renders it.
+ */
+import {
+  SITE_NAME, CHAT_OG_IMAGE, WIDE_OG_IMAGE, OG_IMAGE_ALT,
+  CHAR_LIMITS, buildPageTitle, truncate, type ShareImage,
+} from "../lib/seo";
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Override the chat/`og:image` card for one page. */
+  ogImage?: ShareImage;
+  ogImageAlt?: string;
+  ogType?: string;
+  noindex?: boolean;
+  canonical?: string;
+}
+const {
+  title, description = "", ogImage, ogImageAlt,
+  ogType = "website", noindex = false, canonical,
+} = Astro.props;
+
+const chat = ogImage ?? CHAT_OG_IMAGE;
+const alt = ogImageAlt ?? OG_IMAGE_ALT;
+
+// Unfurlers reject relative image URLs outright — resolve against `site`.
+const origin = (Astro.site?.toString() ?? Astro.url.origin).replace(/\/$/, "");
+const absolute = (p: string) => (p.startsWith("http") ? p : `${origin}${p}`);
+
+const fullTitle = truncate(buildPageTitle(title), CHAR_LIMITS.title);
+const desc = truncate(description, CHAR_LIMITS.description);
+const canonicalUrl = canonical ?? `${origin}${Astro.url.pathname}`;
+---
+<title>{fullTitle}</title>
+{desc && <meta name="description" content={desc} />}
+<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+{!noindex && <link rel="canonical" href={canonicalUrl} />}
+
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={fullTitle} />
+{desc && <meta property="og:description" content={desc} />}
+<meta property="og:url" content={canonicalUrl} />
+
+{/* Square — picked for WhatsApp and iMessage, which is where this gets
+    shared. Every unfurler but X reads this one tag; see lib/seo.ts. */}
+<meta property="og:image" content={absolute(chat.path)} />
+<meta property="og:image:secure_url" content={absolute(chat.path)} />
+<meta property="og:image:type" content={chat.type} />
+<meta property="og:image:width" content={String(chat.width)} />
+<meta property="og:image:height" content={String(chat.height)} />
+<meta property="og:image:alt" content={alt} />
+
+{/* X. The tag names are still `twitter:*` — X never renamed them and there
+    is no `x:card`, so this is current, not stale. `summary_large_image` is
+    what upgrades the thumbnail to a full-width card; without it X renders a
+    small square regardless of the image supplied. */}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+{desc && <meta name="twitter:description" content={desc} />}
+<meta name="twitter:image" content={absolute(WIDE_OG_IMAGE.path)} />
+<meta name="twitter:image:alt" content={alt} />

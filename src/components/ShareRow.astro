@@ -1,0 +1,93 @@
+---
+/**
+ * Share buttons, one per platform.
+ *
+ * Each button targets `/s/<platform>/` rather than the canonical URL, so the
+ * receiving platform crawls a page carrying the card sized for ITS cropper.
+ * See SHARE_TARGETS in lib/seo.ts for why that indirection exists.
+ *
+ * Native share sheet first where the browser has one, platform intent URL
+ * otherwise, clipboard as the universal fallback — the pattern content-farm's
+ * splash already runs.
+ */
+import { SHARE_TARGETS, SITE_NAME } from "../lib/seo";
+
+const origin = (Astro.site?.toString() ?? Astro.url.origin).replace(/\/$/, "");
+const entries = Object.entries(SHARE_TARGETS).map(([id, t]) => ({
+  id,
+  label: t.label,
+  // The tagged URL is what gets SENT — it is what the platform will crawl.
+  shareUrl: `${origin}/s/${id}/`,
+  intent: t.intent(`${origin}/s/${id}/`),
+}));
+---
+<div class="share">
+  <span class="lbl">Share</span>
+  <ul>
+    {entries.map((e) => (
+      <li>
+        <a class="btn" href={e.intent} rel="noreferrer" target="_blank"
+           data-share-url={e.shareUrl} data-share-title={SITE_NAME}>
+          {e.label}
+        </a>
+      </li>
+    ))}
+    <li>
+      <button class="btn btn--copy" type="button" data-copy={`${origin}/`}>Copy link</button>
+    </li>
+  </ul>
+  <span class="toast" role="status" aria-live="polite"></span>
+</div>
+
+<script>
+  const root = document.currentScript?.previousElementSibling as HTMLElement | null;
+  const scope: ParentNode = root ?? document;
+
+  const toast = (msg: string) => {
+    const el = scope.querySelector<HTMLElement>(".toast");
+    if (!el) return;
+    el.textContent = msg;
+    setTimeout(() => { el.textContent = ""; }, 2000);
+  };
+
+  // Prefer the OS share sheet where it exists — on mobile that is the whole
+  // point, and it beats bouncing through a web intent.
+  scope.querySelectorAll<HTMLAnchorElement>("a[data-share-url]").forEach((a) => {
+    a.addEventListener("click", async (ev) => {
+      if (typeof navigator.share !== "function") return; // let the intent href run
+      ev.preventDefault();
+      try {
+        await navigator.share({ title: a.dataset.shareTitle, url: a.dataset.shareUrl });
+      } catch (err) {
+        // Cancelling the sheet is not a failure; anything else falls through.
+        if ((err as DOMException)?.name === "AbortError") return;
+        window.open(a.href, "_blank", "noopener");
+      }
+    });
+  });
+
+  scope.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((b) => {
+    b.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy!); toast("Link copied"); }
+      catch { toast("Copy failed"); }
+    });
+  });
+</script>
+
+<style>
+  .share { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.1rem; }
+  .lbl {
+    font-family: var(--font-mono); font-size: var(--text-xs);
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint);
+  }
+  ul { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0; padding: 0; }
+  .btn {
+    display: inline-block; cursor: pointer;
+    padding: 0.28rem 0.7rem;
+    border: 1px solid var(--color-border); border-radius: 999px;
+    background: none; color: var(--color-text-faint);
+    font-family: var(--font-mono); font-size: var(--text-xs);
+  }
+  .btn:hover { color: var(--color-text); border-color: var(--color-primary); text-decoration: none; }
+  .toast { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-primary); }
+</style>
