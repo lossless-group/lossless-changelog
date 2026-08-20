@@ -39,6 +39,14 @@ const fullTitle = truncate(buildPageTitle(title), CHAR_LIMITS.title);
 const desc = truncate(description, CHAR_LIMITS.description);
 const canonicalUrl = canonical ?? `${origin}${Astro.url.pathname}`;
 ---
+{/* The Lossless mark, carried over from lossless-site — same brand, and this
+    repo had no favicon at all, so browsers were rendering the default globe.
+    SVG only: every browser that matters supports it, and a single scalable
+    file beats a pile of raster sizes. */}
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+{/* Discord reads this for its embed accent bar; harmless everywhere else. */}
+<meta name="theme-color" content="#0d1117" />
+
 <title>{fullTitle}</title>
 {desc && <meta name="description" content={desc} />}
 <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />

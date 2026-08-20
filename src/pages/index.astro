@@ -58,6 +58,7 @@ const fmt = (d: Date | null) =>
   description={`Every ship note across the Lossless tree — ${totals.entries} entries from ${totals.streams} projects, aggregated from their source repositories.`}
 >
   <section class="hero">
+    <ShareRow />
     <p class="eyebrow">The Lossless Group · ship log</p>
     <h1>
       Everything<br />
@@ -97,7 +98,6 @@ const fmt = (d: Date | null) =>
         carried more than ten commits — {focusTotals.commitShare}% of everything
         ever committed here landed on one of them.
       </p>
-      <ShareRow />
     </div>
   </section>
 
@@ -181,7 +181,16 @@ const fmt = (d: Date | null) =>
   /* ── hero ── */
   /* No max-width on the hero itself — the display h1 wants the narrow
      measure, the thesis under it does not. Each sets its own. */
-  .hero { padding-block: 2rem 1.75rem; }
+  .hero { padding-block: 2rem 1.75rem; position: relative; }
+  /* The share row floats to the top-right, level with the eyebrow. Absolute
+     rather than a flex sibling so it never competes with the display type for
+     horizontal space — the h1 is the only thing that gets to set that. */
+  .hero > :global(.share) { position: absolute; top: 2rem; right: 0; }
+  @media (max-width: 720px) {
+    /* No room to float beside a clamped display headline; sit it under the
+       thesis instead of letting it overlap. */
+    .hero > :global(.share) { position: static; margin-top: 1.1rem; }
+  }
   .hero h1 {
     max-width: 46ch;
     font-family: var(--font-display);

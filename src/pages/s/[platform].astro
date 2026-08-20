@@ -22,7 +22,10 @@ const img = target.image;
 
 const origin = (Astro.site?.toString() ?? Astro.url.origin).replace(/\/$/, "");
 const home = `${origin}/`;
-const abs = (p: string) => `${origin}${p}`;
+// Paths may already be absolute — SHARE_IMAGES points at ImageKit. Prefixing
+// the origin onto an https:// URL produced vercel.app/https://ik.imagekit.io/…
+// which every unfurler simply fails to fetch.
+const abs = (p: string) => (p.startsWith("http") ? p : `${origin}${p}`);
 ---
 <!doctype html>
 <html lang="en" data-mode="dark">
