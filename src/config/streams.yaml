@@ -20,6 +20,9 @@
 #           product. Counting either as code misreports what the work was.
 #           Read only by scripts/sync-line-classes.mjs. Default is code.
 #   title   display name.
+#   icon    optional. Path, relative to the repo root, of the project's mark.
+#           Only needed when the mark is NOT at one of the paths sync-icons.mjs
+#           already looks in. Setting it skips every heuristic in that script.
 #   splash  optional. The project's own splash page (GitHub Pages) — a page
 #           ABOUT the work, generated from changelog/ and context-v/.
 #   website optional. The live product on its real domain. A different thing
@@ -111,14 +114,6 @@ streams:
     splash: https://lossless-group.github.io/lossless-flavored-markdown-package/
     title: Lossless Flavored Markdown           # n=6
 
-  - slug: neo
-    repo: lossless-group/changelog-neo
-    ref: main
-    path: ""
-    parent: null
-    shape: standalone-repo
-    title: Neo                                  # n=1
-
   - slug: parslee
     repo: lossless-group/changelog-parslee
     ref: main
@@ -169,6 +164,7 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    icon: public/brand/favicon__BannerVC.svg
     title: Banner Site                          # n=12
 
   - slug: hypernova-site
@@ -187,6 +183,7 @@ streams:
     parent: astro-knots
     shape: root-dir
     website: https://the-water-foundation.com
+    icon: public/appIcon__The-Water-Foundation.svg
     title: The Water Foundation                 # n=5
 
   - slug: arthouse-site
@@ -212,7 +209,12 @@ streams:
     path: changelog/
     parent: astro-knots
     shape: root-dir
+    icon: public/appIcon__Parslee.svg
     title: Cilantro                             # n=2 — see spec open question 3
+    # The mark is Parslee's, not Cilantro's. The repo's brand assets are all
+    # Parslee-named, so the site appears to BE the Parslee site under an older
+    # slug — but the `parslee` stream above is a different repo entirely, so the
+    # two are not merged here on the strength of a filename.
 
   - slug: cogs-site
     repo: lossless-group/cogs-site

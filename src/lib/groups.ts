@@ -59,9 +59,20 @@ export function groupCounts(entries: Entry[]): Record<string, number> {
 /** Per-project icons, for the ledger rows. */
 export const iconFor = (slug: string): string | undefined => icons[slug];
 
-/** Streams with no icon of their own fall back to their group's mark. */
+/**
+ * The mark a ledger row shows: the project's own, or the Astro Knots mark.
+ *
+ * Astro Knots sites are the one group where a shared fallback says something
+ * true. They are a single family built from a single set of conventions, and a
+ * client site that never drew itself a logo is still recognisably one of them
+ * — so the family mark reads as "one of these" rather than as a placeholder.
+ *
+ * No other group falls back. Repeating the AI Labs mark down its children
+ * would only assert that they share a parent directory, which the nesting in
+ * the ledger already shows.
+ */
 export function iconOrGroup(slug: string): string | undefined {
-  return icons[slug] ?? GROUPS.find((g) => g.id === groupOf(slug))?.icon;
+  return icons[slug] ?? (groupOf(slug) === "astro-knots" ? icons["astro-knots"] : undefined);
 }
 
 export const allStreamSlugs = () => getStreams().map((s) => s.slug);

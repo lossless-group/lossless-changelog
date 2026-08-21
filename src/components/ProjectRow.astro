@@ -12,7 +12,7 @@ import type { Day } from "../lib/daily";
 import type { LedgerScale } from "./LedgerStrip.astro";
 import type { TimeSpan } from "../lib/era";
 import LedgerStrip from "./LedgerStrip.astro";
-import { iconFor } from "../lib/groups";
+import { iconOrGroup } from "../lib/groups";
 import type { Entry } from "../lib/streams";
 
 interface Props {
@@ -27,9 +27,9 @@ interface Props {
 }
 const { stream, entries, days, span, scale, count, kid = false } = Astro.props;
 
-// Only a project's OWN mark. Falling back to the group's would put the same
-// icon on a dozen rows and stop meaning anything.
-const icon = iconFor(stream.slug);
+// A project's own mark, or — for Astro Knots sites only — the family mark.
+// See iconOrGroup for why that one group gets a fallback and the others do not.
+const icon = iconOrGroup(stream.slug);
 ---
 
 <div class:list={["row", kid && "row--kid"]}>
@@ -133,7 +133,10 @@ const icon = iconFor(stream.slug);
   /* A fixed slot whether or not there is a mark, so titles stay aligned down
      the column — 19 of 39 projects have no favicon of their own. */
   .mark { flex: none; width: 15px; height: 15px; border-radius: 3px; }
-  .mark:not(.mark--none) { background: var(--color-text); padding: 1px; }
+  /* No plate behind the mark. This used to paint var(--color-text) — a
+     near-white square — so every transparent favicon in the column sat on a
+     light chip in a dark-only page. The marks carry their own grounds; the
+     ledger's job is to get out of the way. */
   .mark--none { border: 1px dashed var(--color-border); }
   .title {
     color: inherit;
