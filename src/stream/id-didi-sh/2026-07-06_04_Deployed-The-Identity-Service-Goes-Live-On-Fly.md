@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_04_Deployed-The-Identity-Service-Goes-Live-On-Fly.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: 5253a9bd56a1b6c356d63c2d85eeb666b1d41bf6
+from_sha: f0ea87c039444a96b6d32c62db0c80ee7bbd6ebb
+site_uuid: 27b5c16e-e93d-43ca-a128-8bdbdb255e5d
+hex_code: 47v0u9
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "Deployed — the identity service goes live on Fly"

@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_06_Production-Magic-Links-Land-In-A-Real-Inbox.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: 07437cb756327fa2bc90cffe5f0eaac9fafc0876
+from_sha: f253783bcb0b19468a366b820f578e7a90451e13
+site_uuid: b1df40db-1681-4c2f-93e0-68d0ac5745e8
+hex_code: ji5u0n
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "Production magic links land in a real inbox"

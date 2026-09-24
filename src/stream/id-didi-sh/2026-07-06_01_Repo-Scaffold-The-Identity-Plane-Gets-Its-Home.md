@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_01_Repo-Scaffold-The-Identity-Plane-Gets-Its-Home.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: 6ec6d7813050c835ab98cd243da32e8f0cb3644c
+from_sha: 874f00c6f1cde2112c85e929b5e79df9b6e46748
+site_uuid: f1c42f31-6581-4e87-9908-a1d258bbe35c
+hex_code: mo1q5y
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "Repo scaffold — the identity plane gets its home"

@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_07_Id-Didi-Sh-Is-Live-The-Full-Loop-Clicked.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: 12eccd21bc7de85d42ae0f0133a7c589144df038
+from_sha: c5b6f84648e7b97dfcd92a612933ec65cfa674a5
+site_uuid: 5749d77c-781c-4db3-85fc-da10aa9340af
+hex_code: fs9ync
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "id.didi.sh is live — the full loop, clicked"

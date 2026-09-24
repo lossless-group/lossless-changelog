@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#1F4D3D"/>
+  <!-- A threshold: an opening you pass through, drawn as an arch with the
+       gap left deliberately open at the base. -->
+  <path d="M9 25V15a7 7 0 0 1 14 0v10" fill="none" stroke="#F7F4ED" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="16" cy="15.5" r="2.6" fill="#43B900"/>
+</svg>

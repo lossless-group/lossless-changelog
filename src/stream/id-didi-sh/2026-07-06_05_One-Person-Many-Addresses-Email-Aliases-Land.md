@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_05_One-Person-Many-Addresses-Email-Aliases-Land.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: 6cff528f5197d74068d5eae319976214f2a89098
+from_sha: fd4c86828bf3de6647433a5dab0b49798eed0e10
+site_uuid: 520d75b2-ac56-4301-8921-fbbea75d7ee8
+hex_code: g9fne2
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "One person, many addresses — email aliases land"

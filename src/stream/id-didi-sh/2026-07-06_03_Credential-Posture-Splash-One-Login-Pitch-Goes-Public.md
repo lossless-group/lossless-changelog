@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_03_Credential-Posture-Splash-One-Login-Pitch-Goes-Public.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: cbcea03167beb19207d01784aa699998b3ead684
+from_sha: 03f504eed06e1764609d08ea41d5c0f078cd3c72
+site_uuid: 44b39a1c-96e3-4098-abd5-a972590fbf74
+hex_code: o4totw
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "Credential-posture splash — the one-login pitch goes public"

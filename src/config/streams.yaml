@@ -260,6 +260,53 @@ streams:
     shape: submodule-ref                        # matter-site/changelog IS a submodule
     title: Dark Matter                          # n=25
 
+
+  # Added 2026-09-24. Five sites that had been shipping changelog entries since
+  # August without ever being declared — the manifest is an allowlist, so an
+  # undeclared repo is silent rather than loud. dominocielo, gth and multiphasic
+  # are the three-directions client one-pagers built in parallel in September.
+  - slug: lossless-slides-site
+    repo: lossless-group/lossless-slides-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Lossless Slides                      # n=4
+
+  - slug: lossless-toolkit-site
+    repo: lossless-group/lossless-toolkit-site
+    ref: development
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    # development carries 8; main and master carry 5. The tier model puts the
+    # work on development, and the aggregate should show the work.
+    title: Lossless Toolkit                     # n=8
+
+  - slug: dominocielo-site
+    repo: lossless-group/dominocielo-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Dominocielo                          # n=1
+
+  - slug: gth-site
+    repo: lossless-group/gth-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: GTH                                  # n=1
+
+  - slug: multiphasic-site
+    repo: lossless-group/multiphasic-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Multiphasic                          # n=1
+
   # ── ai-labs children ───────────────────────────────────────────────────────
   - slug: augment-it
     repo: lossless-group/augment-it
@@ -314,6 +361,15 @@ streams:
     shape: root-dir
     title: Corpora Builder                      # n=1
 
+
+  - slug: flave
+    repo: lossless-group/flave
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    title: Flave                                # n=7
+
   # ── memopop-ai components (depth 3) ────────────────────────────────────────
   # memopop-native and memopop-site share the memopop-ai repo at different
   # paths. Sync cursors key on stream, not repo, or one would starve the others.
@@ -341,6 +397,18 @@ streams:
     parent: memopop-ai
     shape: nested-path
     title: MemoPop Site                         # n=3
+
+  # ── dididecks-ai client sites (depth 3) ────────────────────────────────────
+  # Public repo, so it aggregates. Its private siblings under client-sites/
+  # (chroma-decks, calmstorm-decks) deliberately do not — see the note at the
+  # foot of this file.
+  - slug: reach-edu-hub
+    repo: lossless-group/reach-edu-hub
+    ref: main
+    path: changelog/
+    parent: dididecks-ai
+    shape: root-dir
+    title: Reach Edu Hub                        # n=14
 
   # ── content-farm plugin modules ────────────────────────────────────────────
   - slug: perplexed
@@ -422,3 +490,38 @@ streams:
     parent: content-farm
     shape: root-dir
     title: Metafetch                            # n=1
+
+  - slug: stenographer
+    repo: lossless-group/stenographer
+    ref: main
+    path: changelog/
+    parent: content-farm
+    shape: root-dir
+    title: Stenographer                         # n=1
+
+# ── deliberately NOT aggregated ─────────────────────────────────────────────
+# These repos carry changelog/ directories and are excluded on purpose. Recorded
+# here so a later coverage audit does not "discover" them again and re-add them.
+#
+#   lossless-monorepo    PRIVATE. The anchor pseudomonorepo.
+#   calmstorm-decks      PRIVATE. Gated fundraise deck workspace.
+#   lossless-at          PRIVATE.
+#   eventcut-ai          PRIVATE.
+#   chroma-decks         PRIVATE. Client deck site.
+#
+# Private repos stay out for the same reason changelog-neo was dropped from the
+# sync state on 2026-09-09: this site is public, and a token that can read a
+# private repo must never be the reason its contents become public.
+#
+# Also excluded, and NOT because of visibility:
+#   matter-site/changelog/                already aggregated as `dark-matter`,
+#                                         which points at the submodule itself.
+#   lossless-content/changelog--code/     sibling buckets of the declared
+#   lossless-content/changelog--laerdal/  `changelog--content/` stream; the
+#                                         `changelog--` deny rule in
+#                                         sync-streams.mjs covers them.
+#   context-vigilance-kit/corpus/…/       a CORPUS COPY of the agent-skills
+#     agent-skills/changelog/             changelog, already aggregated as
+#                                         `context`. Ingesting it would double
+#                                         every entry — the exact failure the
+#                                         provenance guard exists to prevent.

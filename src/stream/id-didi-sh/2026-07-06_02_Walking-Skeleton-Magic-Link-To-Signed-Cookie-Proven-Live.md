@@ -3,7 +3,11 @@ from: id-didi-sh
 from_path: 2026-07-06_02_Walking-Skeleton-Magic-Link-To-Signed-Cookie-Proven-Live.md
 from_repo: lossless-group/id-didi-sh
 from_ref: main
-from_sha: e13ccbdb12b7c09f1da08d94e9b6bfe2c4267e0f
+from_sha: d769d38ce555aa50f635911451c81ae9c3c5dbc4
+site_uuid: 80cfe547-3f76-487a-976d-9b94cc772e52
+hex_code: gkpkk1
+date_authored_initial_draft: 2026-07-06
+date_authored_current_draft: 2026-07-06
 date_created: 2026-07-06
 date_modified: 2026-07-06
 title: "Walking skeleton — magic link to signed cookie, proven live"
