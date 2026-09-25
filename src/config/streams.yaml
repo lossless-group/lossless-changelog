@@ -315,6 +315,10 @@ streams:
     parent: ai-labs
     shape: root-dir
     splash: https://lossless-group.github.io/augment-it/
+    # A rounded-square app icon with its own gradient ground, so it reads on the
+    # dark plate without help. The heuristic misses it because the scan only
+    # matches favicon*.svg, and this is appIcon__*.
+    icon: splash/public/appIcon__Augment-It.svg
     title: Augment It                           # n=94
 
   - slug: dididecks-ai
@@ -359,6 +363,9 @@ streams:
     path: changelog/
     parent: ai-labs
     shape: root-dir
+    # 64x64, hand-drawn, purple. Lives in SvelteKit's static/ rather than a
+    # public/ dir, which is the only reason the scan never saw it.
+    icon: app/static/favicon.svg
     title: Corpora Builder                      # n=1
 
 
@@ -498,6 +505,38 @@ streams:
     parent: content-farm
     shape: root-dir
     title: Stenographer                         # n=1
+
+# ── favicon audit, 2026-09-24 ───────────────────────────────────────────────
+# Every stream without a mark was opened and searched — not guessed at, and not
+# drawn here. What the search actually found, so nobody re-runs it:
+#
+# FOUND, now declared above:
+#   augment-it        splash/public/appIcon__Augment-It.svg
+#   corpora-builder   app/static/favicon.svg
+#
+# FOUND BUT UNUSABLE — the mark exists and is genuinely theirs, but `.mark` in
+# ProjectRow.astro is a hard 15x15 square with no object-fit, so a wordmark
+# renders as a smear rather than a logo:
+#   reach-edu-hub     public/reach-logo.svg                       165x52  (3.2:1)
+#   content           visuals/Trademarks/trademark__Lossless.svg  860x185 (4.6:1)
+# Neither is worth showing until something here can letterbox them, and at 15px
+# even a letterboxed wordmark is 15x5 and unreadable. Left blank on purpose.
+#
+# PRESENT BUT SOMEONE ELSE'S BRAND — do not take these. Putting a client's mark
+# on our row is the same failure nameMatchesStream() exists to prevent:
+#   lossless-toolkit-site  public/visuals/appIcon__{Laerdal,Avalanche,Reach,…}
+#   memopop-orchestrator   io/*/assets/* and templates/trademarks/* are per-client
+#   self-host-stack        every SVG is a vendored upstream logo (postiz, karakeep…)
+#
+# NO SVG ANYWHERE IN THE REPO — nothing to find, not an oversight:
+#   dominocielo-site, stenographer, and all ten content-farm plugin modules
+#   (perplexed, cite-wide, image-gin, lmstud-yo, plunk-it, filestarter,
+#   file-transporter, grab-reference, image-wrangler, metafetch). The plugins are
+#   Obsidian plugins: no public/ dir, no brand assets, by their nature.
+#
+# The rule this audit confirms: a mark comes out of the project's own repo or it
+# does not appear. src/marks/ is for deliberate hand-drawn stand-ins, not for
+# filling gaps a script found.
 
 # ── deliberately NOT aggregated ─────────────────────────────────────────────
 # These repos carry changelog/ directories and are excluded on purpose. Recorded
