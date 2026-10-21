@@ -35,12 +35,14 @@ const TREE = join(ROOT, "../../..");
 // Identical to scripts/sync-line-classes.mjs. Duplicated ON PURPOSE: an audit
 // that imports the thing it audits can only ever agree with it.
 const LOCK = /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|poetry\.lock|Cargo\.lock|uv\.lock|Gemfile\.lock|composer\.lock|go\.sum)$/;
+const ROLLUP = /(^|\/)src\/(rollup|stream)\//;
 const VENDORED = /(^|\/)(node_modules|dist|build|vendor|reports|\.astro|\.next|\.svelte-kit)\//;
 const CONTEXTV = /(^|\/)context-v\//;
 const CHANGELOG = /(^|\/)changelogs?(--[a-z0-9-]+)?\//i;
 
 const RULES = [
   ["lock",      "lockfiles — pnpm-lock, package-lock, Cargo.lock, go.sum …", "DROPPED"],
+  ["rollup",    "src/rollup/ (splash roll-ups) and src/stream/ (this site's mirror)", "DROPPED"],
   ["vendored",  "node_modules/ dist/ build/ vendor/ reports/ .astro/ …",     "DROPPED"],
   ["contextv",  "any path under context-v/, OR any repo marked kind: context", "counted"],
   ["changelog", "any path under changelog/ or changelog--*/",                "counted"],
@@ -56,6 +58,7 @@ const repos = [...new Set(active.map((s) => s.repo))];
 
 function classify(path, isContent, isContext) {
   if (LOCK.test(path)) return "lock";
+  if (ROLLUP.test(path)) return "rollup";
   if (VENDORED.test(path)) return "vendored";
   if (CONTEXTV.test(path)) return "contextv";
   if (CHANGELOG.test(path)) return "changelog";
@@ -77,7 +80,7 @@ for (const [name, rule, fate] of RULES)
 console.log();
 
 const clones = findClones(TREE);
-const T = { code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, vendored: 0 };
+const T = { code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, vendored: 0, rollup: 0 };
 const missing = [];
 
 for (const repo of repos) {
@@ -103,7 +106,7 @@ console.log(`RESULT — ${repos.length - missing.length} repos scanned\n`);
 for (const k of ["code", "contextv", "changelog", "content"])
   console.log(`  ${k.padEnd(10)} ${String(T[k]).padStart(10)}  ${pct(T[k]).padStart(6)}`);
 console.log(`  ${"TOTAL".padEnd(10)} ${String(counted).padStart(10)}   = ${(counted / 1e6).toFixed(2)}M`);
-console.log(`\n  dropped    ${String(T.lock + T.vendored).padStart(10)}   (lockfiles ${T.lock}, vendored ${T.vendored})`);
+console.log(`\n  dropped    ${String(T.lock + T.vendored + T.rollup).padStart(10)}   (lockfiles ${T.lock}, vendored ${T.vendored}, roll-ups ${T.rollup})`);
 console.log(`  headline   ${(T.code / 1e6).toFixed(2)}M lines of code`);
 if (missing.length) console.log(`\n  no local clone: ${missing.join(", ")}`);
 

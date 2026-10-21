@@ -92,8 +92,9 @@ const fmt = (d: Date | null) =>
       <LineBar lines={globalLines} />
       <p class="caveat">
         Lines by kind. Lockfiles and vendored trees are excluded — nobody wrote
-        them. Proportions are measured from each repository's own history;
-        totals follow GitHub's per-repo accounting, which does not agree with it.
+        them — and so are roll-ups, the copies a parent repo keeps of its
+        children's changelogs and context-v, which are counted once, where they
+        were written. Every figure is measured from each repository's own history.
         The marks on the strip's baseline are the {focusTotals.days} days that
         carried more than ten commits — {focusTotals.commitShare}% of everything
         ever committed here landed on one of them.

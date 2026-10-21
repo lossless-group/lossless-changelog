@@ -11,8 +11,8 @@
  *
  * Keyed by repo, merged at read time, so a project row is drawn in the same
  * unit as the global strip. Synced by scripts/sync-line-classes.mjs, which
- * already drops lockfiles and vendored trees — a day cannot look productive
- * because a lockfile churned.
+ * already drops lockfiles, vendored trees and roll-up copies — a day cannot
+ * look productive because a lockfile churned or a sync ran.
  */
 import data from "../stream/_daily.json";
 import { getStreams, type Stream } from "./streams";

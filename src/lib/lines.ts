@@ -57,7 +57,7 @@ export interface LineSplit extends Record<LineKind, number> {
 type RawLines = {
   repos: Record<string, {
     local: number; code: number; contextv: number; changelog: number;
-    content: number; lock: number; vendored: number;
+    content: number; lock: number; vendored: number; rollup?: number;
   }>;
 };
 type RawCommits = { repos: Record<string, { additions: number }> };

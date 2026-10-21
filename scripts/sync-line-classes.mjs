@@ -59,6 +59,16 @@ const LOCK = /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|poetry\.lock|
  * lossless-site keeps open-graph fetch reports. Left in, those dumps alone
  * would overstate the fleet's changelog volume by half.
  */
+/**
+ * Roll-ups and this site's own mirror. Per the pseudomonorepos skill, a parent
+ * splash copies its children's changelog/ and context-v/ into
+ * splash/src/rollup/, and sync-streams copies every ledger into src/stream/
+ * here. Both are copies of lines already counted in the child repo that wrote
+ * them, so counting them again would credit one entry two or three times.
+ * ai-labs' rollup alone is 240k lines; this repo's src/stream/ is 95k, and
+ * without this rule it was being filed as code.
+ */
+const ROLLUP = /(^|\/)src\/(rollup|stream)\//;
 const VENDORED = /(^|\/)(node_modules|dist|build|vendor|reports|\.astro|\.next|\.svelte-kit)\//;
 const CONTEXTV = /(^|\/)context-v\//;
 /** `changelog/`, `changelogs/`, and lossless-content's `changelog--code/` trio. */
@@ -66,6 +76,7 @@ const CHANGELOG = /(^|\/)changelogs?(--[a-z0-9-]+)?\//i;
 
 function classify(path, repoIsContent, repoIsContext) {
   if (LOCK.test(path)) return "lock";
+  if (ROLLUP.test(path)) return "rollup";
   if (VENDORED.test(path)) return "vendored";
   if (CONTEXTV.test(path)) return "contextv";
   if (CHANGELOG.test(path)) return "changelog";
@@ -73,7 +84,7 @@ function classify(path, repoIsContent, repoIsContext) {
   return repoIsContent ? "content" : "code";
 }
 
-const EMPTY = () => ({ code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, vendored: 0 });
+const EMPTY = () => ({ code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, vendored: 0, rollup: 0 });
 
 // ── main ────────────────────────────────────────────────────────────────────
 
@@ -154,16 +165,17 @@ for (const repo of repos) {
     const kind = classify(parts.slice(2).join("\t"), isContent, isContext);
     const n = Number(parts[0]) || 0;
     t[kind] += n;
-    // Lockfiles and vendored trees are excluded here too — a focus day should
-    // not look productive because a lockfile churned.
-    if (day && kind !== "lock" && kind !== "vendored") dayBucket(day)[kind] += n;
+    // Lockfiles, vendored trees and roll-ups are excluded here too — a focus
+    // day should not look productive because a lockfile churned or a sync ran.
+    if (day && kind !== "lock" && kind !== "vendored" && kind !== "rollup") dayBucket(day)[kind] += n;
   }
 
   const local = Object.values(t).reduce((a, b) => a + b, 0);
   out[repo] = { local, ...t };
-  const authored = local - t.lock - t.vendored;
+  const authored = local - t.lock - t.vendored - t.rollup;
   console.log(`  ${fmt(authored)} authored  ${repo}` +
-              (t.vendored ? `  (+${t.vendored.toLocaleString()} vendored, dropped)` : ""));
+              (t.vendored ? `  (+${t.vendored.toLocaleString()} vendored, dropped)` : "") +
+              (t.rollup ? `  (+${t.rollup.toLocaleString()} rolled up, dropped)` : ""));
 }
 
 mkdirSync(dirname(OUT), { recursive: true });
@@ -179,7 +191,7 @@ console.log(`\n${Object.keys(merged).length} repos · ${authored.toLocaleString(
 for (const k of ["code", "contextv", "changelog", "content"]) {
   console.log(`  ${k.padEnd(10)} ${fmt(sum(k))}  ${((sum(k) / authored) * 100).toFixed(1)}%`);
 }
-console.log(`  ${"dropped".padEnd(10)} ${fmt(sum("lock") + sum("vendored"))}  (lockfiles + vendored)`);
+console.log(`  ${"dropped".padEnd(10)} ${fmt(sum("lock") + sum("vendored") + sum("rollup"))}  (lockfiles + vendored + roll-ups)`);
 // Daily series is a full rewrite each run, not merged: it is derived from the
 // same scan, and a stale day carried forward would misreport a quiet week.
 const dailyOut = {};
