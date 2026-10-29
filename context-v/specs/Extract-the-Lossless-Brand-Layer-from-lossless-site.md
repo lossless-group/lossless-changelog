@@ -5,8 +5,8 @@ title: "Extract the Lossless Brand Layer from lossless-site"
 lede: >-
   The brand is worth keeping; its token system isn't — 14 Google fonts loaded to use none. Extract it into two-tier tokens, dark by decision.
 publish: true
-version: 0.1.0.0
-status: draft
+at_semantic_version: 0.1.0.0
+status: Draft
 authors:
   - Michael P. Staton
 augmented_with:

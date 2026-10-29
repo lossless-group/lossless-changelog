@@ -5,8 +5,8 @@ title: "Aggregate Changelog Streams Across the Lossless Tree via the GitHub API"
 lede: >-
   One hand-maintained collection becomes a live aggregation over 38 changelog streams, each pulled from its own repo at its own branch.
 publish: true
-version: 0.1.0.0
-status: draft
+at_semantic_version: 0.1.0.0
+status: Draft
 authors:
   - Michael P. Staton
 augmented_with:
