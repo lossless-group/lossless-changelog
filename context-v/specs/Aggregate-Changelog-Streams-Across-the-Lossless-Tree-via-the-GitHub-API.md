@@ -23,6 +23,7 @@ site_uuid: 7ddf29ec-6428-4f2e-962b-9edfded21203
 hex_code: 3fl7to
 date_authored_initial_draft: 2026-08-08
 date_authored_current_draft: 2026-08-08
+type: Specs
 ---
 
 # Aggregate Changelog Streams Across the Lossless Tree via the GitHub API

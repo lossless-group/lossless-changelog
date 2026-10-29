@@ -22,6 +22,7 @@ site_uuid: a02ec728-5125-4e44-a579-cf8a2c23af1c
 hex_code: hjtxct
 date_authored_initial_draft: 2026-08-08
 date_authored_current_draft: 2026-08-08
+type: Specs
 ---
 
 # Extract the Lossless Brand Layer from lossless-site
