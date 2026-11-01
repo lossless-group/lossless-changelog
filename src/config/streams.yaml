@@ -253,12 +253,12 @@ streams:
     title: Lossless Changelog
 
   - slug: dark-matter
-    repo: lossless-group/changelog_matter-site
+    repo: lossless-group/matter-site
     ref: main
-    path: ""
+    path: changelog/
     parent: astro-knots
-    shape: submodule-ref                        # matter-site/changelog IS a submodule
-    title: Dark Matter                          # n=25
+    shape: root-dir                             # was a submodule (changelog_matter-site) until 2026-11-01
+    title: Dark Matter                          # n=30
 
 
   # Added 2026-09-24. Five sites that had been shipping changelog entries since
