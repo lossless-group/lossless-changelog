@@ -14,8 +14,8 @@
  * already drops lockfiles, vendored trees and roll-up copies — a day cannot
  * look productive because a lockfile churned or a sync ran.
  */
-import { dailyData, activityVersion } from "./activity";
-import { getStreams, type Stream } from "./streams";
+import { dailyData, activityVersion, COUNTED_REPOS } from "./activity";
+import type { Stream } from "./streams";
 
 export interface Day {
   date: Date;
@@ -93,7 +93,7 @@ export function refreshDaily() {
   if (loadedAt === activityVersion()) return;
   loadedAt = activityVersion();
   raw = (dailyData() as unknown as Raw).repos ?? {};
-  days = dailyForRepos(getStreams().map((s) => s.repo));
+  days = dailyForRepos(COUNTED_REPOS);
   focusDays = days.filter((d) => d.commits > FOCUS_THRESHOLD);
   const allCommits = days.reduce((n, d) => n + d.commits, 0);
   focusTotals = {

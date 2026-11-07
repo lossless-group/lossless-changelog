@@ -564,3 +564,36 @@ streams:
 #                                         `context`. Ingesting it would double
 #                                         every entry — the exact failure the
 #                                         provenance guard exists to prevent.
+
+# ── stats only ───────────────────────────────────────────────────────────────
+# Repos whose work counts toward the headline, the strip and the lines-by-kind
+# bar, but which publish NO entries here: no stream, no project row. Most are
+# private, and the rule above still holds — nothing from them is shown but
+# totals: commit counts per day and week, and line counts per kind.
+#
+# Read by scripts/sync-commits.mjs, scripts/sync-line-classes.mjs and
+# src/lib/activity.ts. Each needs a relay subscription for its ref, like a
+# stream's repo, or it refreshes only on the next sync.
+#
+# Fields: repo, ref, kind (`content` | `context`, as for streams; omitted
+# means code, with context-v/ and changelog/ paths still classed by path), and
+# exclude: path prefixes dropped like roll-ups, because the lines there were
+# written somewhere else (a copy, generated output, or a folder that later
+# became its own counted repo).
+stats_only:
+  - repo: lossless-group/context-v-corpus
+    ref: development
+    kind: context
+    # corpus/ holds copies of every repo's context-v; survey/ is generated.
+    exclude: [corpus/, corpus-manifest.md, survey/]
+  - repo: lossless-group/content-areas
+    ref: development
+    kind: content
+  - repo: lossless-group/lossless-client-content
+    ref: development
+    kind: content
+  - repo: lossless-group/lossless-monorepo
+    ref: development
+    # These were directories here before they became their own repos, which
+    # are counted in their own right. docs/ was a vendored node_modules.
+    exclude: [site/, content/, data/, docs/]

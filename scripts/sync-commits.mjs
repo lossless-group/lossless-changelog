@@ -64,10 +64,12 @@ async function statsFor(repo, tries = 6) {
 }
 
 const manifest = parseYaml(readFileSync(MANIFEST, "utf8"));
-const repos = [...new Set(manifest.streams.filter((s) => s.enabled !== false).map((s) => s.repo))];
+// Streams plus the stats-only repos: both count toward the totals.
+const counted = [...manifest.streams.filter((s) => s.enabled !== false), ...(manifest.stats_only ?? [])];
+const repos = [...new Set(counted.map((s) => s.repo))];
 /** Each repo's branch: its first stream's, the one the relay watches. */
 const refOf = new Map();
-for (const s of manifest.streams.filter((s) => s.enabled !== false)) if (!refOf.has(s.repo)) refOf.set(s.repo, s.ref);
+for (const s of counted) if (!refOf.has(s.repo)) refOf.set(s.repo, s.ref);
 
 if (!TOKEN) console.warn("! No GITHUB_TOKEN — stats endpoints are heavily rate limited.\n");
 console.log(`Fetching commit stats for ${repos.length} repos…\n`);
@@ -75,7 +77,11 @@ console.log(`Fetching commit stats for ${repos.length} repos…\n`);
 const out = {};
 const failed = [];
 
+/** Repos whose weekly series sync-line-classes.mjs builds locally, minus `exclude:` paths. */
+const localOnly = new Set((manifest.stats_only ?? []).filter((s) => s.exclude?.length).map((s) => s.repo));
+
 for (const repo of repos) {
+  if (localOnly.has(repo)) continue;
   try {
     const data = await statsFor(repo);
     if (data === null) { failed.push(repo); console.log(`  ${"—".padStart(6)}  ${repo} (unavailable)`); continue; }

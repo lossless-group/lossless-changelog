@@ -3,7 +3,7 @@
   "repos": {
     "lossless-group/astro-knots": {
       "ref": "master",
-      "sha": "846408172103d87fa9c1afaf12961f7fa129b0e0"
+      "sha": "9cbcea7651f4f1d1e4360b85efe0438606be654a"
     },
     "lossless-group/lossless-ai-labs": {
       "ref": "main",
@@ -75,7 +75,7 @@
     },
     "lossless-group/lossless-changelog": {
       "ref": "main",
-      "sha": "ce0f2b6b218c59b7007ed25cc9fd34ded81aa35d"
+      "sha": "eb22091b665cb24d7e421e4620400972beaa5b86"
     },
     "lossless-group/matter-site": {
       "ref": "main",
@@ -180,6 +180,22 @@
     "lossless-group/stenographer": {
       "ref": "main",
       "sha": "9d3c9bbacda3242d3c7e7b44a5fe1222bd22acbb"
+    },
+    "lossless-group/context-v-corpus": {
+      "ref": "development",
+      "sha": "f2eb517c6e92ef26229aa3438eede824203abe9f"
+    },
+    "lossless-group/content-areas": {
+      "ref": "development",
+      "sha": "995644cb1eea679cf3af790d3be3cfa208b1825e"
+    },
+    "lossless-group/lossless-client-content": {
+      "ref": "development",
+      "sha": "a2f423eba233f379795fd782327d2aa42dadaa47"
+    },
+    "lossless-group/lossless-monorepo": {
+      "ref": "development",
+      "sha": "45655debf6451bf42c6ef5cf1a35267a8f68b7c2"
     }
   }
 }

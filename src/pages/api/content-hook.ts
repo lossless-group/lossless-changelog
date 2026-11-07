@@ -12,7 +12,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { waitUntil } from '@vercel/functions';
 import { SOURCES, TTL, forgetStreams } from '../../lib/corpus';
-import { forgetRepos } from '../../lib/activity';
+import { countsPush, forgetRepos } from '../../lib/activity';
 import { verify } from '../../lib/hook-signature';
 
 const json = (status: number, body: unknown) =>
@@ -66,14 +66,17 @@ export const POST: APIRoute = async (context) => {
   const streams = SOURCES.filter(
     (s) => s.repo.toLowerCase() === repo && (!body.ref || body.ref === `refs/heads/${s.ref}`),
   );
-  if (!repo || !streams.length) return new Response(null, { status: 204 });
+  // A stats-only repo (streams.yaml `stats_only:`) has no streams but still
+  // moves the totals.
+  const counted = !!repo && countsPush(repo, body.ref);
+  if (!repo || (!streams.length && !counted)) return new Response(null, { status: 204 });
 
   const paths = await changedPaths(body.repo!, body.before, body.after);
   const touched = paths ? streams.filter((s) => paths.some((p) => inDir(p, s.path))) : streams;
 
   const slugs = touched.map((s) => s.slug);
   forgetStreams(slugs);
-  forgetRepos([body.repo!]);
+  if (counted) forgetRepos([body.repo!]);
   if (context.cache.enabled) await context.cache.invalidate({ tags: ['content'] });
 
   // Warm the front door and each of the repo's streams, so the first reader after a

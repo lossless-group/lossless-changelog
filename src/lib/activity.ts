@@ -35,13 +35,31 @@ interface ManifestStream {
   ref: string;
   kind?: string;
   enabled?: boolean;
+  /** stats_only: path prefixes dropped like roll-ups. */
+  exclude?: string[];
 }
 
-const active = (parseYaml(manifestRaw).streams as ManifestStream[]).filter((s) => s.enabled !== false);
+const manifest = parseYaml(manifestRaw);
+// Streams plus the stats-only repos (see streams.yaml): both count toward the totals.
+const active: ManifestStream[] = [
+  ...(manifest.streams as ManifestStream[]).filter((s) => s.enabled !== false),
+  ...((manifest.stats_only ?? []) as ManifestStream[]),
+];
 
 /** Each repo once, on the branch its first stream reads — the branch the relay watches. */
 const REPOS = new Map<string, string>();
 for (const s of active) if (!REPOS.has(s.repo)) REPOS.set(s.repo, s.ref);
+
+/** Whether a push to this repo and ref (`refs/heads/x`) moves the totals. */
+export function countsPush(repo: string, ref?: string): boolean {
+  const r = [...REPOS].find(([k]) => k.toLowerCase() === repo.toLowerCase());
+  return !!r && (!ref || ref === `refs/heads/${r[1]}`);
+}
+
+/** Every counted repo, once: what the fleet-wide totals sum over. */
+export const COUNTED_REPOS = [...REPOS.keys()];
+
+const excludesOf = new Map(active.filter((s) => s.exclude).map((s) => [s.repo.toLowerCase(), s.exclude!]));
 
 const contentRepos = new Set(active.filter((s) => s.kind === "content").map((s) => s.repo.toLowerCase()));
 const contextRepos = new Set(active.filter((s) => s.kind === "context").map((s) => s.repo.toLowerCase()));
@@ -62,6 +80,7 @@ const CHANGELOG = /(^|\/)changelogs?(--[a-z0-9-]+)?\//i;
 type Kind = "code" | "contextv" | "changelog" | "content" | "lock" | "vendored" | "rollup";
 
 function classify(path: string, repo: string): Kind {
+  if ((excludesOf.get(repo.toLowerCase()) ?? []).some((p) => path.startsWith(p))) return "rollup";
   if (LOCK.test(path)) return "lock";
   if (ROLLUP.test(path)) return "rollup";
   if (VENDORED.test(path)) return "vendored";
@@ -125,6 +144,10 @@ function commitDelta(repo: string, sha: string): Promise<CommitDelta | null> {
         if (!res.ok) throw new Error(`GitHub ${res.status} reading commit ${sha.slice(0, 7)}`);
         const c = await res.json();
         if ((c.parents?.length ?? 0) > 1) return null; // --no-merges
+        // A commit that only touched `exclude:` paths is another repo's work.
+        const files = (c.files ?? []) as { filename: string }[];
+        const ex = excludesOf.get(repo.toLowerCase());
+        if (ex && files.length && files.every((f) => ex.some((p) => f.filename.startsWith(p)))) return null;
         const kinds = { code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, vendored: 0, rollup: 0 };
         for (const f of c.files ?? []) kinds[classify(f.filename, repo)] += f.additions ?? 0;
         return {

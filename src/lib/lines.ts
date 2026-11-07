@@ -39,8 +39,8 @@
  * is the difference between claiming 2.1M lines here and the ~148k that were
  * actually written.
  */
-import { commitsData, linesData, activityVersion } from "./activity";
-import { getStreams, type Stream } from "./streams";
+import { commitsData, linesData, activityVersion, COUNTED_REPOS } from "./activity";
+import type { Stream } from "./streams";
 
 /** The four buckets we attribute. Order is display order. */
 export const LINE_KINDS = ["code", "contextv", "changelog", "content"] as const;
@@ -157,7 +157,7 @@ export function refreshLines() {
   localByRepo = (linesData() as RawLines).repos ?? {};
   githubByRepo = (commitsData() as RawCommits).repos ?? {};
   splitCache.clear();
-  globalLines = linesForRepos(getStreams().map((s) => s.repo));
+  globalLines = linesForRepos(COUNTED_REPOS);
 }
 refreshLines();
 

@@ -74,7 +74,9 @@ const CONTEXTV = /(^|\/)context-v\//;
 /** `changelog/`, `changelogs/`, and lossless-content's `changelog--code/` trio. */
 const CHANGELOG = /(^|\/)changelogs?(--[a-z0-9-]+)?\//i;
 
-function classify(path, repoIsContent, repoIsContext) {
+function classify(path, repoIsContent, repoIsContext, excluded = []) {
+  // Per-repo `exclude:` from streams.yaml: lines written somewhere else.
+  if (excluded.some((p) => path.startsWith(p))) return "rollup";
   if (LOCK.test(path)) return "lock";
   if (ROLLUP.test(path)) return "rollup";
   if (VENDORED.test(path)) return "vendored";
@@ -89,7 +91,8 @@ const EMPTY = () => ({ code: 0, contextv: 0, changelog: 0, content: 0, lock: 0, 
 // ── main ────────────────────────────────────────────────────────────────────
 
 const manifest = parseYaml(readFileSync(MANIFEST, "utf8"));
-const active = manifest.streams.filter((s) => s.enabled !== false);
+// Streams plus the stats-only repos: both count toward the totals.
+const active = [...manifest.streams.filter((s) => s.enabled !== false), ...(manifest.stats_only ?? [])];
 
 /** Repos the manifest declares as content rather than code. */
 const contentRepos = new Set(
@@ -100,6 +103,8 @@ const contextRepos = new Set(
   active.filter((s) => s.kind === "context").map((s) => s.repo.toLowerCase()),
 );
 const repos = [...new Set(active.map((s) => s.repo))];
+/** Path prefixes a stats-only repo drops — see `exclude:` in streams.yaml. */
+const excludesOf = new Map((manifest.stats_only ?? []).map((s) => [s.repo, s.exclude ?? []]));
 
 console.log(`Locating clones under ${relative(process.cwd(), TREE) || "."}…`);
 const clones = findClones(TREE);
@@ -124,6 +129,12 @@ const fmt = (n) => String(n).padStart(8);
  * in lib/daily.ts, deduped by repo the way every other total here is.
  */
 const daily = new Map();
+/**
+ * Weekly series for repos with an `exclude:` list, built here instead of from
+ * GitHub's /stats/contributors, which can't leave paths out. Written into
+ * _commits.json; sync-commits.mjs leaves these repos alone.
+ */
+const localWeeks = {};
 let dayBucket = () => { throw new Error("dayBucket used before a repo was set"); };
 
 for (const repo of repos) {
@@ -145,6 +156,7 @@ for (const repo of repos) {
 
   const isContent = contentRepos.has(repo.toLowerCase());
   const isContext = contextRepos.has(repo.toLowerCase());
+  const excluded = excludesOf.get(repo) ?? [];
   const t = EMPTY();
   const repoDays = new Map();
   daily.set(repo, repoDays);
@@ -153,22 +165,66 @@ for (const repo of repos) {
     if (!v) { v = { c: 0, code: 0, contextv: 0, changelog: 0, content: 0 }; repoDays.set(d, v); }
     return v;
   };
+  // With an `exclude:` list, a commit counts only once it touches a path
+  // outside it: 182 of the root's commits only ever touched site/ or content/,
+  // whose own repos already count that work.
+  const weeks = excluded.length ? new Map() : null;
+  const weekOf = (d) => {
+    const t = new Date(`${d}T00:00:00Z`);
+    return t.getTime() / 1000 - t.getUTCDay() * 86_400;
+  };
+  const week = (d) => {
+    const k = weekOf(d);
+    let w = weeks.get(k);
+    if (!w) { w = [k, 0, 0, 0]; weeks.set(k, w); }
+    return w;
+  };
   let day = null;
+  let counted = false;
   for (const line of log.split("\n")) {
     if (!line) continue;
     // %x01 marks a commit header and carries its date; numstat rows follow as
     // added\tdeleted\tpath.
-    if (line.charCodeAt(0) === 1) { day = line.slice(1); dayBucket(day).c += 1; continue; }
+    if (line.charCodeAt(0) === 1) {
+      day = line.slice(1);
+      counted = !excluded.length;
+      if (counted) dayBucket(day).c += 1;
+      continue;
+    }
     const parts = line.split("\t");
+    if (parts.length < 3) continue;
+    const path = parts.slice(2).join("\t");
+    const outside = !excluded.some((p) => path.startsWith(p));
+    if (day && outside && !counted) {
+      counted = true;
+      dayBucket(day).c += 1;
+      week(day)[1] += 1;
+    }
+    if (weeks && day && outside && parts[0] !== "-") {
+      week(day)[2] += Number(parts[0]) || 0;
+      week(day)[3] += Number(parts[1]) || 0;
+    }
     // "-" in the additions column means a binary file, which has no lines.
-    if (parts.length < 3 || parts[0] === "-") continue;
-    const kind = classify(parts.slice(2).join("\t"), isContent, isContext);
+    if (parts[0] === "-") continue;
+    const kind = classify(path, isContent, isContext, excluded);
     const n = Number(parts[0]) || 0;
     t[kind] += n;
     // Lockfiles, vendored trees and roll-ups are excluded here too — a focus
     // day should not look productive because a lockfile churned or a sync ran.
     if (day && kind !== "lock" && kind !== "vendored" && kind !== "rollup") dayBucket(day)[kind] += n;
   }
+
+  if (weeks) {
+    const series = [...weeks.values()].filter((w) => w[1]).sort((a, b) => a[0] - b[0]);
+    localWeeks[repo] = {
+      commits: series.reduce((n, w) => n + w[1], 0),
+      additions: series.reduce((n, w) => n + w[2], 0),
+      deletions: series.reduce((n, w) => n + w[3], 0),
+      weeks: series,
+    };
+  }
+  // Days that only carried excluded commits are dropped, not left at zero.
+  for (const [d, v] of repoDays) if (!v.c && !v.code && !v.contextv && !v.changelog && !v.content) repoDays.delete(d);
 
   const local = Object.values(t).reduce((a, b) => a + b, 0);
   out[repo] = { local, ...t };
@@ -206,6 +262,14 @@ for (const [repo, repoDays] of [...daily.entries()].sort()) {
     fleet.set(d, f);
   }
   dailyOut[repo] = o;
+}
+// Repos with an `exclude:` list take their weekly series from here.
+if (Object.keys(localWeeks).length) {
+  const OUT_COMMITS = join(ROOT, "src/stream/_commits.json");
+  const commits = existsSync(OUT_COMMITS) ? JSON.parse(readFileSync(OUT_COMMITS, "utf8")) : { generated: null, repos: {} };
+  Object.assign(commits.repos, localWeeks);
+  writeFileSync(OUT_COMMITS, JSON.stringify(commits, null, 0) + "\n");
+  console.log(`weekly series from local history: ${Object.keys(localWeeks).join(", ")}`);
 }
 writeFileSync(OUT_DAILY, JSON.stringify({ generated: null, repos: dailyOut }, null, 0) + "\n");
 

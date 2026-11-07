@@ -11,8 +11,8 @@
  * totals therefore aggregate over UNIQUE REPOS, never over streams, or the
  * memopop trio would be counted three times.
  */
-import { commitsData, activityVersion } from "./activity";
-import { getStreams, type Stream } from "./streams";
+import { commitsData, activityVersion, COUNTED_REPOS } from "./activity";
+import type { Stream } from "./streams";
 
 export interface Week {
   /** Unix seconds, GitHub's week start (Sunday). */
@@ -107,11 +107,10 @@ export function refreshCommits() {
   if (loadedAt === activityVersion()) return;
   loadedAt = activityVersion();
   load();
-  globalWeeks = mergeWeeks(
-    [...new Set(getStreams().map((s) => s.repo))].map((r) => byRepo.get(r)?.weeks ?? []),
-  );
+  // Fleet-wide figures sum every counted repo, stats-only ones included.
+  globalWeeks = mergeWeeks(COUNTED_REPOS.map((r) => byRepo.get(r)?.weeks ?? []));
   globalTotals = {
-    repos: new Set(getStreams().map((s) => s.repo)).size,
+    repos: COUNTED_REPOS.length,
     commits: globalWeeks.reduce((n, w) => n + w.commits, 0),
     additions: globalWeeks.reduce((n, w) => n + w.additions, 0),
     deletions: globalWeeks.reduce((n, w) => n + w.deletions, 0),
