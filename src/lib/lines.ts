@@ -39,8 +39,7 @@
  * is the difference between claiming 2.1M lines here and the ~148k that were
  * actually written.
  */
-import commitData from "../stream/_commits.json";
-import lineData from "../stream/_lines.json";
+import { commitsData, linesData, activityVersion } from "./activity";
 import { getStreams, type Stream } from "./streams";
 
 /** The four buckets we attribute. Order is display order. */
@@ -62,8 +61,9 @@ type RawLines = {
 };
 type RawCommits = { repos: Record<string, { additions: number }> };
 
-const localByRepo = (lineData as RawLines).repos ?? {};
-const githubByRepo = (commitData as RawCommits).repos ?? {};
+// Rebuilt by refreshLines() whenever lib/activity.ts folds in new commits.
+let localByRepo: RawLines["repos"] = {};
+let githubByRepo: RawCommits["repos"] = {};
 
 /**
  * NO SCALING. Line counts are the ones we measured.
@@ -146,7 +146,20 @@ export function linesForSubtree(root: Stream): LineSplit {
   return linesForRepos(seen);
 }
 
-export const globalLines: LineSplit = linesForRepos(getStreams().map((s) => s.repo));
+/** A live binding: see refreshLines(). */
+export let globalLines: LineSplit = empty();
+
+let loadedAt = -1;
+/** Recompute if activity has moved. Called by the middleware before each render. */
+export function refreshLines() {
+  if (loadedAt === activityVersion()) return;
+  loadedAt = activityVersion();
+  localByRepo = (linesData() as RawLines).repos ?? {};
+  githubByRepo = (commitsData() as RawCommits).repos ?? {};
+  splitCache.clear();
+  globalLines = linesForRepos(getStreams().map((s) => s.repo));
+}
+refreshLines();
 
 /** Everything that isn't code — the number the old headline was hiding. */
 export const proseLines = (l: LineSplit) => l.contextv + l.changelog + l.content;

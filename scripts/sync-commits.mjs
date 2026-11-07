@@ -25,6 +25,7 @@ import { parse as parseYaml } from "yaml";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = join(ROOT, "src/config/streams.yaml");
 const OUT = join(ROOT, "src/stream/_commits.json");
+const OUT_HEADS = join(ROOT, "src/stream/_heads.json");
 
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_API_TOKEN || "";
 const API = "https://api.github.com";
@@ -64,6 +65,9 @@ async function statsFor(repo, tries = 6) {
 
 const manifest = parseYaml(readFileSync(MANIFEST, "utf8"));
 const repos = [...new Set(manifest.streams.filter((s) => s.enabled !== false).map((s) => s.repo))];
+/** Each repo's branch: its first stream's, the one the relay watches. */
+const refOf = new Map();
+for (const s of manifest.streams.filter((s) => s.enabled !== false)) if (!refOf.has(s.repo)) refOf.set(s.repo, s.ref);
 
 if (!TOKEN) console.warn("! No GITHUB_TOKEN — stats endpoints are heavily rate limited.\n");
 console.log(`Fetching commit stats for ${repos.length} repos…\n`);
@@ -112,3 +116,20 @@ const totalAdds = Object.values(merged).reduce((n, r) => n + r.additions, 0);
 console.log(`\n${Object.keys(merged).length} repos · ${totalCommits.toLocaleString()} commits · ` +
             `+${totalAdds.toLocaleString()} lines · ${calls} API calls`);
 if (failed.length) console.error(`\n${failed.length} unavailable: ${failed.join(", ")}`);
+
+/**
+ * The branch head each repo is at now — the cursor src/lib/activity.ts counts
+ * live commits from. Run this together with `pnpm sync:lines`, so the cursor
+ * and the scanned history describe the same moment; a stale cursor recounts
+ * commits the baseline already holds.
+ */
+const heads = {};
+for (const repo of repos) {
+  const headers = { accept: "application/vnd.github+json" };
+  if (TOKEN) headers.authorization = `Bearer ${TOKEN}`;
+  calls++;
+  const res = await fetch(`${API}/repos/${repo}/commits/${encodeURIComponent(refOf.get(repo))}`, { headers });
+  if (res.ok) heads[repo] = { ref: refOf.get(repo), sha: (await res.json()).sha };
+}
+writeFileSync(OUT_HEADS, JSON.stringify({ generated: null, repos: heads }, null, 2) + "\n");
+console.log(`${Object.keys(heads).length} heads recorded`);

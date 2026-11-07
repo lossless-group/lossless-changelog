@@ -3,14 +3,16 @@
 //
 // The relay forwards { repo, ref, before, after, forced }, signed with
 // RELAY_FORWARD_SECRET. The body is a wake-up, not truth: we find the streams
-// that read the pushed repo and branch, ask GitHub whether the push touched
-// any of their changelog directories, and if so forget those streams and purge
-// the `content` tag. The next render re-lists them.
+// that read the pushed repo and branch and ask GitHub which of their changelog
+// directories the push touched. Every push to such a repo is new commits, so
+// its activity is always forgotten and the `content` tag always purged; the
+// streams are re-listed only when their entries moved.
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { waitUntil } from '@vercel/functions';
 import { SOURCES, TTL, forgetStreams } from '../../lib/corpus';
+import { forgetRepos } from '../../lib/activity';
 import { verify } from '../../lib/hook-signature';
 
 const json = (status: number, body: unknown) =>
@@ -68,13 +70,13 @@ export const POST: APIRoute = async (context) => {
 
   const paths = await changedPaths(body.repo!, body.before, body.after);
   const touched = paths ? streams.filter((s) => paths.some((p) => inDir(p, s.path))) : streams;
-  if (!touched.length) return json(200, { purged: false });
 
   const slugs = touched.map((s) => s.slug);
   forgetStreams(slugs);
+  forgetRepos([body.repo!]);
   if (context.cache.enabled) await context.cache.invalidate({ tags: ['content'] });
 
-  // Warm the front door and each touched stream, so the first reader after a
+  // Warm the front door and each of the repo's streams, so the first reader after a
   // push doesn't pay for the sync. The pause lets GitHub's API catch up.
   //
   // forgetStreams() only reaches THIS instance. Another one can still serve,
@@ -84,7 +86,7 @@ export const POST: APIRoute = async (context) => {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const warmAll = () =>
     Promise.allSettled(
-      ['/', ...slugs.map((s) => `/stream/${s}/`)].map((p) =>
+      ['/', ...streams.map((s) => `/stream/${s.slug}/`)].map((p) =>
         fetch(origin + p, { headers: { 'user-agent': 'content-hook-warmer' } }),
       ),
     );

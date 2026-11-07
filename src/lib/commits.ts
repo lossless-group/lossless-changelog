@@ -11,7 +11,7 @@
  * totals therefore aggregate over UNIQUE REPOS, never over streams, or the
  * memopop trio would be counted three times.
  */
-import data from "../stream/_commits.json";
+import { commitsData, activityVersion } from "./activity";
 import { getStreams, type Stream } from "./streams";
 
 export interface Week {
@@ -31,19 +31,23 @@ export interface RepoStats {
 
 type Raw = { repos: Record<string, { commits: number; additions: number; deletions: number; weeks: number[][] }> };
 
-const raw = (data as Raw).repos ?? {};
+// Rebuilt by refreshCommits() whenever lib/activity.ts folds in new commits.
+let byRepo = new Map<string, RepoStats>();
 
-const byRepo = new Map<string, RepoStats>(
-  Object.entries(raw).map(([repo, r]) => [
-    repo,
-    {
-      commits: r.commits,
-      additions: r.additions,
-      deletions: r.deletions,
-      weeks: r.weeks.map(([w, c, a, d]) => ({ w, commits: c, additions: a, deletions: d })),
-    },
-  ]),
-);
+function load() {
+  const raw = (commitsData() as Raw).repos ?? {};
+  byRepo = new Map<string, RepoStats>(
+    Object.entries(raw).map(([repo, r]) => [
+      repo,
+      {
+        commits: r.commits,
+        additions: r.additions,
+        deletions: r.deletions,
+        weeks: r.weeks.map(([w, c, a, d]) => ({ w, commits: c, additions: a, deletions: d })),
+      },
+    ]),
+  );
+}
 
 export const statsForRepo = (repo: string): RepoStats | undefined => byRepo.get(repo);
 
@@ -82,18 +86,39 @@ export function statsForSubtree(root: Stream): { weeks: Week[]; commits: number;
   };
 }
 
-/** Every repo in the manifest, once. */
-export const globalWeeks: Week[] = mergeWeeks(
-  [...new Set(getStreams().map((s) => s.repo))].map((r) => byRepo.get(r)?.weeks ?? []),
-);
+/** Every repo in the manifest, once. A live binding: see refreshCommits(). */
+export let globalWeeks: Week[] = [];
 
-export const globalTotals = {
-  repos: new Set(getStreams().map((s) => s.repo)).size,
-  commits: globalWeeks.reduce((n, w) => n + w.commits, 0),
-  additions: globalWeeks.reduce((n, w) => n + w.additions, 0),
-  deletions: globalWeeks.reduce((n, w) => n + w.deletions, 0),
-  activeWeeks: globalWeeks.filter((w) => w.commits > 0).length,
+export let globalTotals = {
+  repos: 0,
+  commits: 0,
+  additions: 0,
+  deletions: 0,
+  activeWeeks: 0,
 };
+
+let loadedAt = -1;
+/**
+ * Recompute the module-level figures if activity has moved. Called by the
+ * middleware before each render; the exports above are `let`, so every page
+ * that imported them reads the new values.
+ */
+export function refreshCommits() {
+  if (loadedAt === activityVersion()) return;
+  loadedAt = activityVersion();
+  load();
+  globalWeeks = mergeWeeks(
+    [...new Set(getStreams().map((s) => s.repo))].map((r) => byRepo.get(r)?.weeks ?? []),
+  );
+  globalTotals = {
+    repos: new Set(getStreams().map((s) => s.repo)).size,
+    commits: globalWeeks.reduce((n, w) => n + w.commits, 0),
+    additions: globalWeeks.reduce((n, w) => n + w.additions, 0),
+    deletions: globalWeeks.reduce((n, w) => n + w.deletions, 0),
+    activeWeeks: globalWeeks.filter((w) => w.commits > 0).length,
+  };
+}
+refreshCommits();
 
 /** GitHub's week key (Sunday start) for a date — used to align the two series. */
 export function weekKeyOf(d: Date): number {

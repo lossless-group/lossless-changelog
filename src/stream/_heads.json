@@ -1,0 +1,185 @@
+{
+  "generated": null,
+  "repos": {
+    "lossless-group/astro-knots": {
+      "ref": "master",
+      "sha": "846408172103d87fa9c1afaf12961f7fa129b0e0"
+    },
+    "lossless-group/lossless-ai-labs": {
+      "ref": "main",
+      "sha": "dc0757268673c12f4918853caf22f42ed9cff8c8"
+    },
+    "lossless-group/content-farm": {
+      "ref": "main",
+      "sha": "b977824b82c39ff9dd3185e75b6dfe6308ec2482"
+    },
+    "lossless-group/lossless-content": {
+      "ref": "development",
+      "sha": "dbd753f24e1337e5976555d255081cbefbb11a2c"
+    },
+    "lossless-group/lossless-agent-skills": {
+      "ref": "main",
+      "sha": "148ae1297e383ed0825a1080b9a6007c728a69d7"
+    },
+    "lossless-group/vc-self-host-stack": {
+      "ref": "main",
+      "sha": "028ed571ed6b0e9c2857c8bb866f0caa5ad60b4b"
+    },
+    "lossless-group/lossless-flavored-markdown-package": {
+      "ref": "main",
+      "sha": "fcef576f5bdc9fa30d768d419965c6944c788a50"
+    },
+    "lossless-group/lossless-site": {
+      "ref": "master",
+      "sha": "e45c40f8564337b9ca4fdfccf26c98e428f949b5"
+    },
+    "lossless-group/fullstack-vc": {
+      "ref": "main",
+      "sha": "d2df0cb66de7c3e3f174a754191bfce6b3510c19"
+    },
+    "lossless-group/emblem-site": {
+      "ref": "main",
+      "sha": "1ebe158882ccd7011d0893ad2a9b5210b8686d00"
+    },
+    "lossless-group/hypernova-site": {
+      "ref": "master",
+      "sha": "a394f488012c5725a703a02857ebdf9ba295995b"
+    },
+    "lossless-group/the-water-foundation-site": {
+      "ref": "main",
+      "sha": "d6b70e24774eacaba8086407f458dc5b5db35f6b"
+    },
+    "lossless-group/arthouse-site": {
+      "ref": "main",
+      "sha": "507d5c8514edb9027c51cee2834b6807746e1506"
+    },
+    "lossless-group/learnstart-site": {
+      "ref": "main",
+      "sha": "6efa07c1287c7d2b2d69bbd5d9c115c9bcb1d717"
+    },
+    "lossless-group/cilantro-site": {
+      "ref": "main",
+      "sha": "db5971e0131d091e5adfebbd00e99e82994af320"
+    },
+    "lossless-group/cogs-site": {
+      "ref": "main",
+      "sha": "e6f91dd2f4296f10f7e6d6bbfe5bff8b44ad1229"
+    },
+    "lossless-group/mpstaton-site": {
+      "ref": "main",
+      "sha": "432518a83220f50fa1449b75f262b92403e67943"
+    },
+    "lossless-group/steampunk-site": {
+      "ref": "main",
+      "sha": "9adff464f7c00f6940ecdf4249fe066c13294919"
+    },
+    "lossless-group/lossless-changelog": {
+      "ref": "main",
+      "sha": "ce0f2b6b218c59b7007ed25cc9fd34ded81aa35d"
+    },
+    "lossless-group/matter-site": {
+      "ref": "main",
+      "sha": "6d6750d0f124ac3684339d8b8be57a0acc94026c"
+    },
+    "lossless-group/lossless-slides-site": {
+      "ref": "main",
+      "sha": "67094412987bb0c92d3bbccf5c43e612989dc662"
+    },
+    "lossless-group/lossless-toolkit-site": {
+      "ref": "development",
+      "sha": "aab168d76edbd9187a69a403f8d5c4f9fb0716de"
+    },
+    "lossless-group/dominocielo-site": {
+      "ref": "main",
+      "sha": "32a40162fc1a71ee48854b956ba0955653118efa"
+    },
+    "lossless-group/gth-site": {
+      "ref": "main",
+      "sha": "09caeea5c113c2014afb98b224c831fad40ed1ee"
+    },
+    "lossless-group/multiphasic-site": {
+      "ref": "main",
+      "sha": "0563699f3295eb0e9f5b92ae8d8aa23818e31442"
+    },
+    "lossless-group/augment-it": {
+      "ref": "rebuild/turbo-rsbuild",
+      "sha": "4ac314ba1d49cd8deaa6242b9a50b048c354e3fe"
+    },
+    "lossless-group/dididecks-ai": {
+      "ref": "development",
+      "sha": "27705afa2c9964e83b71e51af95faf0e06f472d1"
+    },
+    "lossless-group/id-didi-sh": {
+      "ref": "main",
+      "sha": "2376e3f12b52f4f007a178552e08311c574a04a4"
+    },
+    "lossless-group/context-vigilance-kit": {
+      "ref": "master",
+      "sha": "a1f8f6de2bc8e7eacfce189f74aed7925b342c4c"
+    },
+    "lossless-group/memopop-ai": {
+      "ref": "main",
+      "sha": "c58af7e64fdbedbd41ca9e97217ece1ba99b0452"
+    },
+    "lossless-group/corpora-builder": {
+      "ref": "main",
+      "sha": "7ff33593c8d8d5e13c12949da7f4c26d5f029505"
+    },
+    "lossless-group/flave": {
+      "ref": "main",
+      "sha": "cba6d57d6cb3b33b582938a7c820b8d3d35e0edf"
+    },
+    "lossless-group/investment-memo-orchestrator": {
+      "ref": "main",
+      "sha": "943592bfd01cf316d648ff64fa550e391602f9e2"
+    },
+    "lossless-group/reach-edu-hub": {
+      "ref": "main",
+      "sha": "d0d7f70768694601647860258a01cb0ad6701dd3"
+    },
+    "lossless-group/perplexed-plugin": {
+      "ref": "main",
+      "sha": "b75a540a88424150c00e1f3486939c16ec4fd614"
+    },
+    "lossless-group/cite-wide": {
+      "ref": "master",
+      "sha": "4ee1ff03a263b5e4a0102710fdd5d5cd09bfc1ed"
+    },
+    "lossless-group/image-gin": {
+      "ref": "master",
+      "sha": "cea19a686d535e1c1074537f70aa4464c2fbd875"
+    },
+    "lossless-group/lmstud-yo": {
+      "ref": "development",
+      "sha": "fe9642b21d38d704474727bea9b0bbca6a97c83e"
+    },
+    "lossless-group/plunk-it": {
+      "ref": "development",
+      "sha": "e98142aeeba3bb692a672384eb22f93ced1bf947"
+    },
+    "lossless-group/obsidian-plugin-starter": {
+      "ref": "development",
+      "sha": "62b1381f05a967790606cbd3598d842068f17fcd"
+    },
+    "lossless-group/google-docs-api-plugin": {
+      "ref": "development",
+      "sha": "720cf305c5a45b36599a3075951cca187964643c"
+    },
+    "lossless-group/grab-reference": {
+      "ref": "development",
+      "sha": "2284f68e6281faae588b13ca5100b244b39311de"
+    },
+    "lossless-group/ai-image-wrangler-obsidian-plugin": {
+      "ref": "development",
+      "sha": "dd27690d0f6f4a4075fb75d6a13dd1d86ccb219e"
+    },
+    "lossless-group/metafetch": {
+      "ref": "master",
+      "sha": "f6b7d15b6b4acb999cc3abb2902e88366a69f50a"
+    },
+    "lossless-group/stenographer": {
+      "ref": "main",
+      "sha": "9d3c9bbacda3242d3c7e7b44a5fe1222bd22acbb"
+    }
+  }
+}
