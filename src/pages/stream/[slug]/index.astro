@@ -2,19 +2,17 @@
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import EntryRow from "../../../components/EntryRow.astro";
 import LedgerStrip from "../../../components/LedgerStrip.astro";
-import { getStreams, getStream, getEntries, getSubtreeEntries, getAllEntries } from "../../../lib/streams";
+import { getStream, getEntries, getSubtreeEntries, getAllEntries } from "../../../lib/streams";
 import { spanOf, colorFor } from "../../../lib/era";
 import { globalWeeks, statsForSubtree, ledgerScale } from "../../../lib/commits";
 import { linesForSubtree } from "../../../lib/lines";
 import { days as fleetDays, dailyForSubtree } from "../../../lib/daily";
 import LineBar from "../../../components/LineBar.astro";
 
-export function getStaticPaths() {
-  return getStreams().map((s) => ({ params: { slug: s.slug } }));
-}
-
 const { slug } = Astro.params;
-const stream = getStream(slug!)!;
+const found = getStream(slug!);
+if (!found) return Astro.rewrite("/404");
+const stream = found;
 const own = getEntries(slug!);
 const subtree = getSubtreeEntries(slug!);
 const hasDescendants = subtree.length > own.length;

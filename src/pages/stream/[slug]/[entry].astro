@@ -3,18 +3,15 @@ import { parseMarkdown } from "@lossless-group/lfm";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import AstroMarkdown from "../../../components/markdown/AstroMarkdown.astro";
 import Sources from "../../../components/markdown/Sources.astro";
-import { getAllEntries, getStream, getEntry } from "../../../lib/streams";
+import { getStream, getEntry } from "../../../lib/streams";
 import AuthorHandle from "../../../components/AuthorHandle.astro";
 
-export function getStaticPaths() {
-  return getAllEntries().map((e) => ({
-    params: { slug: e.streamSlug, entry: e.slug },
-  }));
-}
-
 const { slug, entry: entrySlug } = Astro.params;
-const entry = getEntry(slug!, entrySlug!)!;
-const stream = getStream(slug!)!;
+const foundEntry = getEntry(slug!, entrySlug!);
+const foundStream = getStream(slug!);
+if (!foundEntry || !foundStream) return Astro.rewrite("/404");
+const entry = foundEntry;
+const stream = foundStream;
 
 // Citations are attached to the tree by remark-citations during the parse.
 const tree = await parseMarkdown(entry.body);

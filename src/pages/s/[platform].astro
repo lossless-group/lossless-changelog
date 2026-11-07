@@ -12,6 +12,9 @@
  */
 import { SHARE_TARGETS, SITE_NAME, SITE_TAGLINE, OG_IMAGE_ALT, type SharePlatform } from "../../lib/seo";
 
+// Prerendered: share stubs read no stream data, only the fixed SHARE_TARGETS.
+export const prerender = true;
+
 export function getStaticPaths() {
   return Object.keys(SHARE_TARGETS).map((platform) => ({ params: { platform } }));
 }

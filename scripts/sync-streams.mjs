@@ -37,6 +37,7 @@ const ONLY = argv.filter((a) => a.startsWith('--only=')).map((a) => a.slice(7));
 // Layer 1 is the manifest allowlist itself. Layer 3 is the frontmatter guard
 // below. These exist because a hand-edited manifest will eventually be wrong,
 // and silent duplication of hundreds of entries is expensive to notice.
+// Mirrored in src/lib/corpus.ts, which applies the same rules to live entries.
 const DENY = [
   /(^|\/)splash\//,
   /(^|\/)dist\//,

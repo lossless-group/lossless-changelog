@@ -1,0 +1,11 @@
+---
+// The page dynamic routes rewrite to when a stream or entry isn't there: an
+// unknown slug, or one deleted upstream since the page was last cached.
+import BaseLayout from "../layouts/BaseLayout.astro";
+Astro.response.status = 404;
+---
+<BaseLayout title="Not found" noindex>
+  <h1>Not found</h1>
+  <p>No stream or entry lives at this address. It may have been renamed or removed in its source repository.</p>
+  <p><a href="/">Back to every project</a></p>
+</BaseLayout>

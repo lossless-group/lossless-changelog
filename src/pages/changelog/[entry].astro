@@ -10,13 +10,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import AstroMarkdown from "../../components/markdown/AstroMarkdown.astro";
 import Sources from "../../components/markdown/Sources.astro";
 import AuthorHandle from "../../components/AuthorHandle.astro";
-import { ownEntries, getOwnEntry } from "../../lib/ownChangelog";
+import { getOwnEntry } from "../../lib/ownChangelog";
 
-export function getStaticPaths() {
-  return ownEntries.map((e) => ({ params: { entry: e.slug } }));
-}
-
-const entry = getOwnEntry(Astro.params.entry!)!;
+const found = getOwnEntry(Astro.params.entry!);
+if (!found) return Astro.rewrite("/404");
+const entry = found;
 
 // Citations are attached to the tree by remark-citations during the parse.
 const tree = await parseMarkdown(entry.body);

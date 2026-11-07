@@ -5,9 +5,10 @@
  * (src/stream/<slug>/*.md), joins them into a tree, and exposes the helpers the
  * pages need.
  *
- * Everything is resolved at build time via import.meta.glob, so the site is
- * fully static and never touches the network. Refreshing content is `pnpm sync`,
- * a deliberate step — see scripts/sync-streams.mjs.
+ * Entry text comes from lib/corpus.ts: the committed `pnpm sync` copy as a
+ * baseline, overlaid at request time with each stream's live changelog. The
+ * model below is rebuilt whenever the corpus version moves, so a push to any
+ * stream's repo reaches the pages with no rebuild.
  *
  * Parsing is LENIENT by design. The corpus spans ~30 repos and three years of
  * evolving convention: 12 entries have no `title`, one isn't date-named, and
@@ -18,6 +19,7 @@
 import matter from "gray-matter";
 import manifestRaw from "../config/streams.yaml?raw";
 import { parse as parseYaml } from "yaml";
+import { corpusFiles, corpusVersion } from "./corpus";
 
 export type Altitude = "fleet" | "product" | "component";
 
@@ -90,11 +92,6 @@ export function ancestorsOf(slug: string): StreamDef[] {
 const ALTITUDE: Altitude[] = ["fleet", "product", "component"];
 
 // ── entries ─────────────────────────────────────────────────────────────────
-const rawFiles = import.meta.glob<string>("../stream/**/*.md", {
-  eager: true,
-  query: "?raw",
-  import: "default",
-});
 
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})/;
 const MONTHS = ["January", "February", "March", "April", "May", "June",
@@ -128,53 +125,6 @@ function titleFor(fm: Record<string, any>, body: string, slug: string): string {
   return slug;
 }
 
-const entries: Entry[] = [];
-
-for (const [file, raw] of Object.entries(rawFiles)) {
-  const m = file.match(/\/stream\/([^/]+)\/(.+)\.md$/);
-  if (!m) continue;
-  const [, streamSlug, entrySlug] = m;
-  if (!defBySlug.has(streamSlug)) continue; // synced but no longer declared
-
-  let fm: Record<string, any> = {};
-  let body = raw;
-  try {
-    const parsed = matter(raw);
-    fm = parsed.data ?? {};
-    body = parsed.content;
-  } catch {
-    // Malformed YAML in one entry must not take down the build. Render it raw.
-  }
-
-  const fromName = entrySlug.match(DATE_RE);
-  const date =
-    (fromName ? new Date(`${fromName[1]}-${fromName[2]}-${fromName[3]}T00:00:00Z`) : null) ??
-    coerceDate(fm.date_created) ??
-    // Upstream repos are migrating `date:` → `date_authored_initial_draft:`
-    // as files get touched. Both spellings have to resolve, or an entry whose
-    // filename carries no date silently loses its place on the timeline the
-    // day its source repo normalizes frontmatter.
-    coerceDate(fm.date_authored_initial_draft) ??
-    coerceDate(fm.date) ??
-    coerceDate(fm.date_modified);
-
-  entries.push({
-    slug: entrySlug,
-    streamSlug,
-    date,
-    dateLabel: labelFor(date),
-    title: titleFor(fm, body, entrySlug),
-    lede: (fm.lede ?? fm.summary ?? undefined) || undefined,
-    tags: asArray(fm.tags),
-    authors: asArray(fm.authors),
-    augmentedWith: asArray(fm.augmented_with),
-    body,
-    sourceUrl: `https://github.com/${fm.from_repo}/blob/${fm.from_ref}/${
-      defBySlug.get(streamSlug)?.path ?? ""
-    }${fm.from_path ?? ""}`,
-  });
-}
-
 /** Undated entries sink to the bottom rather than pretending to be epoch-old. */
 function byDateDesc(a: Entry, b: Entry): number {
   if (!a.date && !b.date) return a.slug < b.slug ? 1 : -1;
@@ -183,76 +133,155 @@ function byDateDesc(a: Entry, b: Entry): number {
   return b.date.getTime() - a.date.getTime();
 }
 
-entries.sort(byDateDesc);
-
-const byStream = new Map<string, Entry[]>();
-for (const e of entries) {
-  if (!byStream.has(e.streamSlug)) byStream.set(e.streamSlug, []);
-  byStream.get(e.streamSlug)!.push(e);
+interface Model {
+  entries: Entry[];
+  byStream: Map<string, Entry[]>;
+  streams: Map<string, Stream>;
 }
 
-// ── tree ────────────────────────────────────────────────────────────────────
-const streams = new Map<string, Stream>();
+function build(rawFiles: Record<string, string>): Model {
+  const entries: Entry[] = [];
 
-for (const d of defs) {
-  const ancDefs = ancestorsOf(d.slug);
-  streams.set(d.slug, {
-    ...d,
-    depth: ancDefs.length + 1,
-    altitude: ALTITUDE[Math.min(ancDefs.length, ALTITUDE.length - 1)],
-    children: [],
-    ancestors: [],
-    ownCount: byStream.get(d.slug)?.length ?? 0,
-    totalCount: 0,
-  });
+  for (const [file, raw] of Object.entries(rawFiles)) {
+    const m = file.match(/\/stream\/([^/]+)\/(.+)\.md$/);
+    if (!m) continue;
+    const [, streamSlug, entrySlug] = m;
+    if (!defBySlug.has(streamSlug)) continue; // synced but no longer declared
+
+    let fm: Record<string, any> = {};
+    let body = raw;
+    try {
+      const parsed = matter(raw);
+      fm = parsed.data ?? {};
+      body = parsed.content;
+    } catch {
+      // Malformed YAML in one entry must not take down the build. Render it raw.
+    }
+
+    const fromName = entrySlug.match(DATE_RE);
+    const date =
+      (fromName ? new Date(`${fromName[1]}-${fromName[2]}-${fromName[3]}T00:00:00Z`) : null) ??
+      coerceDate(fm.date_created) ??
+      // Upstream repos are migrating `date:` → `date_authored_initial_draft:`
+      // as files get touched. Both spellings have to resolve, or an entry whose
+      // filename carries no date silently loses its place on the timeline the
+      // day its source repo normalizes frontmatter.
+      coerceDate(fm.date_authored_initial_draft) ??
+      coerceDate(fm.date) ??
+      coerceDate(fm.date_modified);
+
+    entries.push({
+      slug: entrySlug,
+      streamSlug,
+      date,
+      dateLabel: labelFor(date),
+      title: titleFor(fm, body, entrySlug),
+      lede: (fm.lede ?? fm.summary ?? undefined) || undefined,
+      tags: asArray(fm.tags),
+      authors: asArray(fm.authors),
+      augmentedWith: asArray(fm.augmented_with),
+      body,
+      sourceUrl: `https://github.com/${fm.from_repo}/blob/${fm.from_ref}/${
+        defBySlug.get(streamSlug)?.path ?? ""
+      }${fm.from_path ?? ""}`,
+    });
+  }
+
+  entries.sort(byDateDesc);
+
+  const byStream = new Map<string, Entry[]>();
+  for (const e of entries) {
+    if (!byStream.has(e.streamSlug)) byStream.set(e.streamSlug, []);
+    byStream.get(e.streamSlug)!.push(e);
+  }
+
+  // ── tree ────────────────────────────────────────────────────────────────────
+  const streams = new Map<string, Stream>();
+
+  for (const d of defs) {
+    const ancDefs = ancestorsOf(d.slug);
+    streams.set(d.slug, {
+      ...d,
+      depth: ancDefs.length + 1,
+      altitude: ALTITUDE[Math.min(ancDefs.length, ALTITUDE.length - 1)],
+      children: [],
+      ancestors: [],
+      ownCount: byStream.get(d.slug)?.length ?? 0,
+      totalCount: 0,
+    });
+  }
+
+  for (const s of streams.values()) {
+    s.ancestors = ancestorsOf(s.slug)
+      .map((d) => streams.get(d.slug)!)
+      .filter(Boolean)
+      .reverse();
+    if (s.parent && streams.has(s.parent)) streams.get(s.parent)!.children.push(s);
+  }
+
+  for (const s of streams.values()) {
+    s.children.sort((a, b) => b.ownCount - a.ownCount || a.title.localeCompare(b.title));
+    s.totalCount = descendantSlugs(s.slug).reduce(
+      (n, slug) => n + (byStream.get(slug)?.length ?? 0),
+      0,
+    );
+  }
+
+  return { entries, byStream, streams };
+
+  function descendantSlugs(slug: string): string[] {
+    const s = streams.get(slug);
+    if (!s) return [];
+    return [slug, ...s.children.flatMap((c) => descendantSlugs(c.slug))];
+  }
 }
 
-for (const s of streams.values()) {
-  s.ancestors = ancestorsOf(s.slug)
-    .map((d) => streams.get(d.slug)!)
-    .filter(Boolean)
-    .reverse();
-  if (s.parent && streams.has(s.parent)) streams.get(s.parent)!.children.push(s);
-}
-
-for (const s of streams.values()) {
-  s.children.sort((a, b) => b.ownCount - a.ownCount || a.title.localeCompare(b.title));
-  s.totalCount = descendantSlugs(s.slug).reduce(
-    (n, slug) => n + (byStream.get(slug)?.length ?? 0),
-    0,
-  );
+let built: { version: number; model: Model } | null = null;
+/** The current model, rebuilt when the corpus has moved since the last call. */
+function model(): Model {
+  const v = corpusVersion();
+  if (built?.version !== v) built = { version: v, model: build(corpusFiles()) };
+  return built.model;
 }
 
 // ── public API ──────────────────────────────────────────────────────────────
 export function descendantSlugs(slug: string): string[] {
-  const s = streams.get(slug);
+  const s = model().streams.get(slug);
   if (!s) return [];
   return [slug, ...s.children.flatMap((c) => descendantSlugs(c.slug))];
 }
 
-export const getStreams = (): Stream[] => [...streams.values()];
+export const getStreams = (): Stream[] => [...model().streams.values()];
 export const getRoots = (): Stream[] =>
   getStreams()
     .filter((s) => !s.parent)
     .sort((a, b) => b.totalCount - a.totalCount);
-export const getStream = (slug: string): Stream | undefined => streams.get(slug);
-export const getEntries = (slug: string): Entry[] => byStream.get(slug) ?? [];
+export const getStream = (slug: string): Stream | undefined => model().streams.get(slug);
+export const getEntries = (slug: string): Entry[] => model().byStream.get(slug) ?? [];
 
 /** Every entry in this stream's subtree, merged newest-first. */
 export function getSubtreeEntries(slug: string): Entry[] {
+  const { byStream } = model();
   return descendantSlugs(slug)
     .flatMap((s) => byStream.get(s) ?? [])
     .sort(byDateDesc);
 }
 
-export const getAllEntries = (): Entry[] => entries;
+export const getAllEntries = (): Entry[] => model().entries;
 
 export function getEntry(streamSlug: string, entrySlug: string): Entry | undefined {
-  return (byStream.get(streamSlug) ?? []).find((e) => e.slug === entrySlug);
+  return (model().byStream.get(streamSlug) ?? []).find((e) => e.slug === entrySlug);
 }
 
+/** Getters, so a page reads the live counts without changing how it reads them. */
 export const totals = {
-  streams: defs.length,
-  entries: entries.length,
-  roots: getRoots().length,
+  get streams() {
+    return defs.length;
+  },
+  get entries() {
+    return model().entries.length;
+  },
+  get roots() {
+    return getRoots().length;
+  },
 };

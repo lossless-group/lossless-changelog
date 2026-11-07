@@ -20,12 +20,14 @@
     "lines:explain": "node scripts/explain-lines.mjs"
   },
   "dependencies": {
+    "@astrojs/vercel": "^11.0.20",
     "@fontsource-variable/bodoni-moda": "5.3.0",
     "@fontsource-variable/figtree": "5.3.0",
     "@fontsource-variable/jetbrains-mono": "5.3.0",
     "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@0.6.0",
     "@types/mdast": "^4.0.4",
-    "astro": "^7.2.4",
+    "@vercel/functions": "^3.11.0",
+    "astro": "^7.4.7",
     "gray-matter": "^4.0.3",
     "mdast-util-to-string": "^4.0.0",
     "shiki": "4.4.3",
