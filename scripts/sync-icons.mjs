@@ -147,6 +147,31 @@ function scanForFavicon(dir, depth = 0, best = null) {
   return best;
 }
 
+/**
+ * After every favicon search fails: an appIcon that names this project.
+ *
+ * A trademark pack's appIcon is square and full-bleed, so it stands in for a
+ * favicon well, and a project that drew only its appIcon (augment-it did, and
+ * so did dark-matter) should not need an `icon:` line to be seen. Always
+ * decorated (`appIcon__Name.svg`), so it must pass nameMatchesStream: the tree
+ * is full of client appIcons, and those must never be taken. Shallowest wins.
+ */
+function scanForAppIcon(dir, s, depth = 0) {
+  if (depth > 4) return null;
+  let items;
+  try { items = readdirSync(dir, { withFileTypes: true }); } catch { return null; }
+  for (const e of items)
+    if (e.isFile() && /^app-?icon.*\.svg$/i.test(e.name) && dir.includes("public")
+        && nameMatchesStream(e.name, s))
+      return join(dir, e.name);
+  for (const e of items)
+    if (e.isDirectory() && !["node_modules", ".git", "dist", ".vercel", ".astro"].includes(e.name)) {
+      const hit = scanForAppIcon(join(dir, e.name), s, depth + 1);
+      if (hit) return hit;
+    }
+  return null;
+}
+
 const manifest = parseYaml(readFileSync(MANIFEST, "utf8"));
 const streams = manifest.streams.filter((s) => s.enabled !== false);
 
@@ -187,6 +212,7 @@ for (const s of streams) {
     if (found && (found.plain || nameMatchesStream(found.path.split("/").pop(), s)))
       src = found.path;
   }
+  if (!src) src = scanForAppIcon(dir, s) ?? undefined;
   if (!src) { missing.push(s.slug); continue; }
 
   const svg = readFileSync(src, "utf8");
