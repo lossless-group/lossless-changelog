@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Lossless Changelog</title>
+  <!-- favicon.svg unchanged at 76%, on a tile of colors.surface: app stores need an opaque square. -->
+  <rect width="64" height="64" rx="14" fill="#1c1520"/>
+  <g transform="translate(7.68 7.68) scale(0.76)">
+  <!--
+    The ledger strip, at 16px.
+
+    DESIGN.md says the signature element of this site is a chart rather than an
+    ornament, and that the four-stop era ramp carries chronology — so the mark
+    is five bars sampling that ramp left to right, exactly as lib/era.ts does.
+    Five bars, not the dozens a real strip draws: past about six the gaps close
+    up at favicon size and it reads as a smudge.
+
+    No prefers-color-scheme block. The era colours are saturated mid-tones that
+    hold against both a light tab bar and this site's own #0d1117, and the mark
+    also renders on a near-white chip in the project ledger (.mark in
+    ProjectRow.astro), which a light/dark swap would get wrong in one of the
+    three places.
+  -->
+  <defs>
+    <linearGradient id="era" x1="6" y1="0" x2="58" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22a6b5"/>
+      <stop offset="33%" stop-color="#9138e0"/>
+      <stop offset="67%" stop-color="#d9233b"/>
+      <stop offset="100%" stop-color="#f59c49"/>
+    </linearGradient>
+  </defs>
+
+  <g fill="url(#era)">
+    <rect x="6"  y="30" width="8" height="26" rx="2"/>
+    <rect x="17" y="12" width="8" height="44" rx="2"/>
+    <rect x="28" y="38" width="8" height="18" rx="2"/>
+    <rect x="39" y="4"  width="8" height="52" rx="2"/>
+    <rect x="50" y="22" width="8" height="34" rx="2"/>
+  </g>
+
+  <!-- The baseline the strip sits on. Dim enough to read as a rule, not a bar. -->
+  <rect x="4" y="58" width="56" height="2" rx="1" fill="#e2f2f4" fill-opacity="0.45"/>
+</g>
+</svg>

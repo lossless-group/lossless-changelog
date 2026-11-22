@@ -233,6 +233,17 @@ calendar and clock metaphors — the site is about volume and cadence, not dates
 Empty region goes **top**, per the composition rule, because the overlay
 carries the wordmark and title there.
 
+### Trademark pack
+
+In `public/`, every piece outlined to paths (an `<img>` cannot load web fonts).
+
+| Piece | File |
+|---|---|
+| appIcon | `appIcon__Lossless-Changelog.svg` |
+| favicon | `favicon.svg` (unchanged; the appIcon puts it on a `colors.surface` tile because store icons must be opaque) |
+| wordmark | `wordmark__Lossless-Changelog--{Dark,Light}-Mode.svg`: *Lossless* in Bodoni Moda 600, *Changelog* in Bodoni Moda 600 italic filled with `--gradient-primary` (eastern-crimson), as the masthead sets it |
+| trademark | `trademark__Lossless-Changelog--{Dark,Light}-Mode.svg`: appIcon + wordmark |
+
 ## Do's and Don'ts
 
 **Do** keep hue for chronology. If something new needs distinguishing, reach
