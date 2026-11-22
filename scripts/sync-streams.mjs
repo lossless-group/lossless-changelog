@@ -43,7 +43,10 @@ const DENY = [
   /(^|\/)dist\//,
   /(^|\/)node_modules\//,
   /(^|\/)generated-content\//,
-  /(^|\/)changelog--/,
+  // lossless-content's legacy ledgers: --code stopped in 2026-05 when the site
+  // got its own changelog, and --laerdal is client-named. Its live ledger,
+  // changelog--content, is a real stream and passes.
+  /(^|\/)changelog--(code|laerdal)\//,
   /(^|\/)skills\//,
 ];
 

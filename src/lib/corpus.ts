@@ -152,7 +152,7 @@ const DENY = [
   /(^|\/)dist\//,
   /(^|\/)node_modules\//,
   /(^|\/)generated-content\//,
-  /(^|\/)changelog--/,
+  /(^|\/)changelog--(code|laerdal)\//,
   /(^|\/)skills\//,
 ];
 const ROLLUP_KEYS = /^(from|from_path):/m;

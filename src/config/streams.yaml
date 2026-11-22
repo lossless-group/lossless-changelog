@@ -69,17 +69,15 @@ streams:
     shape: root-dir
     kind: content
     title: Lossless Content                     # n=26
-    # DECLARED FOR ITS LINES, NOT ITS ENTRIES. This repo is a 645k-line prose
-    # corpus; counting it as code would swamp every real codebase in the tree,
-    # and leaving it out entirely understated the writing by a fifth. Line
-    # stats are keyed by REPO and read from the local clone, so the split lands
-    # whether or not any entry syncs.
+    # A 645k-line prose corpus, so `kind: content`: counting it as code would
+    # swamp every real codebase in the tree.
     #
-    # No entry will sync: all three of its ledgers are named `changelog--*`
-    # (--code, --content, --laerdal) and sync-streams denies that prefix
-    # outright as exclusion layer 2. That rule predates this stream and is left
-    # alone — `path` names the ledger a reader should go read, and the row
-    # honestly shows a corpus with lines but no aggregated ledger.
+    # Of its three ledgers only changelog--content syncs. Until 2026-11-22 the
+    # deny rule blocked every `changelog--*` path, so this row showed lines but
+    # 0 entries while the ledger was live. The rule now names the two legacy
+    # ledgers only: --code (stopped 2026-05, superseded by the site's own
+    # changelog) and --laerdal (client-named). Copies under generated-content/
+    # are still denied by their own rule.
     #
     # `development` is the live tier here; main and master both stop at
     # 2026-07-14.

@@ -296,9 +296,9 @@
     "path": "changelog/"
   },
   "content": {
-    "sha": "03774b8466e8ccec6da78c6ca3d8775a5820b0f2",
-    "etag": "W/\"c83af9aa1cadbdd9e138f896699bfcb1b9b5fffbcea5a09a3710d498935b7dc6\"",
-    "count": 0,
+    "sha": "64e719e85308ff45f425a2e2aa0c78e8a8418af1",
+    "etag": "W/\"f18d14e1c470f85372759a8815bae50df2ab0c4b2c263b0c7960e13f3ac5de00\"",
+    "count": 35,
     "repo": "lossless-group/lossless-content",
     "ref": "development",
     "path": "changelog--content/"
