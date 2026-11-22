@@ -2,10 +2,14 @@
 title: 'Refactor Changelog Content By Project'
 date_created: 2025-09-20
 date_modified: 2025-12-15
-type: refactor-plan
-status: proposed
+type: Plans
+status: Proposed
 affects:
   - site/src/pages/workflow/log
+authors:
+  - Michael Staton
+site_uuid: f9e65012-7ad5-422c-9078-323a53a7d1ef
+hex_code: ocghul
 ---
 
 ## Summary
