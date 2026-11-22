@@ -374,5 +374,69 @@
     "repo": "lossless-group/flave",
     "ref": "main",
     "path": "changelog/"
+  },
+  "tidyverse": {
+    "sha": "d277fc1820618230e4f75a813a092873b004d330",
+    "etag": "W/\"edf0bfaf4e38ecdc168d78cd481eae8362a744e1a277a443b468e716b6d5f5dc\"",
+    "count": 10,
+    "repo": "lossless-group/lossless-tidyverse",
+    "ref": "development",
+    "path": "changelog/"
+  },
+  "lossless-analysis": {
+    "sha": "9464ff1c7b8de6500c10fbde0f06a9f9ef3630bb",
+    "etag": "W/\"0b9d353238008010a98b1d54dc9649b6bcd00b55421201ea4eceb9fa09a04594\"",
+    "count": 1,
+    "repo": "lossless-group/lossless-analysis",
+    "ref": "development",
+    "path": "changelog/"
+  },
+  "mandatory-ventures-site": {
+    "sha": "b231fb5d51d004175769f592f58dc3e776c44ef3",
+    "etag": "W/\"8dca3828edb8f2948c50b0d537759d949a7290ac565c8c82a57b7366128dddc3\"",
+    "count": 2,
+    "repo": "lossless-group/mandatory-ventures-site",
+    "ref": "main",
+    "path": "changelog/"
+  },
+  "astro-knots-mcp": {
+    "sha": "9804a6ca940835bc206ecfd5e6723d9f2a8f315e",
+    "etag": "W/\"1475c38f6a2a4d779c0319156625544f965a80edbf98bbd8694adef1b7e5b1f3\"",
+    "count": 3,
+    "repo": "lossless-group/astro-knots-mcp",
+    "ref": "main",
+    "path": "changelog/"
+  },
+  "hope-ai": {
+    "sha": "b7050e2e8d3fb6faf6f6afb1a2b08261b894aaca",
+    "etag": "W/\"e946ad667ed5507a1a10ffcfb4ed336b072e2b02fcd9a380901e924b104e61f4\"",
+    "count": 10,
+    "repo": "lossless-group/hope-ai",
+    "ref": "main",
+    "path": "changelog/"
+  },
+  "kay-os": {
+    "sha": "c2d5a082367721d1306e5c6e24ce34a8ef1c8d30",
+    "etag": "W/\"1120fe538ca340349bc68aa21ac8f52033f773bde5bd02a45995ce088ad26ae6\"",
+    "count": 4,
+    "repo": "lossless-group/kay-os",
+    "ref": "main",
+    "path": "changelog/"
+  },
+  "event-hog-mcp": {
+    "sha": "31c051ef48fe675109eea43d4208cab956d48154",
+    "etag": "W/\"b8ada59a571d23875ec77da6200933f6013cfa3b13dcddd88a4f4326409ebbb7\"",
+    "count": 9,
+    "repo": "lossless-group/event-hog-mcp",
+    "ref": "main",
+    "path": "changelog/"
+  },
+  "dididecks-player": {
+    "sha": "38c5d3e3c956b154c5b696600bff57e2ddd56afe",
+    "etag": "W/\"6469d61f961c315b36fe646b9d58ab6fb7985fd257e6ba168f06263c9995c5c7\"",
+    "count": 3,
+    "repo": "lossless-group/dididecks-player",
+    "ref": "main",
+    "path": "changelog/"
   }
 }

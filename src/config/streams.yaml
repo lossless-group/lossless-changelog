@@ -114,6 +114,24 @@ streams:
     splash: https://lossless-group.github.io/lossless-flavored-markdown-package/
     title: Lossless Flavored Markdown           # n=6
 
+  # Added 2026-11-22. tidyverse carries changelog/ only on development; its
+  # master diverged long ago and has none.
+  - slug: tidyverse
+    repo: lossless-group/lossless-tidyverse
+    ref: development
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Tidyverse                            # n=10
+
+  - slug: lossless-analysis
+    repo: lossless-group/lossless-analysis
+    ref: development
+    path: changelog/
+    parent: null
+    shape: root-dir
+    title: Lossless Analysis                    # n=1
+
   - slug: parslee
     repo: lossless-group/changelog-parslee
     ref: main
@@ -307,6 +325,24 @@ streams:
     shape: root-dir
     title: Multiphasic                          # n=1
 
+  - slug: mandatory-ventures-site
+    repo: lossless-group/mandatory-ventures-site
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Mandatory Ventures                   # n=2
+
+  # Not a site: the MCP server that serves Astro Knots conventions to agents.
+  # Parented to astro-knots because that is what it is about.
+  - slug: astro-knots-mcp
+    repo: lossless-group/astro-knots-mcp
+    ref: main
+    path: changelog/
+    parent: astro-knots
+    shape: root-dir
+    title: Astro Knots MCP                      # n=3
+
   # ── ai-labs children ───────────────────────────────────────────────────────
   - slug: augment-it
     repo: lossless-group/augment-it
@@ -377,6 +413,33 @@ streams:
     shape: root-dir
     title: Flave                                # n=7
 
+  - slug: hope-ai
+    repo: lossless-group/hope-ai
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    splash: https://lossless-group.github.io/hope-ai/
+    title: Hope AI                              # n=10
+
+  - slug: kay-os
+    repo: lossless-group/kay-os
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    splash: https://lossless-group.github.io/kay-os/
+    title: Kay OS                               # n=4
+
+  - slug: event-hog-mcp
+    repo: lossless-group/event-hog-mcp
+    ref: main
+    path: changelog/
+    parent: ai-labs
+    shape: root-dir
+    website: https://eventhog.cc/
+    title: Event Hog MCP                        # n=9
+
   # ── memopop-ai components (depth 3) ────────────────────────────────────────
   # memopop-native and memopop-site share the memopop-ai repo at different
   # paths. Sync cursors key on stream, not repo, or one would starve the others.
@@ -416,6 +479,15 @@ streams:
     parent: dididecks-ai
     shape: root-dir
     title: Reach Edu Hub                        # n=14
+
+  # A package, not a client site: the deck player the client sites run on.
+  - slug: dididecks-player
+    repo: lossless-group/dididecks-player
+    ref: main
+    path: changelog/
+    parent: dididecks-ai
+    shape: root-dir
+    title: DidiDecks Player                     # n=3
 
   # ── content-farm plugin modules ────────────────────────────────────────────
   - slug: perplexed
@@ -547,6 +619,17 @@ streams:
 #   lossless-at          PRIVATE.
 #   eventcut-ai          PRIVATE.
 #   chroma-decks         PRIVATE. Client deck site.
+#   Found private in the 2026-11-22 coverage audit:
+#   client-portals-site  PRIVATE. Client portals.
+#   humain               PRIVATE. Client memo workspace (memopop io/).
+#   humain-web           PRIVATE. Client site, not a lossless-group repo.
+#   humain-vc-decks      PRIVATE. Client deck site.
+#   lfg-hub              PRIVATE. Client deck site.
+#   lossless-decks       PRIVATE. Deck site.
+#   the-water-foundation PRIVATE. Client deck site.
+#   thrifty-energy       PRIVATE. Client site.
+#   lossless-hook-relay  PRIVATE. The relay that wakes this site.
+#   fantasygm            PRIVATE.
 #
 # Private repos stay out for the same reason changelog-neo was dropped from the
 # sync state on 2026-09-09: this site is public, and a token that can read a

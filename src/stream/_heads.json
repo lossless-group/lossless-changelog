@@ -3,39 +3,47 @@
   "repos": {
     "lossless-group/astro-knots": {
       "ref": "master",
-      "sha": "9cbcea7651f4f1d1e4360b85efe0438606be654a"
+      "sha": "f15e907460b0bf8a9fa8a8f30e457796a8ed7cb7"
     },
     "lossless-group/lossless-ai-labs": {
       "ref": "main",
-      "sha": "dc0757268673c12f4918853caf22f42ed9cff8c8"
+      "sha": "7395c218d0c714fcd7d755a148dc6cc3ac0e4d60"
     },
     "lossless-group/content-farm": {
       "ref": "main",
-      "sha": "b977824b82c39ff9dd3185e75b6dfe6308ec2482"
+      "sha": "de75618e638c26ac5b3008e940f033007f95a25f"
     },
     "lossless-group/lossless-content": {
       "ref": "development",
-      "sha": "dbd753f24e1337e5976555d255081cbefbb11a2c"
+      "sha": "64e719e85308ff45f425a2e2aa0c78e8a8418af1"
     },
     "lossless-group/lossless-agent-skills": {
       "ref": "main",
-      "sha": "148ae1297e383ed0825a1080b9a6007c728a69d7"
+      "sha": "7b3ec89c3ec0fecd703326edc21704c11442f980"
     },
     "lossless-group/vc-self-host-stack": {
       "ref": "main",
-      "sha": "028ed571ed6b0e9c2857c8bb866f0caa5ad60b4b"
+      "sha": "43712894ee233f5e9976539187aed38b434473c0"
     },
     "lossless-group/lossless-flavored-markdown-package": {
       "ref": "main",
-      "sha": "fcef576f5bdc9fa30d768d419965c6944c788a50"
+      "sha": "93596ad08656fc4600fd94f3be99fc4ea1b98522"
+    },
+    "lossless-group/lossless-tidyverse": {
+      "ref": "development",
+      "sha": "96c7d996cf05272ff73ee6d534843cb58b4a7b86"
+    },
+    "lossless-group/lossless-analysis": {
+      "ref": "development",
+      "sha": "9464ff1c7b8de6500c10fbde0f06a9f9ef3630bb"
     },
     "lossless-group/lossless-site": {
       "ref": "master",
-      "sha": "e45c40f8564337b9ca4fdfccf26c98e428f949b5"
+      "sha": "7c9f911c59ee6ad13109819d24fff02bc0966c00"
     },
     "lossless-group/fullstack-vc": {
       "ref": "main",
-      "sha": "d2df0cb66de7c3e3f174a754191bfce6b3510c19"
+      "sha": "b386b7184bd0075c86fba1e4fcf58aec932d1df8"
     },
     "lossless-group/emblem-site": {
       "ref": "main",
@@ -43,7 +51,7 @@
     },
     "lossless-group/hypernova-site": {
       "ref": "master",
-      "sha": "a394f488012c5725a703a02857ebdf9ba295995b"
+      "sha": "0e3e6cca21c039bb3f28a1fc8f59ac3d9fbf7575"
     },
     "lossless-group/the-water-foundation-site": {
       "ref": "main",
@@ -59,7 +67,7 @@
     },
     "lossless-group/cilantro-site": {
       "ref": "main",
-      "sha": "db5971e0131d091e5adfebbd00e99e82994af320"
+      "sha": "d15e0baf0295e90cd95b726db22b238669864673"
     },
     "lossless-group/cogs-site": {
       "ref": "main",
@@ -71,11 +79,11 @@
     },
     "lossless-group/steampunk-site": {
       "ref": "main",
-      "sha": "9adff464f7c00f6940ecdf4249fe066c13294919"
+      "sha": "778964dcd358db823fd966f2825790da9875a708"
     },
     "lossless-group/lossless-changelog": {
       "ref": "main",
-      "sha": "eb22091b665cb24d7e421e4620400972beaa5b86"
+      "sha": "52f0062878ba19c66a0d19034e6904bddd8c3db0"
     },
     "lossless-group/matter-site": {
       "ref": "main",
@@ -101,25 +109,33 @@
       "ref": "main",
       "sha": "0563699f3295eb0e9f5b92ae8d8aa23818e31442"
     },
+    "lossless-group/mandatory-ventures-site": {
+      "ref": "main",
+      "sha": "b231fb5d51d004175769f592f58dc3e776c44ef3"
+    },
+    "lossless-group/astro-knots-mcp": {
+      "ref": "main",
+      "sha": "e14fb9619ff829d3e86954528c3294f2c07a58b5"
+    },
     "lossless-group/augment-it": {
       "ref": "rebuild/turbo-rsbuild",
-      "sha": "4ac314ba1d49cd8deaa6242b9a50b048c354e3fe"
+      "sha": "fe3fe5e6f2086f5fa638a5e734369271db80aeb3"
     },
     "lossless-group/dididecks-ai": {
       "ref": "development",
-      "sha": "27705afa2c9964e83b71e51af95faf0e06f472d1"
+      "sha": "b3c08267811b09d72488840f4e5504b74bcb5c78"
     },
     "lossless-group/id-didi-sh": {
       "ref": "main",
-      "sha": "2376e3f12b52f4f007a178552e08311c574a04a4"
+      "sha": "76edebee5e2770140032ce8f837211b7f5ed345b"
     },
     "lossless-group/context-vigilance-kit": {
       "ref": "master",
-      "sha": "a1f8f6de2bc8e7eacfce189f74aed7925b342c4c"
+      "sha": "2a18c5ca73f595cd2123c8f51d264396611d157f"
     },
     "lossless-group/memopop-ai": {
       "ref": "main",
-      "sha": "c58af7e64fdbedbd41ca9e97217ece1ba99b0452"
+      "sha": "a9522a29b6dcfee69d7d9544132fc9181d108874"
     },
     "lossless-group/corpora-builder": {
       "ref": "main",
@@ -127,27 +143,43 @@
     },
     "lossless-group/flave": {
       "ref": "main",
-      "sha": "cba6d57d6cb3b33b582938a7c820b8d3d35e0edf"
+      "sha": "ae642548aac440000388fd485a592bb92c1c2b4e"
+    },
+    "lossless-group/hope-ai": {
+      "ref": "main",
+      "sha": "853624c3280a35baa9b76c286f51fbcf79a4cb8c"
+    },
+    "lossless-group/kay-os": {
+      "ref": "main",
+      "sha": "c2d5a082367721d1306e5c6e24ce34a8ef1c8d30"
+    },
+    "lossless-group/event-hog-mcp": {
+      "ref": "main",
+      "sha": "8dce040531bc335a21effc1806816809afde9549"
     },
     "lossless-group/investment-memo-orchestrator": {
       "ref": "main",
-      "sha": "943592bfd01cf316d648ff64fa550e391602f9e2"
+      "sha": "5bda0d2a81d3419c0819844045916560a4a9fe07"
     },
     "lossless-group/reach-edu-hub": {
       "ref": "main",
-      "sha": "d0d7f70768694601647860258a01cb0ad6701dd3"
+      "sha": "4ed0fe1d41cce4582af1081476e3f26dc27f56d4"
+    },
+    "lossless-group/dididecks-player": {
+      "ref": "main",
+      "sha": "38c5d3e3c956b154c5b696600bff57e2ddd56afe"
     },
     "lossless-group/perplexed-plugin": {
       "ref": "main",
-      "sha": "b75a540a88424150c00e1f3486939c16ec4fd614"
+      "sha": "8cd0254791176fee1130acc9f9175f723ccf8619"
     },
     "lossless-group/cite-wide": {
       "ref": "master",
-      "sha": "4ee1ff03a263b5e4a0102710fdd5d5cd09bfc1ed"
+      "sha": "54e91a2a84e9329394c38b2548d1dc39a6973ec5"
     },
     "lossless-group/image-gin": {
       "ref": "master",
-      "sha": "cea19a686d535e1c1074537f70aa4464c2fbd875"
+      "sha": "c09cb02426af27db844e8092af28138a58be881b"
     },
     "lossless-group/lmstud-yo": {
       "ref": "development",
@@ -155,11 +187,11 @@
     },
     "lossless-group/plunk-it": {
       "ref": "development",
-      "sha": "e98142aeeba3bb692a672384eb22f93ced1bf947"
+      "sha": "b4396c72fc948e2e8a28724ac3326e29d0b268dd"
     },
     "lossless-group/obsidian-plugin-starter": {
       "ref": "development",
-      "sha": "62b1381f05a967790606cbd3598d842068f17fcd"
+      "sha": "7dacd7dc3d820660da43af39925cb6754c4ef19e"
     },
     "lossless-group/google-docs-api-plugin": {
       "ref": "development",
@@ -175,7 +207,7 @@
     },
     "lossless-group/metafetch": {
       "ref": "master",
-      "sha": "f6b7d15b6b4acb999cc3abb2902e88366a69f50a"
+      "sha": "830fdbfdd3ac2d38f65b1af256101b5940dd7813"
     },
     "lossless-group/stenographer": {
       "ref": "main",
@@ -183,19 +215,19 @@
     },
     "lossless-group/context-v-corpus": {
       "ref": "development",
-      "sha": "f2eb517c6e92ef26229aa3438eede824203abe9f"
+      "sha": "1e5fbdbfd46dbbb261fdb773d4bf39c1b4dbc3eb"
     },
     "lossless-group/content-areas": {
       "ref": "development",
-      "sha": "995644cb1eea679cf3af790d3be3cfa208b1825e"
+      "sha": "412637344b41d71363986913eff280ac1d8087da"
     },
     "lossless-group/lossless-client-content": {
       "ref": "development",
-      "sha": "a2f423eba233f379795fd782327d2aa42dadaa47"
+      "sha": "1b293c676651b3ee3905d2a41a6d49e8bc6b150c"
     },
     "lossless-group/lossless-monorepo": {
       "ref": "development",
-      "sha": "45655debf6451bf42c6ef5cf1a35267a8f68b7c2"
+      "sha": "4c41850f6211e99127dc2c9cc7f64a692a61e520"
     }
   }
 }
