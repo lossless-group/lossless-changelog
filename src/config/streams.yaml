@@ -312,6 +312,7 @@ streams:
     # development carries 8; main and master carry 5. The tier model puts the
     # work on development, and the aggregate should show the work.
     title: Lossless Toolkit                     # n=8
+    icon: public/favicon.svg
 
   - slug: dominocielo-site
     repo: lossless-group/dominocielo-site
