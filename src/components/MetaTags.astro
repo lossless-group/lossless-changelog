@@ -39,11 +39,12 @@ const fullTitle = truncate(buildPageTitle(title), CHAR_LIMITS.title);
 const desc = truncate(description, CHAR_LIMITS.description);
 const canonicalUrl = canonical ?? `${origin}${Astro.url.pathname}`;
 ---
-{/* The Lossless mark, carried over from lossless-site — same brand, and this
-    repo had no favicon at all, so browsers were rendering the default globe.
-    SVG only: every browser that matters supports it, and a single scalable
-    file beats a pile of raster sizes. */}
+{/* The ledger-strip mark (favicon.svg). Browsers take the SVG; the .ico is
+    for tools that only ask for /favicon.ico (Vercel's project avatar among
+    them), and iOS needs a PNG for the home screen. */}
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 {/* Discord reads this for its embed accent bar; harmless everywhere else. */}
 <meta name="theme-color" content="#0d1117" />
 
