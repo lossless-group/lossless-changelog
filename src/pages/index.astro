@@ -2,8 +2,8 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import EntryRow from "../components/EntryRow.astro";
 import LedgerStrip from "../components/LedgerStrip.astro";
-import ProjectRow from "../components/ProjectRow.astro";
-import { getRoots, getAllEntries, getSubtreeEntries, totals } from "../lib/streams";
+import ProjectTree from "../components/ProjectTree.astro";
+import { getRoots, getAllEntries, totals } from "../lib/streams";
 import { spanOf, colorFor } from "../lib/era";
 import ModelBand from "../components/ModelBand.astro";
 import { globalWeeks, globalTotals, ledgerScale } from "../lib/commits";
@@ -12,7 +12,7 @@ import LineBar from "../components/LineBar.astro";
 import ShareRow from "../components/ShareRow.astro";
 import { augmentationRate } from "../lib/models";
 import { GROUPS, groupOf, groupCounts } from "../lib/groups";
-import { days as fleetDays, focusTotals, dailyForSubtree } from "../lib/daily";
+import { days as fleetDays, focusTotals } from "../lib/daily";
 
 const roots = getRoots();
 const all = getAllEntries();
@@ -111,34 +111,7 @@ const fmt = (d: Date | null) =>
       <span class="mid">Cadence — entries above, commits below</span>
       <span class="cnt" title="Changelog entries, including sub-projects">Changelog Entries</span>
     </div>
-    <ol class="ledger-rows">
-      {roots.map((root) => (
-        <li class="root">
-          <ProjectRow stream={root} entries={getSubtreeEntries(root.slug)}
-                      days={dailyForSubtree(root)} span={span} scale={scale} count={root.totalCount} />
-          {root.children.length > 0 && (
-            <ul class="kids">
-              {root.children.map((child) => (
-                <li>
-                  <ProjectRow stream={child} entries={getSubtreeEntries(child.slug)}
-                              days={dailyForSubtree(child)} span={span} scale={scale} count={child.totalCount} kid />
-                  {child.children.length > 0 && (
-                    <ul class="kids kids--deep">
-                      {child.children.map((g) => (
-                        <li>
-                          <ProjectRow stream={g} entries={getSubtreeEntries(g.slug)}
-                                      days={dailyForSubtree(g)} span={span} scale={scale} count={g.totalCount} kid />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </li>
-      ))}
-    </ol>
+    <ProjectTree streams={roots} span={span} scale={scale} />
   </section>
 
   <section class="feed">
@@ -285,13 +258,6 @@ const fmt = (d: Date | null) =>
     .ledger-head { grid-template-columns: 1fr 4rem; }
     .ledger-head .mid { display: none; }
   }
-  .ledger-rows, .kids { list-style: none; margin: 0; padding: 0; }
-
-
-  /* Indentation encodes tree depth — the only thing carrying hierarchy here,
-     so it needs to be unmistakable rather than decorative. */
-  .kids { margin-left: 1.1rem; border-left: 1px solid var(--color-border); }
-  .kids--deep { margin-left: 0.9rem; }
 
   /* ── feed ── */
   /* ── group filter ── */

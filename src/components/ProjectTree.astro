@@ -1,0 +1,63 @@
+---
+/**
+ * The project ledger, nested by tree position, at any depth. A project with
+ * sub-projects is a <details>: clicking its row opens it, clicking its name
+ * still navigates. Collapsed by default, so the ledger opens on the top-level
+ * projects and each family unfolds on demand. Ported from the context-v-corpus
+ * splash's ProjectTree, which replaced a hand-nested, always-open list there
+ * too. Indentation still carries depth.
+ */
+import type { Stream } from "../lib/streams";
+import type { LedgerScale } from "./LedgerStrip.astro";
+import type { TimeSpan } from "../lib/era";
+import { getSubtreeEntries } from "../lib/streams";
+import { dailyForSubtree } from "../lib/daily";
+import ProjectRow from "./ProjectRow.astro";
+
+interface Props {
+  streams: Stream[];
+  span: TimeSpan;
+  scale?: LedgerScale;
+  depth?: number;
+}
+const { streams, span, scale, depth = 0 } = Astro.props;
+---
+
+<ul class:list={["ptree", depth > 0 && "ptree--kids"]}>
+  {streams.map((s) => {
+    const row = {
+      stream: s,
+      entries: getSubtreeEntries(s.slug),
+      days: dailyForSubtree(s),
+      span,
+      scale,
+      count: s.totalCount,
+      kid: depth > 0,
+    };
+    return (
+      <li>
+        {s.children.length > 0 ? (
+          <details class="pnode">
+            <summary>
+              <ProjectRow {...row} expandable />
+            </summary>
+            <Astro.self streams={s.children} span={span} scale={scale} depth={depth + 1} />
+          </details>
+        ) : (
+          <ProjectRow {...row} />
+        )}
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .ptree { list-style: none; margin: 0; padding: 0; }
+  /* Indentation encodes tree depth, the only thing carrying hierarchy here,
+     so it needs to be unmistakable rather than decorative. */
+  .ptree--kids { margin-left: 1.1rem; border-left: 1px solid var(--color-border); }
+  .pnode > summary { list-style: none; cursor: pointer; }
+  .pnode > summary::-webkit-details-marker { display: none; }
+  .pnode > summary:focus-visible { outline: 1px solid var(--color-primary); outline-offset: 2px; }
+  .pnode[open] > summary :global(.caret) { transform: rotate(90deg); }
+</style>

@@ -24,8 +24,10 @@ interface Props {
   scale?: LedgerScale;
   count: number;
   kid?: boolean;
+  /** Has sub-projects, so the row is a <details> summary (see ProjectTree). */
+  expandable?: boolean;
 }
-const { stream, entries, days, span, scale, count, kid = false } = Astro.props;
+const { stream, entries, days, span, scale, count, kid = false, expandable = false } = Astro.props;
 
 // A project's own mark, or — for Astro Knots sites only — the family mark.
 // See iconOrGroup for why that one group gets a fallback and the others do not.
@@ -34,10 +36,14 @@ const icon = iconOrGroup(stream.slug);
 
 <div class:list={["row", kid && "row--kid"]}>
   <span class="name">
+    <span class:list={["caret", !expandable && "caret--none"]} aria-hidden="true"></span>
     {icon
       ? <img class="mark" src={icon} alt="" width="15" height="15" loading="lazy" />
       : <span class="mark mark--none" aria-hidden="true"></span>}
     <a class="title" href={`/stream/${stream.slug}/`}>{stream.title}</a>
+    {expandable && (
+      <span class="kids-n" title={`${stream.children.length} sub-projects`}>{stream.children.length}</span>
+    )}
 
     <a class="ico" href={`https://github.com/${stream.repo}`} rel="noreferrer"
        aria-label={`${stream.title} on GitHub — ${stream.repo}`} title={stream.repo}>
@@ -115,7 +121,23 @@ const icon = iconOrGroup(stream.slug);
   /* Nested rows indent inside the parent's rule. This lives here rather than
      in the page: Astro scopes styles per component, so the page's `.kids > li
      > .row` never matched this element. */
-  .row--kid { color: var(--color-text-muted); padding-left: 0.9rem; }
+  .row--kid { color: var(--color-text-muted); padding-left: 0.4rem; }
+
+  /* Disclosure caret. Turns when its <details> opens (rule in ProjectTree).
+     Leaf rows keep an invisible one so titles stay aligned down the column. */
+  .caret {
+    width: 0; height: 0; flex: none; margin: 0 2px;
+    border-left: 5px solid var(--color-text-faint);
+    border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+    transition: transform 0.12s ease;
+  }
+  .caret--none { border-left-color: transparent; }
+  .kids-n {
+    flex: none;
+    font-family: var(--font-mono); font-size: 0.66rem; line-height: 1.4;
+    color: var(--color-text-faint);
+    border: 1px solid var(--color-border); border-radius: 999px; padding: 0 5px;
+  }
 
   .n {
     display: inline-flex; align-items: center; justify-content: flex-end;
@@ -172,7 +194,7 @@ const icon = iconOrGroup(stream.slug);
   .ico--site:hover,
   .ico--site:focus-visible { color: var(--color-warn); }
   @media (prefers-reduced-motion: reduce) {
-    .ico { transition: none; }
+    .ico, .caret { transition: none; }
   }
   @media (max-width: 640px) {
     .row { grid-template-columns: 1fr 4rem; }
