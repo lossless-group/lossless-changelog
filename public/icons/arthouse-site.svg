@@ -1,17 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Arthouse
-
-       A stand-in, not a brand. This project has no favicon in its own repo, so
-       the ledger draws one here rather than showing a hole or borrowing a mark
-       that means something else. Replace it by committing a favicon.svg
-       upstream — sync-icons prefers the real thing automatically.
-
-       Dark-native by construction: this site has one mode. The ground is a
-       shade above the page so the chip reads at 15px, and the hairline is 8%
-       white, which is the most a border can be here before it becomes the
-       thing you notice. -->
-  <rect width="64" height="64" rx="14" fill="#161b22"/>
-  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
-  <path d="M18 50V32a14 14 0 0 1 28 0v18" fill="none" stroke="#d9233b" stroke-width="5" stroke-linecap="round"/>
-  <path d="M13 50h38" stroke="#f07a88" stroke-width="4.5" stroke-linecap="round"/>
+  <title>Arthouse</title>
+  <!-- A gallery doorway: an arch over a threshold. First drawn as a stand-in
+       in lossless-changelog/src/marks (2026-08-21); adopted here 2026-11-22
+       with the same geometry, recoloured from this site's own tokens:
+       ink-plum tile, rose-dust arch, champagne threshold. -->
+  <rect width="64" height="64" rx="14" fill="#16101A"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#C9A87C" stroke-opacity="0.18"/>
+  <path d="M18 50V32a14 14 0 0 1 28 0v18" stroke="#C8918E" stroke-width="5" stroke-linecap="round"/>
+  <path d="M13 50h38" stroke="#C9A87C" stroke-width="4.5" stroke-linecap="round"/>
 </svg>
