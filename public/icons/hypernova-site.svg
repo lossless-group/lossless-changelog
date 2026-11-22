@@ -1,20 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Hypernova
-
-       A stand-in, not a brand. This project has no favicon in its own repo, so
-       the ledger draws one here rather than showing a hole or borrowing a mark
-       that means something else. Replace it by committing a favicon.svg
-       upstream — sync-icons prefers the real thing automatically.
-
-       Dark-native by construction: this site has one mode. The ground is a
-       shade above the page so the chip reads at 15px, and the hairline is 8%
-       white, which is the most a border can be here before it becomes the
-       thing you notice. -->
-  <rect width="64" height="64" rx="14" fill="#161b22"/>
-  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
-  <g stroke="#ffb84d" stroke-width="4.5" stroke-linecap="round">
-    <path d="M32 8v11M32 45v11M8 32h11M45 32h11"/>
-    <path d="M15 15l7.8 7.8M41.2 41.2L49 49M49 15l-7.8 7.8M22.8 41.2L15 49" stroke-opacity="0.75"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="367 -1 340 340">
+  <title>Hypernova</title>
+  <!-- The nova "o" lifted unchanged from trademark__Hypernova (same transforms
+       and path data), cropped square. A teal ring echoes appIcon__Hypernova.png
+       so the navy disc stays visible on dark backgrounds. -->
+  <g transform="matrix(0.996675,-0.0814753,0.0814753,0.996675,-12.1913,44.3285)">
+    <ellipse cx="537.073" cy="171.548" rx="63.628" ry="50.291" style="fill:rgb(33,46,65);stroke:rgb(0,204,202);stroke-width:9;"/>
   </g>
-  <circle cx="32" cy="32" r="7" fill="#ffdca8"/>
+  <g transform="matrix(0.991241,-0.132066,0.10355,0.777209,190.358,56.3106)">
+    <path d="M313.132,228.539C305.844,221.509 301.647,209.879 302.931,197.597C303.887,188.439 307.709,180.649 313.105,175.475C315.029,172.784 317.86,167.692 319.875,159.141C320.073,158.305 320.381,156.673 320.381,156.673C320.381,156.673 327.151,-8.278 327.728,-11.169C327.911,-12.087 328.051,-11.956 328.194,-11.967C328.337,-11.978 328.156,-12.036 328.586,-11.234C329.736,-9.088 337.373,156.538 337.157,156.541C337.157,156.541 337.168,157.534 337.236,158.02C338.274,165.465 342.39,172.028 344.829,175.368C352.227,182.379 356.503,194.098 355.209,206.48C354.191,216.227 349.927,224.424 343.974,229.568C342.135,232.483 339.807,237.287 338.087,244.648C337.892,245.485 337.586,247.118 337.586,247.118C337.586,247.118 331.129,412.089 330.557,414.983C330.376,415.9 330.235,415.77 330.092,415.782C329.949,415.793 330.131,415.851 329.699,415.05C328.545,412.907 320.594,247.306 320.811,247.302C320.811,247.302 320.798,246.309 320.729,245.823C319.681,238.411 315.581,231.883 313.132,228.539Z" style="fill:rgb(0,204,202);"/>
+  </g>
 </svg>

@@ -1,17 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Dark Matter
-
-       A stand-in, not a brand. This project has no favicon in its own repo, so
-       the ledger draws one here rather than showing a hole or borrowing a mark
-       that means something else. Replace it by committing a favicon.svg
-       upstream — sync-icons prefers the real thing automatically.
-
-       Dark-native by construction: this site has one mode. The ground is a
-       shade above the page so the chip reads at 15px, and the hairline is 8%
-       white, which is the most a border can be here before it becomes the
-       thing you notice. -->
-  <rect width="64" height="64" rx="14" fill="#161b22"/>
-  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
-  <circle cx="32" cy="32" r="16" fill="none" stroke="#9138e0" stroke-width="5"/>
-  <circle cx="32" cy="32" r="6.5" fill="#161b22"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-133.601,-82.3837)">
+        <g id="Artboard2" transform="matrix(1.42079,0,0,1.77219,132.635,-64.8183)">
+            <rect x="0.68" y="83.062" width="84.46" height="67.713" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="0.68" y="83.062" width="84.46" height="67.713"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g transform="matrix(0.731751,0,0,0.575661,-0.575396,33.9307)">
+                    <path d="M117.137,114.754L117.137,173.567C117.137,189.797 104.208,202.973 88.282,202.973L30.571,202.973C14.645,202.973 1.716,189.797 1.716,173.567L1.716,114.754C1.716,98.524 14.645,85.348 30.571,85.348L88.282,85.348C104.208,85.348 117.137,98.524 117.137,114.754Z" style="fill:rgb(12,7,27);"/>
+                </g>
+                <g id="appIcon__Dark-Matter-Bio" transform="matrix(1.29654,0,0,1.03945,15.3964,82.6061)">
+                    <g transform="matrix(1,0,0,1,0,-4.54286)">
+                        <path d="M20.922,24.26L20.809,24.457L21.57,24.893L21.683,24.696L20.922,24.259L20.922,24.26M31.242,54.696C28.097,56.056 24.706,56.756 21.279,56.751C17.741,56.751 14.372,56.019 11.317,54.696C9.444,56.516 7.357,58.101 5.102,59.418C10.145,62.364 15.898,63.877 21.738,63.795C27.267,63.715 32.683,62.207 37.458,59.418C35.203,58.101 33.115,56.516 31.242,54.696" style="fill:rgb(163,142,226);fill-rule:nonzero;"/>
+                    </g>
+                    <g transform="matrix(0.892857,0,0,0.892857,2.28,4.80725)">
+                        <path d="M20.97,24.887C17.022,27.25 13.621,30.425 10.99,34.2C7.583,35.933 3.822,36.857 0,36.901C1.981,33.554 4.719,30.717 7.993,28.618C12.507,28.215 16.888,26.877 20.858,24.69L21.152,24.521L21.152,24.203L21.151,24.201C21.071,19.661 20.035,15.189 18.111,11.076C18.289,7.188 19.374,3.394 21.279,0C23.175,3.378 24.259,7.151 24.445,11.02C22.496,15.164 21.451,19.676 21.378,24.255L21.378,24.39L21.606,24.259C21.606,24.259 21.606,24.259 21.607,24.259C25.51,21.913 28.88,18.771 31.493,15.04C34.92,13.282 38.709,12.344 42.56,12.3C40.59,15.628 37.872,18.453 34.621,20.549L34.62,20.549C30.057,20.945 25.628,22.296 21.62,24.513L21.378,24.652L21.378,24.946L21.379,24.948C21.456,29.518 22.501,34.02 24.447,38.156C24.265,42.034 23.18,45.817 21.279,49.202C19.369,45.8 18.284,41.997 18.11,38.1C20.031,33.996 21.067,29.533 21.151,25.002L21.152,25L21.152,24.782L20.97,24.887ZM20.91,24.513C16.912,22.301 12.495,20.951 7.943,20.552C4.691,18.456 1.971,15.63 0,12.3C3.833,12.344 7.605,13.274 11.02,15.017C13.655,18.786 17.06,21.954 21.01,24.31L21.133,24.516L20.91,24.513ZM31.524,34.177C28.891,30.405 25.488,27.234 21.539,24.875L21.426,24.685L21.671,24.69C25.651,26.882 30.045,28.221 34.571,28.62C37.843,30.719 40.579,33.555 42.559,36.901C38.72,36.857 34.943,35.924 31.524,34.177Z" style="fill:rgb(163,142,226);"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
 </svg>

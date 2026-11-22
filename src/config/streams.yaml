@@ -23,6 +23,11 @@
 #   icon    optional. Path, relative to the repo root, of the project's mark.
 #           Only needed when the mark is NOT at one of the paths sync-icons.mjs
 #           already looks in. Setting it skips every heuristic in that script.
+#   icon_from optional. Slug of another stream whose mark this one wears —
+#           for a child or sibling that has no brand of its own (an MCP, a
+#           player package, an engine behind a product). Resolved after every
+#           own-repo source, so the moment the repo draws its own mark, that
+#           one wins. Ignored when `icon` is set.
 #   splash  optional. The project's own splash page (GitHub Pages) — a page
 #           ABOUT the work, generated from changelog/ and context-v/.
 #   website optional. The live product on its real domain. A different thing
@@ -69,6 +74,7 @@ streams:
     shape: root-dir
     kind: content
     title: Lossless Content                     # n=26
+    icon_from: lossless-site
     # A 645k-line prose corpus, so `kind: content`: counting it as code would
     # swamp every real codebase in the tree.
     #
@@ -191,6 +197,9 @@ streams:
     shape: root-dir
     website: https://hypernova.capital
     title: Hypernova                            # n=6
+    icon: public/trademarks/favicon__Hypernova.svg
+    # Cut from trademark__Hypernova (its "o" is the nova mark) on 2026-11-22;
+    # the repo's only appIcon was a PNG.
 
   - slug: twf-site
     repo: lossless-group/the-water-foundation-site
@@ -239,6 +248,8 @@ streams:
     parent: astro-knots
     shape: root-dir
     title: Cogs                                 # n=2
+    icon: public/favicon__Coglets.svg
+    # The gear-C from public/coglets-logo.svg, cut out on 2026-11-22.
 
   - slug: mpstaton-site
     repo: lossless-group/mpstaton-site
@@ -275,6 +286,9 @@ streams:
     parent: astro-knots
     shape: root-dir                             # was a submodule (changelog_matter-site) until 2026-11-01
     title: Dark Matter                          # n=30
+    icon: public/trademarks/appIcon__Dark-Matter--Dark-Mode.svg
+    # The repo has a full appIcon set but no favicon, so the search never
+    # found it and the ledger showed a stand-in from src/marks/ instead.
 
 
   # Added 2026-09-24. Five sites that had been shipping changelog entries since
@@ -340,6 +354,7 @@ streams:
     parent: astro-knots
     shape: root-dir
     title: Astro Knots MCP                      # n=3
+    icon_from: astro-knots
 
   # ── ai-labs children ───────────────────────────────────────────────────────
   - slug: augment-it
@@ -449,6 +464,7 @@ streams:
     shape: submodule-ref
     splash: https://lossless-group.github.io/investment-memo-orchestrator/
     title: Investment Memo Orchestrator         # n=71
+    icon_from: memopop-ai
 
   - slug: memopop-native
     repo: lossless-group/memopop-ai
@@ -486,6 +502,7 @@ streams:
     parent: dididecks-ai
     shape: root-dir
     title: DidiDecks Player                     # n=3
+    icon_from: dididecks-ai
 
   # ── content-farm plugin modules ────────────────────────────────────────────
   - slug: perplexed

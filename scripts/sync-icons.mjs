@@ -203,6 +203,28 @@ for (const s of streams) {
 }
 
 /**
+ * Borrowed marks: `icon_from: <slug>` for a child or sibling with no brand of
+ * its own (an MCP server, a player package, the engine behind a product). Runs
+ * after the own-repo search, so a mark the project later draws for itself wins
+ * without anyone editing the manifest. Copies the lender's already-processed
+ * file, so ink and validation are inherited too. One hop only: a lender that
+ * itself borrows is not followed.
+ */
+const borrowed = [];
+for (const s of streams) {
+  if (map[s.slug] || !s.icon_from) continue;
+  if (!map[s.icon_from]) { missing.push(`${s.slug} (icon_from ${s.icon_from} has no mark)`); continue; }
+  writeFileSync(join(OUT_DIR, `${s.slug}.svg`), readFileSync(join(OUT_DIR, `${s.icon_from}.svg`)));
+  map[s.slug] = `/icons/${s.slug}.svg`;
+  borrowed.push(`${s.slug}←${s.icon_from}`);
+}
+for (const b of borrowed) {
+  const i = missing.indexOf(b.split("←")[0]);
+  if (i !== -1) missing.splice(i, 1);
+}
+if (borrowed.length) console.log(`\nborrowed (icon_from): ${borrowed.join(", ")}`);
+
+/**
  * Marks drawn here, for projects that never drew their own.
  *
  * Strictly a placeholder tier: anything in src/marks/ loses the moment a real

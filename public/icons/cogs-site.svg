@@ -1,19 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Cogs
-
-       A stand-in, not a brand. This project has no favicon in its own repo, so
-       the ledger draws one here rather than showing a hole or borrowing a mark
-       that means something else. Replace it by committing a favicon.svg
-       upstream — sync-icons prefers the real thing automatically.
-
-       Dark-native by construction: this site has one mode. The ground is a
-       shade above the page so the chip reads at 15px, and the hairline is 8%
-       white, which is the most a border can be here before it becomes the
-       thing you notice. -->
-  <rect width="64" height="64" rx="14" fill="#161b22"/>
-  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
-  <g stroke="#04e5e5" stroke-width="4.5" stroke-linecap="round">
-    <circle cx="32" cy="32" r="12" fill="none"/>
-    <path d="M32 12v6M32 46v6M12 32h6M46 32h6M18 18l4.2 4.2M41.8 41.8L46 46M46 18l-4.2 4.2M22.2 41.8L18 46"/>
+<svg color="#e2f2f4" xmlns="http://www.w3.org/2000/svg" viewBox="0 2 82 82">
+  <title>Coglets</title>
+  <!-- The gear-C from coglets-logo.svg, unchanged path data, without the
+       live-text "oglets". Drawn in currentColor so whatever renders it sets
+       the ink. The centre hole is an even-odd subpath of the gear (the C's
+       outline doesn't reach the centre), so it is a real cutout, not a white
+       dot, and needs no <mask>. -->
+  <g fill="currentColor">
+    <path fill-rule="evenodd" d="M25 8 L35 8 L37 3 L43 3 L45 8 L55 8 L55 18 L60 20 L60 26 L55 28 L55 38 L60 40 L60 46 L55 48 L55 58 L60 60 L60 66 L55 68 L55 78 L45 78 L43 83 L37 83 L35 78 L25 78 L25 68 L20 66 L20 60 L25 58 L25 48 L20 46 L20 40 L25 38 L25 28 L20 26 L20 20 L25 18 Z M33 43 A8 8 0 1 0 49 43 A8 8 0 1 0 33 43 Z"/>
+    <path d="M20 20 Q20 8 32 8 L50 8 Q62 8 62 20 L62 25 L50 25 Q45 20 40 20 L32 20 Q27 20 27 25 L27 61 Q27 66 32 66 L40 66 Q45 66 50 61 L50 56 L62 56 L62 61 Q62 78 50 78 L32 78 Q20 78 20 66 L20 20 Z"/>
   </g>
 </svg>
